@@ -3553,4 +3553,521 @@ body {
   height: 13px;
 }
 
+/* --------------------------------------------------------------------------
+   TOAST NOTIFICATIONS
+   -------------------------------------------------------------------------- */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  z-index: 99999;
+  pointer-events: none;
+  max-width: 380px;
+  width: calc(100% - 3rem);
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateY(1.2rem) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast.toast-fadeout {
+  opacity: 0;
+  transform: translateY(0.75rem) scale(0.95);
+}
+
+.toast-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.toast-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toast-msg {
+  flex: 1;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  padding: 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+.toast-close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.toast-success {
+  background: #064e3b;
+  color: #ecfdf5;
+  border: 1px solid #059669;
+}
+
+.toast-error {
+  background: #7f1d1d;
+  color: #fef2f2;
+  border: 1px solid #dc2626;
+}
+
+.toast-warning {
+  background: #78350f;
+  color: #fffbeb;
+  border: 1px solid #d97706;
+}
+
+.toast-info {
+  background: #1e3a8a;
+  color: #eff6ff;
+  border: 1px solid #3b82f6;
+}
+
+/* --------------------------------------------------------------------------
+   EXPORT DROPDOWN MENU
+   -------------------------------------------------------------------------- */
+.export-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-elevated);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-export:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-600);
+  transform: translateY(-1px);
+}
+
+.btn-export .chevron-down {
+  width: 13px;
+  height: 13px;
+  margin-left: -0.1rem;
+  transition: transform var(--transition-fast);
+}
+
+.export-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 215px;
+  background: var(--bg-surface-elevated, var(--bg-card));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg), 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 1000;
+  animation: fadeIn 0.18s ease;
+}
+
+.export-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.export-menu-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--color-primary-600);
+}
+
+[data-theme="dark"] .export-menu-item:hover {
+  color: var(--color-primary-400);
+}
+
+.export-menu-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.export-menu-item:hover svg {
+  color: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   SKELETON LOADER (Animated Grey Blocks)
+   -------------------------------------------------------------------------- */
+.hidden-during-load {
+  display: none !important;
+}
+
+.skeleton-loader-container {
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.skeleton-block {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    rgba(156, 163, 175, 0.15) 0%,
+    rgba(156, 163, 175, 0.32) 50%,
+    rgba(156, 163, 175, 0.15) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+[data-theme="dark"] .skeleton-block {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 45%;
+}
+
+.skeleton-subtitle {
+  height: 16px;
+  width: 65%;
+  margin-top: -0.5rem;
+}
+
+.skeleton-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.skeleton-line {
+  height: 14px;
+}
+
+.w-100 { width: 100%; }
+.w-95 { width: 95%; }
+.w-90 { width: 90%; }
+.w-85 { width: 85%; }
+.w-80 { width: 80%; }
+.w-70 { width: 70%; }
+.w-60 { width: 60%; }
+
+.skeleton-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.skeleton-card {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-elevated, var(--bg-card));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-badge {
+  height: 18px;
+  width: 50px;
+  border-radius: var(--radius-sm);
+}
+
+/* Quiz Card Header Flex & Copy Buttons */
+.quiz-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.quiz-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.btn-copy-question {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.725rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-copy-question:hover {
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-400);
+}
+
+.btn-copy-question svg {
+  width: 13px;
+  height: 13px;
+}
+
+.fc-btn-copy {
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+.fc-btn-copy:hover {
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-400);
+}
+
+/* --------------------------------------------------------------------------
+   PRINT VIEW (@media print)
+   Showing summary, quiz with answers, and flashcards cleanly on paper
+   -------------------------------------------------------------------------- */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+  }
+
+  .app-header,
+  .bg-glow-orb,
+  .settings-panel,
+  .study-input-section,
+  .history-section,
+  .app-footer,
+  .tabs-nav,
+  .tabs-header-actions,
+  .summary-header-actions,
+  .quiz-header-actions,
+  .quiz-banner-toolbar,
+  .flashcard-actions,
+  .flashcard-study-controls,
+  .toast-container,
+  .btn,
+  .action-btn-sm,
+  .action-btn-xs,
+  .btn-copy-term,
+  .btn-copy-question,
+  .fc-btn,
+  #clear-scores-btn,
+  #error-box,
+  #loading-indicator,
+  #skeleton-loader {
+    display: none !important;
+  }
+
+  .app-layout,
+  .main-content,
+  .output-tabs-section,
+  .output-card,
+  .tabs-body {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Show all tab panels in print view */
+  .tab-panel {
+    display: block !important;
+    page-break-after: always;
+    margin-bottom: 2rem !important;
+  }
+
+  .panel-header {
+    border-bottom: 2px solid #333 !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  .panel-title {
+    color: #000000 !important;
+    font-size: 16pt !important;
+  }
+
+  .panel-subtitle {
+    color: #555555 !important;
+  }
+
+  /* Summary clean print */
+  .summary-rendered-article {
+    color: #111827 !important;
+  }
+
+  /* Quiz with questions and answers clearly marked */
+  .quiz-card {
+    page-break-inside: avoid;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    margin-bottom: 1.25rem !important;
+    background: #ffffff !important;
+    padding: 1rem !important;
+  }
+
+  .quiz-option-btn {
+    border: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    cursor: default !important;
+  }
+
+  .quiz-explanation-box {
+    display: block !important;
+    background: #f3f4f6 !important;
+    border-left: 3px solid #10b981 !important;
+    color: #111827 !important;
+    margin-top: 0.5rem !important;
+  }
+
+  /* Flashcards clean print layout */
+  .flashcards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  .flashcard-card-container {
+    page-break-inside: avoid;
+  }
+
+  .flashcard-item {
+    height: auto !important;
+    perspective: none !important;
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .flashcard-inner {
+    transform: none !important;
+    position: static !important;
+  }
+
+  .flashcard-face {
+    position: static !important;
+    transform: none !important;
+    backface-visibility: visible !important;
+    padding: 0.75rem !important;
+  }
+
+  .flashcard-back {
+    border-top: 1px dashed #d1d5db !important;
+  }
+
+  .flashcard-hint {
+    display: none !important;
+  }
+
+  /* Glossary clean print layout */
+  .glossary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .glossary-card {
+    page-break-inside: avoid;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+}
+
+
 

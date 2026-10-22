@@ -426,7 +426,7 @@
               </button>
             </div>
 
-            <!-- Regenerate Button Next to Results Tabs -->
+            <!-- Results Header Actions: Regenerate & Export Menu -->
             <div class="tabs-header-actions">
               <button type="button" id="regenerate-btn" class="action-btn-sm btn-regenerate" title="Regenerate this study material with a different variation" aria-label="Regenerate with different variation">
                 <svg class="icon-sm spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -434,11 +434,84 @@
                 </svg>
                 <span>Regenerate</span>
               </button>
+
+              <!-- Export Menu Dropdown -->
+              <div class="export-dropdown-wrapper">
+                <button type="button" id="export-menu-btn" class="action-btn-sm btn-export" aria-haspopup="true" aria-expanded="false" title="Export study pack in multiple formats" aria-label="Export study pack">
+                  <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>Export</span>
+                  <svg class="icon-xs chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+
+                <div class="export-dropdown-menu hidden" id="export-dropdown-menu" role="menu" aria-label="Export options">
+                  <button type="button" role="menuitem" id="export-print-btn" class="export-menu-item">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                      <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    <span>Print View (Paper/PDF)</span>
+                  </button>
+                  <button type="button" role="menuitem" id="export-csv-cards-btn" class="export-menu-item">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="8" y1="13" x2="16" y2="13"></line>
+                      <line x1="8" y1="17" x2="16" y2="17"></line>
+                    </svg>
+                    <span>Download Flashcards (CSV)</span>
+                  </button>
+                  <button type="button" role="menuitem" id="export-json-btn" class="export-menu-item">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="16 18 22 12 16 6"></polyline>
+                      <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    <span>Download Full Pack (.json)</span>
+                  </button>
+                  <button type="button" role="menuitem" id="export-txt-btn" class="export-menu-item">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>Download Full Pack (.txt)</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
 
           <div class="tabs-body">
+
+            <!-- Skeleton Loader (Animated Grey Blocks shown while waiting for AI) -->
+            <div id="skeleton-loader" class="skeleton-loader-container hidden" aria-hidden="true" role="status" aria-label="Synthesizing study materials">
+              <div class="skeleton-block skeleton-title"></div>
+              <div class="skeleton-block skeleton-subtitle"></div>
+              <div class="skeleton-text-group">
+                <div class="skeleton-block skeleton-line w-100"></div>
+                <div class="skeleton-block skeleton-line w-90"></div>
+                <div class="skeleton-block skeleton-line w-95"></div>
+                <div class="skeleton-block skeleton-line w-80"></div>
+              </div>
+              <div class="skeleton-cards-grid">
+                <div class="skeleton-card">
+                  <div class="skeleton-block skeleton-badge"></div>
+                  <div class="skeleton-block skeleton-line w-85"></div>
+                  <div class="skeleton-block skeleton-line w-60"></div>
+                </div>
+                <div class="skeleton-card">
+                  <div class="skeleton-block skeleton-badge"></div>
+                  <div class="skeleton-block skeleton-line w-80"></div>
+                  <div class="skeleton-block skeleton-line w-70"></div>
+                </div>
+              </div>
+            </div>
 
 
             <div id="tab-summary-panel" class="tab-panel active" role="tabpanel" aria-labelledby="tab-summary-btn">

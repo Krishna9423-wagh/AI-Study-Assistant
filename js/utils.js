@@ -75,19 +75,20 @@ async function copyToClipboard(text) {
 }
 
 /**
- * Triggers a client-side download of text content as a .txt file.
+ * Triggers a client-side download of text content as a file.
  * @param {string} filename - The name of the file (e.g. "study-summary.txt")
  * @param {string} text - The text content to write into the file
+ * @param {string} [mimeType='text/plain;charset=utf-8'] - MIME type
  */
-function downloadTextFile(filename, text) {
+function downloadTextFile(filename, text, mimeType = 'text/plain;charset=utf-8') {
   if (!text) return;
 
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const blob = new Blob([text], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
 
   anchor.href = url;
-  anchor.download = filename || 'study-summary.txt';
+  anchor.download = filename || 'download.txt';
   anchor.style.display = 'none';
 
   document.body.appendChild(anchor);
@@ -179,6 +180,72 @@ function shuffleQuestionOptions(question) {
   };
 }
 
+/**
+ * Escapes a cell value for CSV (double internal quotes, wraps in quotes).
+ * @param {string} val
+ * @returns {string} Escaped CSV string
+ */
+function escapeCsvValue(val) {
+  if (val === null || val === undefined) return '""';
+  const str = String(val).replace(/"/g, '""');
+  return `"${str}"`;
+}
+
+/**
+ * Displays a toast notification in the bottom-right corner.
+ * Auto-fades out and dismisses after duration (default 3 seconds).
+ *
+ * @param {string} message - Text message to show
+ * @param {'success'|'error'|'info'|'warning'} [type='success'] - Toast style
+ * @param {number} [duration=3000] - Duration in milliseconds
+ */
+function showToast(message, type = 'success', duration = 3000) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute('role', 'status');
+
+  const icons = {
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+    error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+    warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+  };
+
+  const iconSvg = icons[type] || icons.info;
+  toast.innerHTML = `
+    <span class="toast-icon">${iconSvg}</span>
+    <span class="toast-msg">${escapeHtml(message)}</span>
+    <button type="button" class="toast-close" aria-label="Dismiss message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  `;
+
+  const closeBtn = toast.querySelector('.toast-close');
+  const dismiss = () => {
+    toast.classList.add('toast-fadeout');
+    setTimeout(() => {
+      if (toast.parentElement) toast.parentElement.removeChild(toast);
+    }, 280);
+  };
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', dismiss);
+  }
+
+  container.appendChild(toast);
+  setTimeout(dismiss, duration);
+}
+
 // Global namespace exposure
 window.StudyUtils = {
   escapeHtml,
@@ -189,4 +256,6 @@ window.StudyUtils = {
   debounce,
   shuffleArray,
   shuffleQuestionOptions,
+  escapeCsvValue,
+  showToast,
 };

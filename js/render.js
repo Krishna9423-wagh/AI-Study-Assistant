@@ -342,14 +342,40 @@ function renderQuiz(quizQuestions, container, meta = {}) {
     card.className = 'quiz-card';
     card.id = `quiz-card-${qIndex}`;
 
-    // Question Header
+    // Question Header with number, status pill, and copy button
     const cardHeader = document.createElement('div');
     cardHeader.className = 'quiz-card-header';
     cardHeader.innerHTML = `
-      <span class="quiz-question-number">Question ${qIndex + 1} of ${total}</span>
-      <span class="quiz-status-pill pending" id="pill-${qIndex}">Unanswered</span>
+      <div class="quiz-card-header-left">
+        <span class="quiz-question-number">Question ${qIndex + 1} of ${total}</span>
+        <span class="quiz-status-pill pending" id="pill-${qIndex}">Unanswered</span>
+      </div>
+      <button type="button" class="btn-copy-question action-btn-xs" title="Copy question and options" aria-label="Copy question ${qIndex + 1}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span>Copy</span>
+      </button>
     `;
     card.appendChild(cardHeader);
+
+    // Bind copy handler for this quiz question
+    const copyQBtn = cardHeader.querySelector('.btn-copy-question');
+    if (copyQBtn) {
+      copyQBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const letters = ['A', 'B', 'C', 'D'];
+        const optionsText = item.options.map((opt, i) => `${letters[i] || i + 1}) ${opt}`).join('\n');
+        const textToCopy = `Question ${qIndex + 1}: ${item.question}\n\nOptions:\n${optionsText}\n\nCorrect Answer: ${letters[item.answer] || ''}) ${item.options[item.answer]}\nExplanation: ${item.explanation || ''}`;
+        if (window.StudyUtils && window.StudyUtils.copyToClipboard) {
+          const ok = await window.StudyUtils.copyToClipboard(textToCopy);
+          if (ok && window.StudyUtils.showToast) {
+            window.StudyUtils.showToast(`Quiz question #${qIndex + 1} copied!`, 'success');
+          }
+        }
+      });
+    }
 
     // Question Prompt
     const questionTitle = document.createElement('h4');
@@ -1058,12 +1084,34 @@ function renderFlashcards(flashcards, container, sessionId = '') {
           </svg>
           <span>Known</span>
         </button>
+        <button type="button" class="fc-btn fc-btn-copy" id="btn-copy-card-${originalIdx}" title="Copy flashcard front and back" aria-label="Copy card ${displayIndex + 1}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span>Copy</span>
+        </button>
       `;
 
       const btnKnown = actionsEl.querySelector(`#btn-known-${originalIdx}`);
       const btnNotKnown = actionsEl.querySelector(`#btn-not-known-${originalIdx}`);
+      const btnCopyCard = actionsEl.querySelector(`#btn-copy-card-${originalIdx}`);
       const badgeFront = cardEl.querySelector(`#fc-badge-front-${originalIdx}`);
       const badgeBack = cardEl.querySelector(`#fc-badge-back-${originalIdx}`);
+
+      // Copy handler for single flashcard
+      if (btnCopyCard) {
+        btnCopyCard.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const textToCopy = `Front: ${card.front}\nBack: ${card.back}`;
+          if (window.StudyUtils && window.StudyUtils.copyToClipboard) {
+            const ok = await window.StudyUtils.copyToClipboard(textToCopy);
+            if (ok && window.StudyUtils.showToast) {
+              window.StudyUtils.showToast(`Flashcard #${displayIndex + 1} copied!`, 'success');
+            }
+          }
+        });
+      }
 
       /**
        * Applies visual state to the card according to status ('known' | 'not-known' | null).

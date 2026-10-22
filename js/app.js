@@ -142,6 +142,12 @@ const FAKE_AI_RESPONSE = {
   ]
 };
 
+// Global state tracking the current active study kit (for export and Q&A)
+let currentStudyKit = FAKE_AI_RESPONSE;
+
+// Global state tracking the current session title (for export filenames)
+let currentSessionTitle = 'Photosynthesis Study Kit';
+
 // Global state tracking the current active summary text (for Copy / Download)
 let currentSummaryText = '';
 
@@ -155,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTabSwitching();
   initCharacterCounter();
   initFileUpload();
+  initExportMenu();
   initErrorDismissal();
   initGenerateHandler();
   initRegenerateHandler();
@@ -535,11 +542,13 @@ function initGenerateHandler() {
       // 5. Parse and validate JSON (strips ```json code fences and verifies schema + question count)
       const studyKit = window.StudyParser.parseStudyKitResponse(rawText, questionCount);
 
-      // 6. Update current active summary text for Copy/Download
+      // 6. Update current active summary text for Copy/Download and set active study kit
       currentSummaryText = studyKit.summary || '';
+      currentStudyKit = studyKit;
+      const sessionTitle = extractSessionTitle(content, studyKit);
+      currentSessionTitle = sessionTitle;
 
       // 7. Save successful result to history in localStorage
-      const sessionTitle = extractSessionTitle(content, studyKit);
       const savedItem = window.StudyStorage.saveHistoryItem({
         title: sessionTitle,
         notes: content,
@@ -610,6 +619,8 @@ function extractSessionTitle(content, studyKit) {
  */
 function setWorkingState(isWorking, btn, loader, error) {
   btn.disabled = isWorking;
+  const skeletonLoader = document.getElementById('skeleton-loader');
+  const tabPanels = document.querySelectorAll('.tabs-body [role="tabpanel"]');
 
   if (isWorking) {
     btn.dataset.originalHtml = btn.innerHTML;
@@ -623,11 +634,15 @@ function setWorkingState(isWorking, btn, loader, error) {
 
     if (loader) loader.classList.remove('hidden');
     if (error) error.classList.add('hidden');
+    if (skeletonLoader) skeletonLoader.classList.remove('hidden');
+    tabPanels.forEach((p) => p.classList.add('hidden-during-load'));
   } else {
     if (btn.dataset.originalHtml) {
       btn.innerHTML = btn.dataset.originalHtml;
     }
     if (loader) loader.classList.add('hidden');
+    if (skeletonLoader) skeletonLoader.classList.add('hidden');
+    tabPanels.forEach((p) => p.classList.remove('hidden-during-load'));
   }
 }
 
@@ -992,6 +1007,189 @@ function initSummaryActions() {
   });
 }
 
+/**
+ * Downloads flashcards as a properly quoted CSV file (front, back).
+ * @param {Array<Object>} flashcards
+ * @param {string} [title='flashcards']
+ */
+function exportFlashcardsCSV(flashcards, title = 'flashcards') {
+  if (!Array.isArray(flashcards) || flashcards.length === 0) {
+    if (window.StudyUtils?.showToast) {
+      window.StudyUtils.showToast('No flashcards available to export.', 'warning');
+    }
+    return;
+  }
+
+  const lines = ['"front","back"'];
+  flashcards.forEach((card) => {
+    const frontEscaped = window.StudyUtils ? window.StudyUtils.escapeCsvValue(card.front || '') : `"${(card.front || '').replace(/"/g, '""')}"`;
+    const backEscaped = window.StudyUtils ? window.StudyUtils.escapeCsvValue(card.back || '') : `"${(card.back || '').replace(/"/g, '""')}"`;
+    lines.push(`${frontEscaped},${backEscaped}`);
+  });
+
+  const csvContent = lines.join('\n');
+  const safeTitle = (title || 'flashcards').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  window.StudyUtils.downloadTextFile(`${safeTitle}-flashcards.csv`, csvContent, 'text/csv;charset=utf-8');
+  if (window.StudyUtils?.showToast) {
+    window.StudyUtils.showToast('Flashcards downloaded as CSV!', 'success');
+  }
+}
+
+/**
+ * Downloads the full study pack as a formatted .json file.
+ * @param {Object} studyKit
+ * @param {string} [title='study-pack']
+ */
+function exportStudyPackJson(studyKit, title = 'study-pack') {
+  if (!studyKit) {
+    if (window.StudyUtils?.showToast) {
+      window.StudyUtils.showToast('No study pack available to export.', 'warning');
+    }
+    return;
+  }
+  const jsonContent = JSON.stringify(studyKit, null, 2);
+  const safeTitle = (title || 'study-pack').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  window.StudyUtils.downloadTextFile(`${safeTitle}.json`, jsonContent, 'application/json;charset=utf-8');
+  if (window.StudyUtils?.showToast) {
+    window.StudyUtils.showToast('Study pack downloaded as JSON!', 'success');
+  }
+}
+
+/**
+ * Downloads the full study pack as a structured .txt file.
+ * @param {Object} studyKit
+ * @param {string} [title='study-pack']
+ */
+function exportStudyPackTxt(studyKit, title = 'study-pack') {
+  if (!studyKit) {
+    if (window.StudyUtils?.showToast) {
+      window.StudyUtils.showToast('No study pack available to export.', 'warning');
+    }
+    return;
+  }
+
+  let out = `================================================================================\n`;
+  out += `STUDY PACK: ${(title || 'STUDY PACK').toUpperCase()}\n`;
+  out += `Generated by AI Study Assistant • ${new Date().toLocaleDateString()}\n`;
+  out += `================================================================================\n\n`;
+
+  if (studyKit.summary) {
+    out += `--- EXECUTIVE SUMMARY ---\n\n`;
+    out += `${studyKit.summary.trim()}\n\n`;
+  }
+
+  if (Array.isArray(studyKit.quiz) && studyKit.quiz.length > 0) {
+    out += `--- PRACTICE QUIZ (${studyKit.quiz.length} Questions) ---\n\n`;
+    const letters = ['A', 'B', 'C', 'D'];
+    studyKit.quiz.forEach((q, idx) => {
+      out += `Q${idx + 1}: ${q.question}\n`;
+      if (Array.isArray(q.options)) {
+        q.options.forEach((opt, oIdx) => {
+          out += `  ${letters[oIdx] || oIdx + 1}) ${opt}\n`;
+        });
+        out += `  Answer: ${letters[q.answer] || q.answer + 1}) ${q.options[q.answer]}\n`;
+      }
+      if (q.explanation) {
+        out += `  Explanation: ${q.explanation}\n`;
+      }
+      out += `\n`;
+    });
+  }
+
+  if (Array.isArray(studyKit.flashcards) && studyKit.flashcards.length > 0) {
+    out += `--- FLASHCARDS (${studyKit.flashcards.length} Cards) ---\n\n`;
+    studyKit.flashcards.forEach((card, idx) => {
+      out += `Card #${idx + 1}:\n`;
+      out += `  Front: ${card.front}\n`;
+      out += `  Back:  ${card.back}\n\n`;
+    });
+  }
+
+  if (Array.isArray(studyKit.glossary) && studyKit.glossary.length > 0) {
+    out += `--- GLOSSARY (${studyKit.glossary.length} Key Terms) ---\n\n`;
+    studyKit.glossary.forEach((item, idx) => {
+      out += `#${idx + 1} ${item.term}: ${item.definition}\n\n`;
+    });
+  }
+
+  const safeTitle = (title || 'study-pack').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  window.StudyUtils.downloadTextFile(`${safeTitle}.txt`, out, 'text/plain;charset=utf-8');
+  if (window.StudyUtils?.showToast) {
+    window.StudyUtils.showToast('Study pack downloaded as TXT!', 'success');
+  }
+}
+
+/**
+ * Initializes the Export dropdown menu and options: Print, CSV, JSON, and TXT.
+ */
+function initExportMenu() {
+  const exportBtn = document.getElementById('export-menu-btn');
+  const exportDropdown = document.getElementById('export-dropdown-menu');
+  const printBtn = document.getElementById('export-print-btn');
+  const csvBtn = document.getElementById('export-csv-cards-btn');
+  const jsonBtn = document.getElementById('export-json-btn');
+  const txtBtn = document.getElementById('export-txt-btn');
+
+  if (!exportBtn || !exportDropdown) return;
+
+  function toggleMenu(show) {
+    const isShown = typeof show === 'boolean' ? show : exportDropdown.classList.contains('hidden');
+    exportDropdown.classList.toggle('hidden', !isShown);
+    exportBtn.setAttribute('aria-expanded', isShown ? 'true' : 'false');
+  }
+
+  exportBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!exportDropdown.contains(e.target) && e.target !== exportBtn) {
+      toggleMenu(false);
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !exportDropdown.classList.contains('hidden')) {
+      toggleMenu(false);
+      exportBtn.focus();
+    }
+  });
+
+  // 1. Print View (Paper / PDF)
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      toggleMenu(false);
+      window.print();
+    });
+  }
+
+  // 2. CSV Flashcards
+  if (csvBtn) {
+    csvBtn.addEventListener('click', () => {
+      toggleMenu(false);
+      const cards = currentStudyKit?.flashcards;
+      exportFlashcardsCSV(cards, currentSessionTitle);
+    });
+  }
+
+  // 3. JSON Pack
+  if (jsonBtn) {
+    jsonBtn.addEventListener('click', () => {
+      toggleMenu(false);
+      exportStudyPackJson(currentStudyKit, currentSessionTitle);
+    });
+  }
+
+  // 4. TXT Pack
+  if (txtBtn) {
+    txtBtn.addEventListener('click', () => {
+      toggleMenu(false);
+      exportStudyPackTxt(currentStudyKit, currentSessionTitle);
+    });
+  }
+}
+
 // Active history search, difficulty filter, and sort state
 let currentHistorySearchQuery = '';
 let currentHistoryDifficultyFilter = 'all';
@@ -1205,8 +1403,10 @@ function handleSelectHistoryItem(item) {
     questionCountSelect.value = String(qCount);
   }
 
-  // 3. Set current active summary text for Copy/Download
+  // 3. Set current active summary text and active study kit for Copy/Download and Export
   currentSummaryText = item.result.summary || '';
+  currentStudyKit = item.result;
+  currentSessionTitle = item.title || 'Study Kit';
 
   // 4. Set active session ID and render study kit into DOM without calling API
   currentSessionId = item.id;
@@ -1344,11 +1544,13 @@ function initRegenerateHandler() {
       // 5. Parse JSON response and validate
       const studyKit = window.StudyParser.parseStudyKitResponse(rawText, questionCount);
       currentSummaryText = studyKit.summary || '';
+      currentStudyKit = studyKit;
 
       // 6. Save as a new history entry
       const baseTitle = extractSessionTitle(content, studyKit);
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const variationTitle = `${baseTitle} (Variation ${timeStr})`;
+      currentSessionTitle = variationTitle;
 
       const savedItem = window.StudyStorage.saveHistoryItem({
         title: variationTitle,
