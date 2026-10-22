@@ -2124,22 +2124,23 @@ body {
    Phone (<= 640px)
    -------------------------------------------------------------------------- */
 
-/* Tablet Breakpoint (641px to 1024px) */
+/* Tablet Breakpoint (641px to 1024px) - Covers 768px view */
 @media screen and (max-width: 1024px) {
   .app-layout {
     padding: 1.25rem 1.25rem 2.5rem 1.25rem;
     gap: 1.5rem;
   }
 
-  /* Stack main columns vertically on tablet */
+  /* Stack main columns vertically on tablet for optimal reading */
   .main-content {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
-  /* Settings grid collapses to 2 columns */
+  /* Settings grid collapses to 2 clean columns */
   .settings-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 1rem;
   }
 
   .save-group {
@@ -2154,21 +2155,33 @@ body {
     display: none;
   }
 
+  /* History header on tablet */
+  .history-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .history-controls {
+    justify-content: space-between;
+  }
+
   .history-search-wrapper {
-    min-width: 240px;
+    min-width: 260px;
+    flex: 1;
   }
 }
 
-/* Phone Breakpoint (<= 640px) */
+/* Phone Breakpoint (<= 640px) - Covers 360px mobile view */
 @media screen and (max-width: 640px) {
   .app-layout {
-    padding: 0.85rem 0.85rem 2rem 0.85rem;
+    padding: 0.75rem 0.75rem 2rem 0.75rem;
     gap: 1rem;
   }
 
   /* Compact Header */
   .app-header {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.85rem;
   }
 
   .header-container {
@@ -2212,7 +2225,7 @@ body {
   }
 
   .card {
-    padding: 1.1rem;
+    padding: 1rem;
     border-radius: var(--radius-lg);
   }
 
@@ -2224,8 +2237,8 @@ body {
   }
 
   .tab-btn {
-    padding: 0.55rem 0.4rem;
-    font-size: 0.785rem;
+    padding: 0.55rem 0.35rem;
+    font-size: 0.775rem;
     justify-content: center;
     flex-direction: column;
     gap: 0.25rem;
@@ -2244,7 +2257,28 @@ body {
   .panel-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.4rem;
+    gap: 0.75rem;
+  }
+
+  /* Summary action buttons grid on mobile */
+  .summary-header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.45rem;
+  }
+
+  .summary-header-actions .action-btn-sm {
+    width: 100%;
+    justify-content: center;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Flashcards grid: 100% width on phone */
+  .flashcards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   /* History section on phone */
@@ -2263,7 +2297,7 @@ body {
 
   .history-search-wrapper {
     width: 100%;
-    min-width: 100%;
+    min-width: 0;
   }
 
   .history-filter-chips {
@@ -2275,13 +2309,17 @@ body {
   .history-chip {
     flex: 1;
     text-align: center;
-    padding: 0.35rem 0.4rem;
+    padding: 0.35rem 0.35rem;
+    font-size: 0.725rem;
+  }
+
+  .history-item-title {
+    max-width: 100%;
   }
 
   .btn-clear-history {
     align-self: flex-start;
   }
-
 
   .footer-content {
     flex-direction: column;
@@ -2289,3 +2327,4 @@ body {
     text-align: center;
   }
 }
+
