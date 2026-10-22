@@ -190,16 +190,32 @@ function renderSummary(summaryText, container) {
   container.innerHTML = formattedHtml;
 }
 
+// Global active quiz timer interval reference for timer leak prevention
+let activeQuizTimerInterval = null;
+
 /**
- * Renders interactive quiz questions.
- * Handles option selection, question locking, visual feedback, final score tally,
- * and records completed quiz scores in localStorage.
+ * Clears and resets any active quiz timer interval to prevent memory/timer leaks.
+ */
+function cleanupQuizTimers() {
+  if (activeQuizTimerInterval) {
+    clearInterval(activeQuizTimerInterval);
+    activeQuizTimerInterval = null;
+  }
+}
+
+/**
+ * Renders interactive quiz questions with optional timed quiz mode (30s per question).
+ * Handles option selection, countdown timer per question, visual feedback,
+ * auto-locking as wrong on timeout, and score tracking.
  *
  * @param {Array<Object>} quizQuestions - Question items with options and answer index
  * @param {HTMLElement} container - DOM container element
  * @param {Object} [meta={}] - Session metadata { topicTitle, difficulty }
  */
 function renderQuiz(quizQuestions, container, meta = {}) {
+  // Always clean up any previous timers before rendering
+  cleanupQuizTimers();
+
   let score = 0;
   let answeredCount = 0;
   let hasRecordedScore = false;
@@ -211,6 +227,10 @@ function renderQuiz(quizQuestions, container, meta = {}) {
   const wrapper = document.createElement('div');
   wrapper.className = 'quiz-rendered-wrapper';
 
+  // Check if timed quiz is enabled
+  const timedCheckbox = document.getElementById('timed-quiz-checkbox');
+  let isTimedMode = timedCheckbox ? timedCheckbox.checked : false;
+
   // 2. Score Banner
   const scoreBanner = document.createElement('div');
   scoreBanner.className = 'quiz-score-banner';
@@ -219,7 +239,7 @@ function renderQuiz(quizQuestions, container, meta = {}) {
       <span class="quiz-score-badge" id="quiz-live-score">Score: 0 / ${total}</span>
       <span class="quiz-score-label" id="quiz-progress-label">0 of ${total} answered</span>
     </div>
-    <span class="status-indicator">Practice Mode</span>
+    <span class="status-indicator" id="quiz-mode-indicator">${isTimedMode ? 'Timed Practice (30s)' : 'Practice Mode'}</span>
   `;
   wrapper.appendChild(scoreBanner);
 
@@ -232,6 +252,8 @@ function renderQuiz(quizQuestions, container, meta = {}) {
   // 4. Questions List
   const cardsList = document.createElement('div');
   cardsList.className = 'quiz-cards-list';
+
+  const questionCards = [];
 
   quizQuestions.forEach((item, qIndex) => {
     const card = document.createElement('div');
@@ -271,6 +293,10 @@ function renderQuiz(quizQuestions, container, meta = {}) {
 
       // Click handler: locks question and displays correct/wrong feedback
       btn.addEventListener('click', () => {
+        cleanupQuizTimers();
+        const cardObj = questionCards[qIndex];
+        if (cardObj) cardObj.isAnswered = true;
+
         handleOptionSelect({
           selectedIndex: optIndex,
           correctIndex: item.answer,
@@ -284,22 +310,14 @@ function renderQuiz(quizQuestions, container, meta = {}) {
             answeredCount += 1;
             updateQuizScoreUI(score, answeredCount, total, scoreBanner, finalCelebrationBox);
 
-            // If all questions are answered, save quiz score record to localStorage
-            if (answeredCount === total && !hasRecordedScore) {
-              hasRecordedScore = true;
-              const quizRecord = {
-                date: new Date().toISOString(),
-                topicTitle: meta.topicTitle || 'Study Session Quiz',
-                score: score,
-                total: total,
-                difficulty: meta.difficulty || 'medium',
-              };
-              if (window.StudyStorage && window.StudyStorage.saveQuizScore) {
-                window.StudyStorage.saveQuizScore(quizRecord);
-              }
-              const progressEl = document.getElementById('quiz-progress-section');
-              if (progressEl) {
-                renderQuizProgress(progressEl);
+            if (answeredCount === total) {
+              finishQuiz();
+            } else if (isTimedMode) {
+              // Move on to next question in timed mode
+              const nextIdx = findNextUnanswered(qIndex);
+              if (nextIdx !== -1) {
+                questionCards[nextIdx].card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                startQuestionTimer(nextIdx);
               }
             }
           }
@@ -312,10 +330,220 @@ function renderQuiz(quizQuestions, container, meta = {}) {
 
     card.appendChild(optionsGrid);
     cardsList.appendChild(card);
+
+    questionCards.push({
+      card,
+      cardHeader,
+      questionTitle,
+      pillEl: cardHeader.querySelector(`#pill-${qIndex}`),
+      optionButtons,
+      item,
+      qIndex,
+      isAnswered: false,
+    });
   });
 
   wrapper.appendChild(cardsList);
   container.appendChild(wrapper);
+
+  /**
+   * Finds the next unanswered question index.
+   * @param {number} fromIndex - Index to search after
+   * @returns {number} Next unanswered index or -1 if all answered
+   */
+  function findNextUnanswered(fromIndex = -1) {
+    for (let i = fromIndex + 1; i < questionCards.length; i++) {
+      if (!questionCards[i].isAnswered) return i;
+    }
+    for (let i = 0; i <= fromIndex; i++) {
+      if (!questionCards[i].isAnswered) return i;
+    }
+    return -1;
+  }
+
+  /**
+   * Starts a 30-second countdown timer on the specified question card.
+   * Shows a shrinking bar that turns red in the last 5 seconds.
+   * Auto-locks question as wrong and moves on when time runs out.
+   * @param {number} qIdx - Target question index
+   */
+  function startQuestionTimer(qIdx) {
+    cleanupQuizTimers();
+    if (!isTimedMode || qIdx < 0 || qIdx >= total) return;
+    const cardObj = questionCards[qIdx];
+    if (!cardObj || cardObj.isAnswered) return;
+
+    // Clean up any existing timer bars
+    questionCards.forEach((c) => {
+      const oldBar = c.card.querySelector('.quiz-timer-bar-wrapper');
+      if (oldBar) oldBar.remove();
+    });
+
+    const timerWrapper = document.createElement('div');
+    timerWrapper.className = 'quiz-timer-bar-wrapper';
+    timerWrapper.id = `quiz-timer-wrapper-${qIdx}`;
+    timerWrapper.innerHTML = `
+      <div class="quiz-timer-header">
+        <span class="quiz-timer-badge" id="timer-badge-${qIdx}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="timer-clock-icon" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span class="timer-countdown-text" id="timer-sec-${qIdx}">30s remaining</span>
+        </span>
+        <span class="timer-hint">Auto-locks when time runs out</span>
+      </div>
+      <div class="quiz-timer-track" role="progressbar" aria-valuemin="0" aria-valuemax="30" aria-valuenow="30">
+        <div class="quiz-timer-progress-bar" id="timer-bar-${qIdx}" style="width: 100%;"></div>
+      </div>
+    `;
+
+    cardObj.card.insertBefore(timerWrapper, cardObj.questionTitle);
+
+    const barEl = timerWrapper.querySelector(`#timer-bar-${qIdx}`);
+    const badgeEl = timerWrapper.querySelector(`#timer-badge-${qIdx}`);
+    const textEl = timerWrapper.querySelector(`#timer-sec-${qIdx}`);
+
+    const durationMs = 30000;
+    const startTime = Date.now();
+
+    activeQuizTimerInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remainingMs = Math.max(0, durationMs - elapsed);
+      const remainingSec = Math.ceil(remainingMs / 1000);
+      const pct = (remainingMs / durationMs) * 100;
+
+      if (barEl) barEl.style.width = `${pct}%`;
+      if (textEl) textEl.textContent = `${remainingSec}s remaining`;
+
+      // Turn red in the last 5 seconds
+      if (remainingSec <= 5) {
+        if (barEl) barEl.classList.add('timer-critical');
+        if (badgeEl) badgeEl.classList.add('timer-critical');
+      }
+
+      // Time ran out: lock question as wrong and move on
+      if (remainingMs <= 0) {
+        cleanupQuizTimers();
+        onQuestionTimeout(qIdx);
+      }
+    }, 100);
+  }
+
+  /**
+   * Handles timeout when 30 seconds expires on a question.
+   * Locks the question as wrong, shows correct answer and explanation, and moves on.
+   * @param {number} qIdx - Index of question that timed out
+   */
+  function onQuestionTimeout(qIdx) {
+    const cardObj = questionCards[qIdx];
+    if (!cardObj || cardObj.isAnswered) return;
+
+    cardObj.isAnswered = true;
+
+    // 1. Lock all option buttons as wrong
+    cardObj.optionButtons.forEach((btn) => {
+      btn.disabled = true;
+    });
+    cardObj.card.classList.add('answered');
+
+    // 2. Mark status pill
+    cardObj.pillEl.textContent = 'Time Expired';
+    cardObj.pillEl.className = 'quiz-status-pill wrong';
+
+    // 3. Highlight the correct option
+    if (cardObj.optionButtons[cardObj.item.answer]) {
+      cardObj.optionButtons[cardObj.item.answer].classList.add('correct');
+    }
+
+    // 4. Reveal explanation under the question
+    const explanationText = cardObj.item.explanation ? cardObj.item.explanation.trim() : 'Correct answer explanation.';
+    const safeExplanation = window.StudyUtils && window.StudyUtils.escapeHtml ? window.StudyUtils.escapeHtml(explanationText) : explanationText;
+    const explanationBox = document.createElement('div');
+    explanationBox.className = 'quiz-explanation-box';
+    explanationBox.innerHTML = `<strong>Time expired!</strong> ${safeExplanation}`;
+    cardObj.card.appendChild(explanationBox);
+
+    // 5. Update timer badge
+    const badgeEl = cardObj.card.querySelector(`#timer-badge-${qIdx}`);
+    const barEl = cardObj.card.querySelector(`#timer-bar-${qIdx}`);
+    if (badgeEl) {
+      badgeEl.classList.add('timer-critical');
+      badgeEl.innerHTML = `<span>⏱️ Time Expired</span>`;
+    }
+    if (barEl) {
+      barEl.style.width = '0%';
+      barEl.classList.add('timer-critical');
+    }
+
+    answeredCount += 1;
+    updateQuizScoreUI(score, answeredCount, total, scoreBanner, finalCelebrationBox);
+
+    // 6. Check if quiz completed or move on
+    if (answeredCount === total) {
+      finishQuiz();
+    } else {
+      const nextIdx = findNextUnanswered(qIdx);
+      if (nextIdx !== -1) {
+        questionCards[nextIdx].card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        startQuestionTimer(nextIdx);
+      }
+    }
+  }
+
+  /**
+   * Finalizes completed quiz, records score in localStorage, and clears all timers.
+   */
+  function finishQuiz() {
+    cleanupQuizTimers();
+    if (!hasRecordedScore) {
+      hasRecordedScore = true;
+      const quizRecord = {
+        date: new Date().toISOString(),
+        topicTitle: meta.topicTitle || 'Study Session Quiz',
+        score: score,
+        total: total,
+        difficulty: meta.difficulty || 'medium',
+      };
+      if (window.StudyStorage && window.StudyStorage.saveQuizScore) {
+        window.StudyStorage.saveQuizScore(quizRecord);
+      }
+      const progressEl = document.getElementById('quiz-progress-section');
+      if (progressEl) {
+        renderQuizProgress(progressEl);
+      }
+    }
+  }
+
+  // Bind checkbox toggle change to dynamically start or cancel timer
+  if (timedCheckbox) {
+    timedCheckbox.onchange = () => {
+      isTimedMode = timedCheckbox.checked;
+      const indicator = document.getElementById('quiz-mode-indicator');
+      if (indicator) {
+        indicator.textContent = isTimedMode ? 'Timed Practice (30s)' : 'Practice Mode';
+      }
+
+      if (isTimedMode) {
+        const nextIdx = findNextUnanswered(-1);
+        if (nextIdx !== -1) {
+          questionCards[nextIdx].card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          startQuestionTimer(nextIdx);
+        }
+      } else {
+        cleanupQuizTimers();
+        questionCards.forEach((c) => {
+          const oldBar = c.card.querySelector('.quiz-timer-bar-wrapper');
+          if (oldBar) oldBar.remove();
+        });
+      }
+    };
+  }
+
+  // Start Question 0 timer if Timed mode is active
+  if (isTimedMode && total > 0) {
+    startQuestionTimer(0);
+  }
 }
 
 /**
@@ -998,6 +1226,7 @@ function renderQuizProgress(container) {
 // Global namespace exposure
 window.StudyRender = {
   FAKE_AI_RESPONSE,
+  cleanupQuizTimers,
   renderStudyKit,
   renderSummary,
   renderQuiz,

@@ -190,7 +190,12 @@ function initSettings() {
     questionCountSelect.value = String(savedSettings.questionCount);
   }
 
-  // 2. Remember dropdowns' last values in localStorage whenever changed
+  const timedQuizCheckbox = document.getElementById('timed-quiz-checkbox');
+  if (timedQuizCheckbox && savedSettings.timedQuiz !== undefined) {
+    timedQuizCheckbox.checked = Boolean(savedSettings.timedQuiz);
+  }
+
+  // 2. Remember dropdowns' and checkboxes' last values in localStorage whenever changed
   if (answerStyleSelect) {
     answerStyleSelect.addEventListener('change', () => {
       const current = window.StudyStorage.getSettings();
@@ -221,6 +226,16 @@ function initSettings() {
     });
   }
 
+  if (timedQuizCheckbox) {
+    timedQuizCheckbox.addEventListener('change', () => {
+      const current = window.StudyStorage.getSettings();
+      window.StudyStorage.saveSettings({
+        ...current,
+        timedQuiz: timedQuizCheckbox.checked,
+      });
+    });
+  }
+
   // 3. Save Settings Handler (API key and settings)
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
@@ -228,9 +243,15 @@ function initSettings() {
       const style = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
       const diff = difficultySelect ? difficultySelect.value : 'medium';
       const qCount = questionCountSelect ? (parseInt(questionCountSelect.value, 10) || 5) : 5;
+      const isTimed = timedQuizCheckbox ? timedQuizCheckbox.checked : false;
 
       window.StudyStorage.saveApiKey(key);
-      window.StudyStorage.saveSettings({ answerStyle: style, difficulty: diff, questionCount: qCount });
+      window.StudyStorage.saveSettings({
+        answerStyle: style,
+        difficulty: diff,
+        questionCount: qCount,
+        timedQuiz: isTimed,
+      });
 
       // Visual feedback on save button
       const originalText = saveBtn.innerHTML;
@@ -264,6 +285,25 @@ function initSettings() {
       settingsPanel.classList.toggle('hidden');
     });
   }
+
+  // 5. Global leak-proof cleanup: clear all timers when user leaves the browser tab or page
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && window.StudyRender && window.StudyRender.cleanupQuizTimers) {
+      window.StudyRender.cleanupQuizTimers();
+    }
+  });
+
+  window.addEventListener('beforeunload', () => {
+    if (window.StudyRender && window.StudyRender.cleanupQuizTimers) {
+      window.StudyRender.cleanupQuizTimers();
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    if (window.StudyRender && window.StudyRender.cleanupQuizTimers) {
+      window.StudyRender.cleanupQuizTimers();
+    }
+  });
 }
 
 /**
@@ -322,6 +362,11 @@ function activateTab(targetPanelId, clickedBtn) {
       panel.classList.remove('active');
     }
   });
+
+  // Clear all timers properly when the user leaves the quiz tab to avoid timer leaks
+  if (targetPanelId !== 'tab-quiz-panel' && window.StudyRender && window.StudyRender.cleanupQuizTimers) {
+    window.StudyRender.cleanupQuizTimers();
+  }
 }
 
 /**
