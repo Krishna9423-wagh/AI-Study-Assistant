@@ -1,0 +1,21 @@
+{
+  "name": "AI Study Assistant",
+  "short_name": "StudyHub",
+  "description": "Smart Synthesis, Adaptive Quizzes & Flashcards with 24/7 AI Tutor",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "css/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "css/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
