@@ -459,13 +459,23 @@ function initSettings() {
   // Save Settings Handler (Both API keys and parameters)
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
-      const geminiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
-      const groqKey = groqApiKeyInput ? groqApiKeyInput.value.trim() : '';
+      const rawGemini = apiKeyInput ? apiKeyInput.value.trim() : '';
+      const rawGroq = groqApiKeyInput ? groqApiKeyInput.value.trim() : '';
+      const geminiKey = (window.StudyStorage?.cleanApiKey) ? window.StudyStorage.cleanApiKey(rawGemini, 'gemini') : rawGemini;
+      const groqKey = (window.StudyStorage?.cleanApiKey) ? window.StudyStorage.cleanApiKey(rawGroq, 'groq') : rawGroq;
       const provider = providerSelect ? providerSelect.value : 'gemini';
       const style = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
       const diff = difficultySelect ? difficultySelect.value : 'medium';
       const qCount = questionCountSelect ? (parseInt(questionCountSelect.value, 10) || 5) : 5;
       const isTimed = timedQuizCheckbox ? timedQuizCheckbox.checked : false;
+
+      // Auto-update input fields if cleaned (e.g. stripped quotes or extracted from curl)
+      if (apiKeyInput && geminiKey && geminiKey !== rawGemini) {
+        apiKeyInput.value = geminiKey;
+      }
+      if (groqApiKeyInput && groqKey && groqKey !== rawGroq) {
+        groqApiKeyInput.value = groqKey;
+      }
 
       window.StudyStorage.saveApiKey(geminiKey, 'gemini');
       window.StudyStorage.saveApiKey(groqKey, 'groq');
@@ -487,12 +497,22 @@ function initSettings() {
       `;
       saveBtn.style.borderColor = 'var(--color-primary-500)';
 
-      // Hide error box if it was warning about missing API key
+      // Check for malformed keys when saving
+      if (provider === 'groq' && rawGroq) {
+        if (rawGroq.startsWith('curl') || rawGroq.startsWith('http') || !groqKey.startsWith('gsk_')) {
+          showError(
+            '⚠️ Warning: Your Groq API key appears invalid. Groq API keys start with "gsk_" (for example: gsk_xxxxxxxx...). It looks like a curl command or URL was pasted. Please create a free API key at https://console.groq.com/keys and paste only the key.',
+            'Groq Key Format Warning'
+          );
+        }
+      }
+
+      // Hide error box if it was warning about missing API key and key is now valid
       const activeKey = provider === 'groq' ? groqKey : geminiKey;
       const errorBox = document.getElementById('error-box');
       if (activeKey && errorBox && !errorBox.classList.contains('hidden')) {
         const errorMsg = document.getElementById('error-message')?.textContent || '';
-        if (errorMsg.includes('API key')) {
+        if (errorMsg.includes('API key') && !errorMsg.includes('Warning')) {
           errorBox.classList.add('hidden');
         }
       }
@@ -758,6 +778,33 @@ function initGenerateHandler() {
       if (settingsPanel) settingsPanel.classList.remove('hidden');
       if (activeInput) activeInput.focus();
       return;
+    }
+
+    // Pre-flight validation: Check for curl command or malformed key
+    if (activeProvider === 'groq') {
+      if (apiKey.startsWith('curl') || apiKey.startsWith('http') || !apiKey.startsWith('gsk_')) {
+        showError(
+          'Invalid Groq API Key: You have entered a curl command or URL. A Groq API key starts with "gsk_" (for example: gsk_xxxxxxxx...). Please generate your free API key at https://console.groq.com/keys, paste it into Settings, and click "Save Settings".',
+          'Invalid Groq Key'
+        );
+        const settingsPanel = document.getElementById('settings-panel');
+        if (settingsPanel) settingsPanel.classList.remove('hidden');
+        if (activeInput) activeInput.focus();
+        return;
+      }
+    }
+
+    if (activeProvider === 'gemini') {
+      if (apiKey.startsWith('curl') || apiKey.startsWith('http')) {
+        showError(
+          'Invalid Gemini API Key: You have entered a curl command or URL. A Gemini API key starts with "AIzaSy...". Please get your free key from https://aistudio.google.com/app/apikey and paste it into Settings.',
+          'Invalid Gemini Key'
+        );
+        const settingsPanel = document.getElementById('settings-panel');
+        if (settingsPanel) settingsPanel.classList.remove('hidden');
+        if (activeInput) activeInput.focus();
+        return;
+      }
     }
 
     // 2. Read and validate Study Notes Input

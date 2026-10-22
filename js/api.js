@@ -223,9 +223,30 @@ async function fetchStudyKit(options) {
 
   const currentProvider = PROVIDERS[provider] || PROVIDERS.gemini;
 
-  // 1. Validation: Verify API key presence
-  if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
+  // 1. Validation & Sanitization: Clean key and verify presence
+  const cleanKey = (window.StudyStorage && typeof window.StudyStorage.cleanApiKey === 'function')
+    ? window.StudyStorage.cleanApiKey(apiKey, provider)
+    : (typeof apiKey === 'string' ? apiKey.trim() : '');
+
+  if (!cleanKey) {
     throw new Error(`API key is missing for ${currentProvider.name}. Please enter and save your API key in Settings.`);
+  }
+
+  // Pre-validate Groq API key format
+  if (provider === 'groq') {
+    if (cleanKey.startsWith('curl') || cleanKey.startsWith('http')) {
+      throw new Error(`Invalid Groq Key: You entered a curl command or URL instead of an API key. Groq API keys start with "gsk_". Generate your free key at https://console.groq.com/keys and paste it in Settings.`);
+    }
+    if (!cleanKey.startsWith('gsk_')) {
+      throw new Error(`Invalid Groq Key: Groq API keys start with "gsk_". Your entered key is malformed. Please get your free API key at https://console.groq.com/keys and paste it in Settings.`);
+    }
+  }
+
+  // Pre-validate Gemini API key format
+  if (provider === 'gemini') {
+    if (cleanKey.startsWith('curl') || cleanKey.startsWith('http')) {
+      throw new Error(`Invalid Gemini Key: You entered a curl command or URL instead of an API key. Gemini API keys start with "AIzaSy...". Generate your free key at https://aistudio.google.com/app/apikey and paste it in Settings.`);
+    }
   }
 
   // 2. Validation: Verify input content presence
@@ -233,9 +254,9 @@ async function fetchStudyKit(options) {
     throw new Error('Study notes are empty. Please enter notes, lecture excerpts, or a topic before generating.');
   }
 
-  const endpoint = currentProvider.getUrl(apiKey.trim());
+  const endpoint = currentProvider.getUrl(cleanKey);
   const promptText = buildGeminiPrompt(content.trim(), difficulty, style, isVariation, questionCount, mode, language);
-  const headers = currentProvider.getHeaders(apiKey.trim());
+  const headers = currentProvider.getHeaders(cleanKey);
   const requestBody = currentProvider.buildStudyKitBody(promptText);
 
   let response;
@@ -261,6 +282,9 @@ async function fetchStudyKit(options) {
     }
 
     if (response.status === 400 || response.status === 401 || response.status === 403) {
+      if (currentProvider.id === 'groq') {
+        throw new Error(`Groq Authentication Failed (HTTP ${response.status})${errorDetail}. Your Groq API key is invalid or unauthorized. Please verify that your key starts with "gsk_" from https://console.groq.com/keys.`);
+      }
       throw new Error(`Invalid API key or unauthorized request (HTTP ${response.status})${errorDetail}. Please check your ${currentProvider.name} API key in Settings.`);
     }
 
@@ -318,14 +342,19 @@ async function fetchFollowUpAnswer(options) {
     throw new Error('Please type a question before asking the tutor.');
   }
 
-  // If no API key is provided, return an intelligent contextual demo answer
-  if (!apiKey || !apiKey.trim()) {
+  // Clean and sanitize API key
+  const cleanKey = (window.StudyStorage && typeof window.StudyStorage.cleanApiKey === 'function')
+    ? window.StudyStorage.cleanApiKey(apiKey, provider)
+    : (typeof apiKey === 'string' ? apiKey.trim() : '');
+
+  // If no valid API key is provided, return an intelligent contextual demo answer
+  if (!cleanKey) {
     return generateLocalTutorAnswer(notes, question);
   }
 
   const currentProvider = PROVIDERS[provider] || PROVIDERS.gemini;
-  const endpoint = currentProvider.getUrl(apiKey.trim());
-  const headers = currentProvider.getHeaders(apiKey.trim());
+  const endpoint = currentProvider.getUrl(cleanKey);
+  const headers = currentProvider.getHeaders(cleanKey);
   const requestBody = currentProvider.buildFollowUpBody(notes, question.trim(), history);
 
   try {

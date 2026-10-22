@@ -51,6 +51,46 @@ function saveProvider(provider) {
 }
 
 /**
+ * Automatically sanitizes and extracts clean API keys.
+ * Handles cases where a user pastes:
+ * - A full curl command (e.g. `curl https://api.groq.com/... -H "Authorization: Bearer gsk_..."`)
+ * - Authorization headers (`Bearer gsk_...` or `Authorization: Bearer AIzaSy...`)
+ * - Quoted strings (`"gsk_..."` or `'AIzaSy...'`)
+ * - Accidental whitespace or newline characters
+ *
+ * @param {string} rawKey - The raw string from the input
+ * @param {string} [provider='gemini'] - The AI provider ('gemini' or 'groq')
+ * @returns {string} Cleaned API key
+ */
+function cleanApiKey(rawKey, provider) {
+  if (!rawKey || typeof rawKey !== 'string') return '';
+  let str = rawKey.trim();
+
+  // If user pasted a curl command or header with Bearer token
+  const bearerMatch = str.match(/Bearer\s+([A-Za-z0-9_\-]+)/i);
+  if (bearerMatch && bearerMatch[1]) {
+    return bearerMatch[1].trim();
+  }
+
+  // If provider is Groq or string contains a Groq key format
+  const groqMatch = str.match(/gsk_[A-Za-z0-9]+/);
+  if (groqMatch && (provider === 'groq' || groqMatch[0].length >= 20)) {
+    return groqMatch[0].trim();
+  }
+
+  // If provider is Gemini or string contains a Gemini key format
+  const geminiMatch = str.match(/AIzaSy[A-Za-z0-9_\-]+/);
+  if (geminiMatch) {
+    return geminiMatch[0].trim();
+  }
+
+  // Strip wrapping single or double quotes
+  str = str.replace(/^["']|["']$/g, '');
+
+  return str.trim();
+}
+
+/**
  * Retrieves the stored API key for a given provider.
  * Falls back to legacy key for Gemini if provider-specific key is not set.
  * @param {string} [provider] - 'gemini' or 'groq' (defaults to active provider)
@@ -61,14 +101,14 @@ function getApiKey(provider) {
   try {
     if (p === 'groq') {
       const groqKey = localStorage.getItem(STORAGE_KEYS.API_KEY_GROQ);
-      return groqKey && groqKey.trim() ? groqKey.trim() : null;
+      return groqKey && groqKey.trim() ? cleanApiKey(groqKey.trim(), 'groq') : null;
     }
     // Gemini
     const geminiKey = localStorage.getItem(STORAGE_KEYS.API_KEY_GEMINI);
-    if (geminiKey && geminiKey.trim()) return geminiKey.trim();
+    if (geminiKey && geminiKey.trim()) return cleanApiKey(geminiKey.trim(), 'gemini');
     // Legacy fallback
     const legacy = localStorage.getItem(STORAGE_KEYS.API_KEY);
-    return legacy && legacy.trim() ? legacy.trim() : null;
+    return legacy && legacy.trim() ? cleanApiKey(legacy.trim(), 'gemini') : null;
   } catch (err) {
     console.error('storage.js: Unable to read API key from localStorage', err);
     return null;
@@ -83,7 +123,8 @@ function getApiKey(provider) {
 function saveApiKey(key, provider) {
   const p = provider || getProvider();
   try {
-    const val = typeof key === 'string' ? key.trim() : '';
+    const cleaned = cleanApiKey(key, p);
+    const val = typeof cleaned === 'string' ? cleaned.trim() : '';
     if (p === 'groq') {
       localStorage.setItem(STORAGE_KEYS.API_KEY_GROQ, val);
     } else {
@@ -531,6 +572,7 @@ function getDashboardStats() {
 // Global namespace exposure
 window.StudyStorage = {
   STORAGE_KEYS,
+  cleanApiKey,
   getProvider,
   saveProvider,
   getApiKey,
