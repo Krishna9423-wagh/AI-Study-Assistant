@@ -758,53 +758,18 @@ function initGenerateHandler() {
   generateBtn.addEventListener('click', async () => {
     // 1. Read API Key for the active provider (Gemini or Groq)
     const activeProvider = window.StudyStorage.getProvider();
-    let apiKey = window.StudyStorage.getApiKey(activeProvider);
     const activeInput = activeProvider === 'groq'
       ? document.getElementById('groq-api-key-input')
       : document.getElementById('api-key-input');
-    if (!apiKey && activeInput && activeInput.value.trim()) {
-      apiKey = activeInput.value.trim();
-      window.StudyStorage.saveApiKey(apiKey, activeProvider);
-    }
 
-    // Validation: Check for missing API key
-    if (!apiKey) {
-      const providerLabel = activeProvider === 'groq' ? 'Groq' : 'Google Gemini';
-      showError(
-        `No API key found for ${providerLabel}. Please enter your key in the Settings panel above and click "Save Settings".`,
-        'API Key Required'
-      );
-      const settingsPanel = document.getElementById('settings-panel');
-      if (settingsPanel) settingsPanel.classList.remove('hidden');
-      if (activeInput) activeInput.focus();
-      return;
-    }
+    // Priority: If user typed in the input box, clean and use that value
+    const rawInputVal = activeInput ? activeInput.value.trim() : '';
+    let apiKey = rawInputVal
+      ? (window.StudyStorage?.cleanApiKey ? window.StudyStorage.cleanApiKey(rawInputVal, activeProvider) : rawInputVal)
+      : window.StudyStorage.getApiKey(activeProvider);
 
-    // Pre-flight validation: Check for curl command or malformed key
-    if (activeProvider === 'groq') {
-      if (apiKey.startsWith('curl') || apiKey.startsWith('http') || !apiKey.startsWith('gsk_')) {
-        showError(
-          'Invalid Groq API Key: You have entered a curl command or URL. A Groq API key starts with "gsk_" (for example: gsk_xxxxxxxx...). Please generate your free API key at https://console.groq.com/keys, paste it into Settings, and click "Save Settings".',
-          'Invalid Groq Key'
-        );
-        const settingsPanel = document.getElementById('settings-panel');
-        if (settingsPanel) settingsPanel.classList.remove('hidden');
-        if (activeInput) activeInput.focus();
-        return;
-      }
-    }
-
-    if (activeProvider === 'gemini') {
-      if (apiKey.startsWith('curl') || apiKey.startsWith('http')) {
-        showError(
-          'Invalid Gemini API Key: You have entered a curl command or URL. A Gemini API key starts with "AIzaSy...". Please get your free key from https://aistudio.google.com/app/apikey and paste it into Settings.',
-          'Invalid Gemini Key'
-        );
-        const settingsPanel = document.getElementById('settings-panel');
-        if (settingsPanel) settingsPanel.classList.remove('hidden');
-        if (activeInput) activeInput.focus();
-        return;
-      }
+    if (rawInputVal) {
+      window.StudyStorage.saveApiKey(rawInputVal, activeProvider);
     }
 
     // 2. Read and validate Study Notes Input
@@ -897,6 +862,20 @@ function initGenerateHandler() {
       // 10. Refresh history list UI & record activity
       window.StudyStorage.recordActivity();
       refreshHistoryUI();
+
+      // If generated offline or fallback due to key issue, show an informative banner
+      if (window._lastGenerationOffline) {
+        const errorBox = document.getElementById('error-box');
+        const errorMsgEl = document.getElementById('error-message');
+        const errorTitleEl = document.getElementById('error-title');
+        if (errorBox && errorMsgEl) {
+          if (errorTitleEl) errorTitleEl.textContent = '⚡ Generated via Smart Educational Engine';
+          errorMsgEl.textContent = 'Your Study Kit was generated successfully! Your Groq API key is either invalid or unauthorized (HTTP 401). We generated your complete study pack offline so your study session is never interrupted. Get a free Groq key at https://console.groq.com/keys anytime to switch to cloud AI.';
+          errorBox.classList.remove('hidden');
+          errorBox.style.borderColor = 'var(--hub-cyan, #00f0ff)';
+          errorBox.style.background = 'rgba(0, 240, 255, 0.08)';
+        }
+      }
 
     } catch (err) {
       console.error('app.js: Generation process error:', err);
