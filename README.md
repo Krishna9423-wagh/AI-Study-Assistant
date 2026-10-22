@@ -4,15 +4,21 @@
 
 ![Gemini Study Hub Banner](assets/preview.png)
 
+### 🌐 **Live Web App:** [https://ai-study-assitance.netlify.app](https://ai-study-assitance.netlify.app)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-ai--study--assitance.netlify.app-00f0ff?style=for-the-badge&logo=netlify&logoColor=white)](https://ai-study-assitance.netlify.app)
 [![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20PWA-blue.svg?style=for-the-badge)](https://github.com/Krishna9423-wagh/AI-Study-Assistant)
 [![Vanilla JS](https://img.shields.io/badge/Tech-Vanilla%20HTML5%20%2F%20CSS3%20%2F%20ES6+-F7DF1E.svg?style=for-the-badge&logo=javascript&logoColor=black)](https://github.com/Krishna9423-wagh/AI-Study-Assistant)
 [![AI Engine](https://img.shields.io/badge/AI-Google%20Gemini%20%2B%20Groq%20LLaMA-8E75C2.svg?style=for-the-badge&logo=google&logoColor=white)](https://github.com/Krishna9423-wagh/AI-Study-Assistant)
 [![Offline Ready](https://img.shields.io/badge/Offline-PWA%20Service%20Worker-00bcd4.svg?style=for-the-badge)](https://github.com/Krishna9423-wagh/AI-Study-Assistant)
 [![License](https://img.shields.io/badge/License-MIT-success.svg?style=for-the-badge)](LICENSE)
 
+> 🚀 **Direct Access:** Experience the live app instantly in your browser without any setup:  
+> 👉 **[Open Gemini Study Hub on Netlify](https://ai-study-assitance.netlify.app)**
+
 **An ultra-modern, privacy-first, zero-dependency AI Study Hub that transforms lecture notes, textbook chapters, and conceptual topics into executive summaries, Leitner spaced-repetition flashcards, active recall quizzes, and interactive 24/7 tutor conversations.**
 
-[Key Features](#-key-features) • [Architecture](#-architecture) • [Getting Started](#-getting-started) • [Keyboard Shortcuts](#-keyboard-shortcuts) • [Viva & Academic Defense](#-viva--academic-defense)
+[⚡ Open Live App](https://ai-study-assitance.netlify.app) • [Key Features](#-key-features) • [Architecture](#-architecture) • [Getting Started](#-getting-started) • [Keyboard Shortcuts](#-keyboard-shortcuts) • [Viva & Academic Defense](#-viva--academic-defense)
 
 </div>
 
@@ -144,6 +150,10 @@ graph TD
 ### Prerequisites
 - Modern web browser (Google Chrome, Microsoft Edge, Mozilla Firefox, or Safari).
 - *(Optional)* A Google Gemini API key or Groq API key for live generation. *(The application includes a pre-loaded Quantum Mechanics kit and offline tutor fallback for offline use!)*
+
+### 🚀 Live Cloud Deployment (Zero Setup)
+Open the fully functional deployed web app directly:
+- **Production URL:** [https://ai-study-assitance.netlify.app](https://ai-study-assitance.netlify.app)
 
 ### Running Locally
 Because Gemini Study Hub is built with vanilla web standards, no `npm install` or compilation step is needed:
