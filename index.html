@@ -182,26 +182,41 @@
           </div>
 
 
-          <!-- Mode Toggle: Use my notes vs Topic only -->
-          <div class="mode-toggle-bar">
-            <span class="mode-toggle-label">Mode:</span>
-            <div class="mode-toggle-group" role="radiogroup" aria-label="Input mode">
-              <button type="button" class="mode-toggle-btn active" id="mode-notes-btn" data-mode="notes" role="radio" aria-checked="true">
-                <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
+          <!-- Mode Toggle & Upload Toolbar -->
+          <div class="input-toolbar-row">
+            <div class="mode-toggle-bar">
+              <span class="mode-toggle-label">Mode:</span>
+              <div class="mode-toggle-group" role="radiogroup" aria-label="Input mode">
+                <button type="button" class="mode-toggle-btn active" id="mode-notes-btn" data-mode="notes" role="radio" aria-checked="true">
+                  <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                  <span>Use my notes</span>
+                </button>
+                <button type="button" class="mode-toggle-btn" id="mode-topic-btn" data-mode="topic" role="radio" aria-checked="false">
+                  <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <span>Topic only</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Upload .txt file Button & hidden input -->
+            <div class="input-actions-group">
+              <input type="file" id="txt-file-input" accept=".txt" class="visually-hidden" aria-label="Upload plain text file">
+              <button type="button" id="upload-txt-btn" class="action-btn-sm btn-upload-txt" title="Upload a plain text (.txt) file" aria-label="Upload .txt file">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
-                <span>Use my notes</span>
-              </button>
-              <button type="button" class="mode-toggle-btn" id="mode-topic-btn" data-mode="topic" role="radio" aria-checked="false">
-                <svg class="mode-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <span>Topic only</span>
+                <span>Upload .txt file</span>
               </button>
             </div>
           </div>

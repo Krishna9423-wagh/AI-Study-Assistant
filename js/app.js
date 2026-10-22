@@ -154,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSettings();
   initTabSwitching();
   initCharacterCounter();
+  initFileUpload();
   initErrorDismissal();
   initGenerateHandler();
   initRegenerateHandler();
@@ -753,6 +754,110 @@ function initCharacterCounter() {
 
   textarea.addEventListener('input', updateCount);
   window.updateNotesCount = updateCount;
+}
+
+/**
+ * Handles .txt file upload using the FileReader API.
+ * Puts file text into the study-textarea, trims to 8,000 char limit with warning,
+ * and rejects other file types or empty files with a clear message.
+ */
+function initFileUpload() {
+  const uploadBtn = document.getElementById('upload-txt-btn');
+  const fileInput = document.getElementById('txt-file-input');
+  const textarea = document.getElementById('study-textarea');
+
+  if (!uploadBtn || !fileInput || !textarea) return;
+
+  uploadBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file type / extension: accept only .txt
+    const fileName = file.name || '';
+    const isTxt = fileName.toLowerCase().endsWith('.txt') || file.type === 'text/plain';
+
+    if (!isTxt) {
+      showError(
+        `Invalid file type "${fileName}". Only plain text (.txt) files are supported. PDF, Word, and other formats are not accepted.`,
+        'Unsupported File Format'
+      );
+      fileInput.value = '';
+      return;
+    }
+
+    // Check if empty file
+    if (file.size === 0) {
+      showError(
+        `The file "${fileName}" is empty (0 bytes). Please upload a .txt file containing your study material.`,
+        'Empty File'
+      );
+      fileInput.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const rawContent = event.target?.result;
+      if (typeof rawContent !== 'string') {
+        showError('Unable to read text from file.', 'File Read Error');
+        fileInput.value = '';
+        return;
+      }
+
+      const trimmedContent = rawContent.trim();
+      if (!trimmedContent) {
+        showError(
+          `The file "${fileName}" contains only blank space. Please upload a file with actual notes or text.`,
+          'Empty File'
+        );
+        fileInput.value = '';
+        return;
+      }
+
+      let finalText = trimmedContent;
+      let wasTrimmed = false;
+      const MAX_CHARS = 8000;
+
+      if (finalText.length > MAX_CHARS) {
+        finalText = finalText.slice(0, MAX_CHARS);
+        wasTrimmed = true;
+      }
+
+      textarea.value = finalText;
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+      if (wasTrimmed) {
+        showError(
+          `The file "${fileName}" exceeded the 8,000 character limit and was trimmed to the first 8,000 characters.`,
+          'Text Trimmed to Limit'
+        );
+      } else {
+        // Clear error box if open
+        const errorBox = document.getElementById('error-box');
+        if (errorBox) errorBox.classList.add('hidden');
+      }
+
+      if (window.StudyUtils && window.StudyUtils.showToast) {
+        window.StudyUtils.showToast(
+          wasTrimmed ? `Loaded "${fileName}" (trimmed to 8,000 chars)` : `Loaded "${fileName}" successfully!`,
+          wasTrimmed ? 'warning' : 'success'
+        );
+      }
+
+      fileInput.value = '';
+    };
+
+    reader.onerror = () => {
+      showError(`Error reading file "${fileName}". Please try again.`, 'File Read Error');
+      fileInput.value = '';
+    };
+
+    reader.readAsText(file);
+  });
 }
 
 /**
