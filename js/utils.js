@@ -143,6 +143,42 @@ function debounce(fn, delay = 250) {
   };
 }
 
+/**
+ * Shuffles an array using the unbiased Fisher-Yates (Knuth) algorithm.
+ * Returns a new shuffled array without mutating the original.
+ * @param {Array} array - Array to shuffle
+ * @returns {Array} Shuffled copy of the array
+ */
+function shuffleArray(array) {
+  if (!Array.isArray(array)) return [];
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+/**
+ * Shuffles the options array of a quiz question while updating and maintaining
+ * the correct answer index to point to the exact same correct option.
+ * @param {Object} question - Question object { question, options, answer, explanation }
+ * @returns {Object} New question object with shuffled options and updated answer index
+ */
+function shuffleQuestionOptions(question) {
+  if (!question || !Array.isArray(question.options)) return question;
+  const correctOptionText = question.options[question.answer];
+  const shuffledOptions = shuffleArray(question.options);
+  const newAnswerIndex = shuffledOptions.indexOf(correctOptionText);
+  return {
+    ...question,
+    options: shuffledOptions,
+    answer: newAnswerIndex !== -1 ? newAnswerIndex : 0,
+  };
+}
+
 // Global namespace exposure
 window.StudyUtils = {
   escapeHtml,
@@ -151,4 +187,6 @@ window.StudyUtils = {
   downloadTextFile,
   stripMarkdownForSpeech,
   debounce,
+  shuffleArray,
+  shuffleQuestionOptions,
 };
