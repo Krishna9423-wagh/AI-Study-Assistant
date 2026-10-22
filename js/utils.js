@@ -101,6 +101,35 @@ function downloadTextFile(filename, text) {
 }
 
 /**
+ * Strips markdown symbols, equations, and code markers to produce
+ * clean, natural text for speech synthesis audio narration.
+ * @param {string} text - Raw markdown text
+ * @returns {string} Clean plain text suitable for speech synthesis
+ */
+function stripMarkdownForSpeech(text) {
+  if (!text) return '';
+  let clean = text;
+
+  // Remove markdown headings (# Heading)
+  clean = clean.replace(/^#+\s+/gm, '');
+  // Remove bold & italic (**text**, *text*, __text__, _text_)
+  clean = clean.replace(/[*_]{1,3}(.*?)[*_]{1,3}/g, '$1');
+  // Remove inline code and code blocks (`code`)
+  clean = clean.replace(/`([^`]+)`/g, '$1');
+  // Remove math/latex formulas ($...$ or $$...$$)
+  clean = clean.replace(/\$\$[\s\S]*?\$\$/g, '');
+  clean = clean.replace(/\$([^$]+)\$/g, '$1');
+  // Remove bullet points and list numbering
+  clean = clean.replace(/^[\s*-]+(?=\S)/gm, '');
+  clean = clean.replace(/^\d+\.\s+/gm, '');
+  // Clean multiple blank lines
+  clean = clean.replace(/\n\s*\n/g, '. ');
+  clean = clean.replace(/\n/g, ' ');
+
+  return clean.trim();
+}
+
+/**
  * Simple debounce utility for search inputs.
  * @param {Function} fn
  * @param {number} delay
@@ -120,5 +149,6 @@ window.StudyUtils = {
   formatDate,
   copyToClipboard,
   downloadTextFile,
+  stripMarkdownForSpeech,
   debounce,
 };

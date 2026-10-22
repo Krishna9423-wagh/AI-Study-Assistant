@@ -569,6 +569,76 @@ function initSummaryActions() {
       }, 1800);
     });
   }
+
+  // 3. Read Summary Aloud with Web Speech Synthesis API
+  const speakBtn = document.getElementById('speak-summary-btn');
+  const stopBtn = document.getElementById('stop-speech-btn');
+
+  function setSpeakingUI(isSpeaking) {
+    if (!speakBtn || !stopBtn) return;
+    if (isSpeaking) {
+      speakBtn.classList.add('is-speaking');
+      speakBtn.querySelector('span').textContent = 'Reading...';
+      stopBtn.classList.remove('hidden');
+    } else {
+      speakBtn.classList.remove('is-speaking');
+      speakBtn.querySelector('span').textContent = 'Read Aloud';
+      stopBtn.classList.add('hidden');
+    }
+  }
+
+  if (speakBtn) {
+    speakBtn.addEventListener('click', () => {
+      if (!('speechSynthesis' in window)) {
+        showError('Speech Synthesis is not supported in this browser.', 'Audio Not Supported');
+        return;
+      }
+
+      if (!currentSummaryText) {
+        showError('No summary available to read aloud. Please generate or load a study kit first.', 'Nothing to Read');
+        return;
+      }
+
+      // If already speaking, restart
+      window.speechSynthesis.cancel();
+
+      const cleanText = window.StudyUtils.stripMarkdownForSpeech(currentSummaryText);
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+
+      utterance.onstart = () => {
+        setSpeakingUI(true);
+      };
+
+      utterance.onend = () => {
+        setSpeakingUI(false);
+      };
+
+      utterance.onerror = (e) => {
+        console.warn('Speech synthesis error or cancellation:', e);
+        setSpeakingUI(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  if (stopBtn) {
+    stopBtn.addEventListener('click', () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setSpeakingUI(false);
+    });
+  }
+
+  // Cancel ongoing speech if user leaves page or switches tabs
+  window.addEventListener('beforeunload', () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+  });
 }
 
 /**
@@ -654,6 +724,19 @@ function renderHistoryList(items) {
  */
 function handleSelectHistoryItem(item) {
   if (!item || !item.result) return;
+
+  // Stop any active speech narration
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const speakBtn = document.getElementById('speak-summary-btn');
+    const stopBtn = document.getElementById('stop-speech-btn');
+    if (speakBtn) {
+      speakBtn.classList.remove('is-speaking');
+      const label = speakBtn.querySelector('span');
+      if (label) label.textContent = 'Read Aloud';
+    }
+    if (stopBtn) stopBtn.classList.add('hidden');
+  }
 
   const textarea = document.getElementById('study-textarea');
   const counter = document.getElementById('char-counter');

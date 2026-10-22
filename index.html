@@ -360,6 +360,22 @@
                   <p class="panel-subtitle">Key takeaways, structured concepts, and core highlights</p>
                 </div>
                 <div class="summary-header-actions">
+                  <!-- Read Aloud & Stop Speech Buttons -->
+                  <button type="button" id="speak-summary-btn" class="action-btn-sm" title="Read summary aloud" aria-label="Read summary aloud with speech synthesis">
+                    <svg class="icon-sm speak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    <span>Read Aloud</span>
+                  </button>
+                  <button type="button" id="stop-speech-btn" class="action-btn-sm btn-stop-speech hidden" title="Stop reading aloud" aria-label="Stop reading aloud">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect>
+                    </svg>
+                    <span>Stop</span>
+                  </button>
+
+                  <!-- Copy & Download Buttons -->
                   <button type="button" id="copy-summary-btn" class="action-btn-sm" title="Copy summary to clipboard" aria-label="Copy summary to clipboard">
                     <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>

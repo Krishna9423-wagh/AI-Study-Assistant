@@ -1513,6 +1513,37 @@ body {
   border-color: var(--color-success-border) !important;
 }
 
+/* Speaking State on Read Aloud Button */
+.action-btn-sm.is-speaking {
+  background: var(--color-primary-50) !important;
+  color: var(--color-primary-600) !important;
+  border-color: var(--color-primary-500) !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.35);
+}
+
+.action-btn-sm.is-speaking .speak-icon {
+  animation: speechPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes speechPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Stop Speech Button Styling */
+.btn-stop-speech {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-color: var(--color-error-border);
+}
+
+.btn-stop-speech:hover {
+  background: var(--color-error-text) !important;
+  color: #ffffff !important;
+  border-color: var(--color-error-text) !important;
+}
+
+
 /* --------------------------------------------------------------------------
    11. HISTORY SECTION & SEARCH
    -------------------------------------------------------------------------- */
