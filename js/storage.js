@@ -53,13 +53,25 @@ function saveApiKey(key) {
 function getSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    const defaults = { answerStyle: 'explain-10', difficulty: 'medium', questionCount: 5 };
+    const defaults = {
+      answerStyle: 'explain-10',
+      difficulty: 'medium',
+      questionCount: 5,
+      mode: 'notes',
+      language: 'English',
+    };
     if (!raw) return defaults;
     const parsed = JSON.parse(raw);
     return { ...defaults, ...parsed };
   } catch (err) {
     console.error('storage.js: Unable to read settings from localStorage', err);
-    return { answerStyle: 'explain-10', difficulty: 'medium', questionCount: 5 };
+    return {
+      answerStyle: 'explain-10',
+      difficulty: 'medium',
+      questionCount: 5,
+      mode: 'notes',
+      language: 'English',
+    };
   }
 }
 

@@ -103,12 +103,46 @@ const FAKE_AI_RESPONSE = {
       front: "Chemiosmosis in Chloroplasts",
       back: "The generation of ATP by ATP Synthase driven by a transmembrane proton gradient across the thylakoid membrane."
     }
+  ],
+  glossary: [
+    {
+      term: "Photosynthesis",
+      definition: "The biochemical process by which autotrophic organisms convert solar radiant energy into chemical energy stored in glucose."
+    },
+    {
+      term: "Chloroplast",
+      definition: "A specialized organelle containing thylakoids and stroma, serving as the primary site of photosynthetic reactions in plants."
+    },
+    {
+      term: "Chlorophyll",
+      definition: "The primary photosynthetic green pigment that absorbs light energy (chiefly blue and red wavelengths) to excite electrons."
+    },
+    {
+      term: "Thylakoid",
+      definition: "Flattened membrane-bound sac inside the chloroplast where the light-dependent reactions and photolysis occur."
+    },
+    {
+      term: "Stroma",
+      definition: "The colorless, protein-rich fluid matrix surrounding thylakoids where the light-independent Calvin cycle occurs."
+    },
+    {
+      term: "Photolysis",
+      definition: "The light-activated enzymatic splitting of water molecules into protons, electrons, and oxygen gas at Photosystem II."
+    },
+    {
+      term: "RuBisCO",
+      definition: "Ribulose-1,5-bisphosphate carboxylase-oxygenase, the critical enzyme catalyzing carbon dioxide fixation in the Calvin cycle."
+    },
+    {
+      term: "ATP Synthase",
+      definition: "A membrane-bound protein complex that synthesizes ATP from ADP and phosphate driven by a proton gradient."
+    }
   ]
 };
 
 /**
- * Primary coordinator: renders summary, quiz, flashcards, and quiz progress into DOM containers.
- * @param {Object} studyKit - Study kit object { summary, quiz, flashcards }
+ * Primary coordinator: renders summary, quiz, flashcards, glossary, and quiz progress into DOM containers.
+ * @param {Object} studyKit - Study kit object { summary, quiz, flashcards, glossary }
  * @param {string} [sessionId=''] - Unique history session ID for tracking card mastery
  * @param {Object} [meta={}] - Session metadata { topicTitle, difficulty }
  */
@@ -116,6 +150,7 @@ function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '', meta = {}) 
   const summaryEl = document.getElementById('summary-content');
   const quizEl = document.getElementById('quiz-content');
   const flashcardsEl = document.getElementById('flashcards-content');
+  const glossaryEl = document.getElementById('glossary-content');
   const progressEl = document.getElementById('quiz-progress-section');
 
   if (summaryEl && studyKit.summary) {
@@ -128,6 +163,10 @@ function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '', meta = {}) 
 
   if (flashcardsEl && Array.isArray(studyKit.flashcards)) {
     renderFlashcards(studyKit.flashcards, flashcardsEl, sessionId);
+  }
+
+  if (glossaryEl && Array.isArray(studyKit.glossary)) {
+    renderGlossary(studyKit.glossary, glossaryEl);
   }
 
   if (progressEl) {
@@ -1463,6 +1502,132 @@ function renderQuizProgress(container) {
   }
 }
 
+/**
+ * Renders the glossary of key terms and definitions into the glossary container.
+ * Supports a real-time search filter and copy-to-clipboard button per term.
+ *
+ * @param {Array<Object>} glossaryItems - Array of { term, definition }
+ * @param {HTMLElement} container - DOM container element (#glossary-content)
+ */
+function renderGlossary(glossaryItems, container) {
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!Array.isArray(glossaryItems) || glossaryItems.length === 0) {
+    container.innerHTML = `
+      <div class="summary-card-placeholder">
+        <div class="placeholder-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+        </div>
+        <h4>No Glossary Terms Yet</h4>
+        <p>Key terms and clear definitions generated from your notes will appear here.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'glossary-rendered-wrapper';
+
+  // Toolbar with Search and Count
+  const toolbar = document.createElement('div');
+  toolbar.className = 'glossary-toolbar';
+  toolbar.innerHTML = `
+    <div class="glossary-search-wrapper">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="search" class="glossary-search-input" placeholder="Search key terms and definitions..." aria-label="Search glossary terms">
+    </div>
+    <span class="glossary-count-badge">${glossaryItems.length} Terms</span>
+  `;
+  wrapper.appendChild(toolbar);
+
+  // Cards Grid
+  const grid = document.createElement('div');
+  grid.className = 'glossary-grid';
+
+  glossaryItems.forEach((item, index) => {
+    const card = document.createElement('div');
+    card.className = 'glossary-card';
+    card.setAttribute('data-term', (item.term || '').toLowerCase());
+    card.setAttribute('data-def', (item.definition || '').toLowerCase());
+
+    card.innerHTML = `
+      <div class="glossary-card-header">
+        <div class="glossary-term-group">
+          <span class="glossary-term-badge">#${index + 1}</span>
+          <h4 class="glossary-term-title">${escapeHtml(item.term)}</h4>
+        </div>
+        <button type="button" class="btn-copy-term action-btn-xs" title="Copy term and definition" aria-label="Copy ${escapeHtml(item.term)}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <p class="glossary-term-def">${escapeHtml(item.definition)}</p>
+    `;
+
+    // Copy Handler
+    const copyBtn = card.querySelector('.btn-copy-term');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        const textToCopy = `${item.term}: ${item.definition}`;
+        if (window.StudyUtils && window.StudyUtils.copyToClipboard) {
+          const ok = await window.StudyUtils.copyToClipboard(textToCopy);
+          if (ok) {
+            const originalHtml = copyBtn.innerHTML;
+            copyBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Copied!</span>
+            `;
+            if (window.StudyUtils.showToast) {
+              window.StudyUtils.showToast(`Copied "${item.term}" to clipboard!`, 'success');
+            }
+            setTimeout(() => {
+              copyBtn.innerHTML = originalHtml;
+            }, 1800);
+          }
+        }
+      });
+    }
+
+    grid.appendChild(card);
+  });
+
+  wrapper.appendChild(grid);
+  container.appendChild(wrapper);
+
+  // Live filter search
+  const searchInput = toolbar.querySelector('.glossary-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      const cards = grid.querySelectorAll('.glossary-card');
+      let visibleCount = 0;
+      cards.forEach((c) => {
+        const term = c.getAttribute('data-term') || '';
+        const def = c.getAttribute('data-def') || '';
+        const matches = !q || term.includes(q) || def.includes(q);
+        c.style.display = matches ? '' : 'none';
+        if (matches) visibleCount++;
+      });
+      const badge = toolbar.querySelector('.glossary-count-badge');
+      if (badge) {
+        badge.textContent = q ? `${visibleCount} of ${glossaryItems.length}` : `${glossaryItems.length} Terms`;
+      }
+    });
+  }
+}
+
 // Global namespace exposure
 window.StudyRender = {
   FAKE_AI_RESPONSE,
@@ -1472,5 +1637,6 @@ window.StudyRender = {
   renderQuiz,
   renderQuizProgress,
   renderFlashcards,
+  renderGlossary,
   renderHistory,
 };

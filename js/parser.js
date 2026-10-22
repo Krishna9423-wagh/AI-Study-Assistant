@@ -80,6 +80,26 @@ function validateStudyKit(data, expectedQuestionCount = 5) {
     }
   });
 
+  // 4. Validate glossary array (6-10 key terms with term and definition)
+  if (!Array.isArray(data.glossary) || data.glossary.length === 0) {
+    throw new Error('Malformed JSON: Missing or empty "glossary" array in AI output.');
+  }
+
+  if (data.glossary.length < 6 || data.glossary.length > 10) {
+    if (data.glossary.length < 6) {
+      throw new Error(`Malformed JSON: Glossary must contain at least 6 key terms (received ${data.glossary.length}).`);
+    }
+  }
+
+  data.glossary.forEach((item, idx) => {
+    if (!item.term || typeof item.term !== 'string' || !item.term.trim()) {
+      throw new Error(`Malformed JSON: Glossary item #${idx + 1} is missing a valid "term" string.`);
+    }
+    if (!item.definition || typeof item.definition !== 'string' || !item.definition.trim()) {
+      throw new Error(`Malformed JSON: Glossary item #${idx + 1} is missing a valid "definition" string.`);
+    }
+  });
+
   return true;
 }
 

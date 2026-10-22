@@ -105,6 +105,40 @@ const FAKE_AI_RESPONSE = {
       front: "Chemiosmosis in Chloroplasts",
       back: "The generation of ATP by ATP Synthase driven by a transmembrane proton gradient across the thylakoid membrane."
     }
+  ],
+  glossary: [
+    {
+      term: "Photosynthesis",
+      definition: "The biochemical process by which autotrophic organisms convert solar radiant energy into chemical energy stored in glucose."
+    },
+    {
+      term: "Chloroplast",
+      definition: "A specialized organelle containing thylakoids and stroma, serving as the primary site of photosynthetic reactions in plants."
+    },
+    {
+      term: "Chlorophyll",
+      definition: "The primary photosynthetic green pigment that absorbs light energy (chiefly blue and red wavelengths) to excite electrons."
+    },
+    {
+      term: "Thylakoid",
+      definition: "Flattened membrane-bound sac inside the chloroplast where the light-dependent reactions and photolysis occur."
+    },
+    {
+      term: "Stroma",
+      definition: "The colorless, protein-rich fluid matrix surrounding thylakoids where the light-independent Calvin cycle occurs."
+    },
+    {
+      term: "Photolysis",
+      definition: "The light-activated enzymatic splitting of water molecules into protons, electrons, and oxygen gas at Photosystem II."
+    },
+    {
+      term: "RuBisCO",
+      definition: "Ribulose-1,5-bisphosphate carboxylase-oxygenase, the critical enzyme catalyzing carbon dioxide fixation in the Calvin cycle."
+    },
+    {
+      term: "ATP Synthase",
+      definition: "A membrane-bound protein complex that synthesizes ATP from ADP and phosphate driven by a proton gradient."
+    }
   ]
 };
 
@@ -193,6 +227,50 @@ function initSettings() {
   const timedQuizCheckbox = document.getElementById('timed-quiz-checkbox');
   if (timedQuizCheckbox && savedSettings.timedQuiz !== undefined) {
     timedQuizCheckbox.checked = Boolean(savedSettings.timedQuiz);
+  }
+
+  // Mode toggle (Use my notes vs Topic only)
+  const modeNotesBtn = document.getElementById('mode-notes-btn');
+  const modeTopicBtn = document.getElementById('mode-topic-btn');
+  const languageSelect = document.getElementById('language-select');
+  const studyTextarea = document.getElementById('study-textarea');
+
+  function applyMode(mode) {
+    const isTopic = mode === 'topic';
+    if (modeNotesBtn && modeTopicBtn) {
+      modeNotesBtn.classList.toggle('active', !isTopic);
+      modeNotesBtn.setAttribute('aria-checked', !isTopic ? 'true' : 'false');
+      modeTopicBtn.classList.toggle('active', isTopic);
+      modeTopicBtn.setAttribute('aria-checked', isTopic ? 'true' : 'false');
+    }
+    if (studyTextarea) {
+      studyTextarea.placeholder = isTopic
+        ? 'Enter a specific topic or concept here... (e.g., Photosynthesis light reactions, Operating System Deadlocks, Causes of World War I)'
+        : 'Paste your study notes, textbook excerpt, lecture transcription, or complex topic here... (e.g., Photosynthesis light reactions, Operating System Deadlocks, French Revolution causes)';
+    }
+    const cur = window.StudyStorage.getSettings();
+    window.StudyStorage.saveSettings({ ...cur, mode: isTopic ? 'topic' : 'notes' });
+  }
+
+  if (savedSettings.mode) {
+    applyMode(savedSettings.mode);
+  }
+
+  if (modeNotesBtn) {
+    modeNotesBtn.addEventListener('click', () => applyMode('notes'));
+  }
+  if (modeTopicBtn) {
+    modeTopicBtn.addEventListener('click', () => applyMode('topic'));
+  }
+
+  if (savedSettings.language && languageSelect) {
+    languageSelect.value = savedSettings.language;
+  }
+  if (languageSelect) {
+    languageSelect.addEventListener('change', () => {
+      const cur = window.StudyStorage.getSettings();
+      window.StudyStorage.saveSettings({ ...cur, language: languageSelect.value });
+    });
   }
 
   // 2. Remember dropdowns' and checkboxes' last values in localStorage whenever changed
@@ -408,10 +486,17 @@ function initGenerateHandler() {
 
     // 2. Read and validate Study Notes Input
     const content = textarea ? textarea.value.trim() : '';
+    const isTopicMode = document.getElementById('mode-topic-btn')?.classList.contains('active');
+    const mode = isTopicMode ? 'topic' : 'notes';
+    const languageSelect = document.getElementById('language-select');
+    const language = languageSelect ? languageSelect.value : 'English';
+
     if (!content) {
       showError(
-        'Study notes are empty. Please enter notes, lecture excerpts, or a study topic to generate materials.',
-        'Study Material Required'
+        isTopicMode
+          ? 'Topic is empty. Please enter a topic or concept to generate materials.'
+          : 'Study notes are empty. Please enter notes, lecture excerpts, or a study topic to generate materials.',
+        isTopicMode ? 'Topic Required' : 'Study Material Required'
       );
       if (textarea) textarea.focus();
       return;
@@ -442,6 +527,8 @@ function initGenerateHandler() {
         difficulty,
         style: answerStyle,
         questionCount,
+        mode,
+        language,
       });
 
       // 5. Parse and validate JSON (strips ```json code fences and verifies schema + question count)
@@ -458,6 +545,8 @@ function initGenerateHandler() {
         difficulty: difficulty,
         answerStyle: answerStyle,
         questionCount: questionCount,
+        mode: mode,
+        language: language,
         result: studyKit,
         date: new Date().toISOString(),
       });
@@ -598,6 +687,13 @@ function updatePanelIndicators(studyKit) {
     const status = flashcardsPanel.querySelector('.status-indicator');
     const count = studyKit?.flashcards?.length || 5;
     if (status) status.textContent = `${count} Cards Ready`;
+  }
+
+  const glossaryPanel = document.getElementById('tab-glossary-panel');
+  if (glossaryPanel) {
+    const status = glossaryPanel.querySelector('.status-indicator');
+    const count = studyKit?.glossary?.length || 0;
+    if (status) status.textContent = `${count} Terms Ready`;
   }
 }
 
@@ -1122,6 +1218,11 @@ function initRegenerateHandler() {
     if (loadingIndicator) loadingIndicator.classList.remove('hidden');
     if (errorBox) errorBox.classList.add('hidden');
 
+    const isTopicMode = document.getElementById('mode-topic-btn')?.classList.contains('active');
+    const mode = isTopicMode ? 'topic' : 'notes';
+    const languageSelect = document.getElementById('language-select');
+    const language = languageSelect ? languageSelect.value : 'English';
+
     try {
       // 4. Request alternative variation from API with "give a different variation" prompt
       const rawText = await window.StudyApi.fetchStudyKit({
@@ -1131,6 +1232,8 @@ function initRegenerateHandler() {
         style: answerStyle,
         questionCount,
         isVariation: true,
+        mode,
+        language,
       });
 
       // 5. Parse JSON response and validate
@@ -1148,6 +1251,8 @@ function initRegenerateHandler() {
         difficulty: difficulty,
         answerStyle: answerStyle,
         questionCount: questionCount,
+        mode,
+        language,
         result: studyKit,
         date: new Date().toISOString(),
       });
