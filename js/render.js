@@ -11,146 +11,202 @@
  * Used for testing and initial UI demonstrations.
  */
 const FAKE_AI_RESPONSE = {
-  summary: `Photosynthesis is the fundamental biochemical pathway by which photoautotrophs convert solar radiant energy into chemical energy stored in glucose molecules.
+  title: "Quantum Mechanics",
+  summary: `### Quantum Mechanics: Core Principles & Wave-Particle Duality
+Quantum mechanics provides the mathematical framework describing the behavior of matter and light at atomic and subatomic dimensions.
 
-### Stage 1: Light-Dependent Reactions
-- **Location:** Occurs across the thylakoid membrane within chloroplasts.
-- **Mechanism:** Photons excite electrons in Photosystem II (P680) and Photosystem I (P700).
-- **Photolysis:** Water molecules split ($2H_2O \\rightarrow O_2 + 4H^+ + 4e^-$), liberating oxygen as a vital byproduct.
-- **Energy Products:** Electron transport generates a proton gradient that drives ATP Synthase (chemiosmosis) and reduces NADP+ into NADPH.
+#### 1. Wave-Particle Duality
+- **de Broglie Hypothesis:** Every moving particle (such as an electron) has an associated matter wave: $\\lambda = \\frac{h}{p}$ where $h$ is Planck's constant ($6.626 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$) and $p$ is linear momentum.
+- **Photoelectric Effect:** Einstein demonstrated that light consists of discrete energy packets (photons) with energy $E = h\\nu$.
+- **Electron Diffraction:** Davisson and Germer proved electrons diffract like light through crystal lattices.
 
-### Stage 2: Light-Independent Reactions (Calvin Cycle)
-- **Location:** Occurs in the chloroplast stroma.
-- **Carbon Fixation:** Catalyzed by the abundant enzyme **RuBisCO**, fixing atmospheric CO2 into 3-phosphoglycerate (3-PGA).
-- **Synthesis:** Utilizes ATP and NADPH to reduce intermediates into G3P (glyceraldehyde-3-phosphate), the fundamental building block for glucose and starches.`,
+#### 2. The Schrödinger Equation & Wavefunction
+- **Wavefunction ($\\Psi$):** Completely specifies the quantum state of a physical system.
+- **Born Probability Rule:** The probability density of locating a particle in space is given by $|\\Psi(x, t)|^2$.
+- **Superposition Principle:** Before measurement, a quantum system exists as a linear combination of all possible eigenstates.
+
+#### 3. Heisenberg Uncertainty Principle
+- **Fundamental Limit:** Position ($x$) and momentum ($p$) cannot be simultaneously measured with arbitrary precision: $\\Delta x \\cdot \\Delta p \\ge \\frac{\\hbar}{2}$.
+- **Energy-Time Uncertainty:** $\\Delta E \\cdot \\Delta t \\ge \\frac{\\hbar}{2}$, allowing brief quantum vacuum fluctuations.
+
+#### 4. Quantum Tunneling & Modern Applications
+- **Barrier Penetration:** Particles possess a non-zero transmission probability to traverse potential barriers higher than their kinetic energy.
+- **Key Technologies:** Powers tunnel diodes, Flash memory floating gates, scanning tunneling microscopes (STM), and nuclear fusion inside stars.`,
+
+  outline: [
+    {
+      title: "1. Dual Nature of Light & Matter",
+      children: [
+        "Planck's quantum hypothesis and blackbody radiation resolution",
+        "Photoelectric effect and photon energy quanta (E = hv)",
+        "De Broglie relation (lambda = h/p) and matter wave interference",
+        "Experimental proof via electron double-slit diffraction"
+      ]
+    },
+    {
+      title: "2. Wavefunctions & Quantum Measurement",
+      children: [
+        "Schrödinger wave equation (time-dependent and stationary states)",
+        "Born interpretation: probability density |Psi|^2",
+        "Quantum superposition and state collapse upon observation"
+      ]
+    },
+    {
+      title: "3. Uncertainty & Quantum Tunneling",
+      children: [
+        "Heisenberg position-momentum inequality (Delta x * Delta p >= hbar/2)",
+        "Energy-time uncertainty relation and quantum fluctuations",
+        "Tunneling through finite potential barriers and practical applications"
+      ]
+    }
+  ],
 
   quiz: [
     {
-      question: "Where do the light-dependent reactions of photosynthesis take place?",
+      question: "What does the de Broglie equation (λ = h/p) establish?",
       options: [
-        "Stroma of the chloroplast",
-        "Thylakoid membrane",
-        "Outer mitochondrial matrix",
-        "Cellular cytoplasm"
+        "Speed of light in a vacuum",
+        "Wave-particle duality of moving matter",
+        "Total binding energy of a nucleus",
+        "Radioactive decay half-life"
       ],
       answer: 1,
-      explanation: "Light-dependent reactions occur within the thylakoid membrane where chlorophyll pigments, photosystems, and ATP synthase are embedded."
+      explanation: "The de Broglie relation demonstrates that any moving mass with momentum p possesses an associated wavelength λ."
     },
     {
-      question: "Which molecule is split during photolysis to donate replacement electrons to Photosystem II?",
+      question: "According to Max Born, what physical property does |Ψ|² represent?",
       options: [
-        "Carbon Dioxide (CO2)",
-        "Glucose (C6H12O6)",
-        "Water (H2O)",
-        "NADPH"
+        "Exact kinetic energy of the electron",
+        "Probability density of finding the particle in space",
+        "Total electrical charge density",
+        "Instantaneous linear acceleration"
+      ],
+      answer: 1,
+      explanation: "The Born rule states that the squared magnitude of the wavefunction |Ψ|² gives the probability density of finding the particle at that location."
+    },
+    {
+      question: "What is Planck's constant (h) fundamental value?",
+      options: [
+        "3.00 × 10⁸ m/s",
+        "6.626 × 10⁻³⁴ J·s",
+        "1.602 × 10⁻¹⁹ C",
+        "9.109 × 10⁻³¹ kg"
+      ],
+      answer: 1,
+      explanation: "Planck's constant h ≈ 6.626 × 10⁻³⁴ J·s relates photon frequency to its quantum of energy (E = hν)."
+    },
+    {
+      question: "Which quantum phenomenon allows electrons to cross energy barriers higher than their kinetic energy?",
+      options: [
+        "Photoelectric effect",
+        "Thermal expansion",
+        "Quantum tunneling",
+        "Centripetal acceleration"
       ],
       answer: 2,
-      explanation: "Water (H2O) is photolyzed by the oxygen-evolving complex at Photosystem II, releasing molecular oxygen (O2), protons, and electrons."
+      explanation: "Quantum tunneling occurs when the wave-like particle leaks exponentially through a finite potential barrier."
     },
     {
-      question: "What is the primary enzyme responsible for carbon fixation in the Calvin Cycle?",
+      question: "What does the Heisenberg Uncertainty Principle forbid?",
       options: [
-        "ATP Synthase",
-        "RuBisCO",
-        "DNA Polymerase",
-        "Catalase"
-      ],
-      answer: 1,
-      explanation: "RuBisCO (Ribulose-1,5-bisphosphate carboxylase-oxygenase) catalyzes the crucial initial fixation of atmospheric CO2 into 3-PGA."
-    },
-    {
-      question: "Which two energy-rich products generated by light reactions power the Calvin Cycle?",
-      options: [
-        "ATP and NADPH",
-        "ADP and NADP+",
-        "Glucose and Oxygen",
-        "Pyruvate and Acetyl-CoA"
+        "Simultaneously measuring exact position and momentum",
+        "Photons travelling at the speed of light",
+        "Electrons having negative electrical charge",
+        "Energy conservation in chemical reactions"
       ],
       answer: 0,
-      explanation: "ATP provides phosphorylation energy and NADPH supplies high-energy reducing electrons needed to synthesize G3P."
-    },
-    {
-      question: "What directly drives ATP synthesis during chloroplast photophosphorylation?",
-      options: [
-        "Direct photon absorption by ATP Synthase",
-        "Electrochemical proton (H+) gradient across the thylakoid membrane",
-        "Hydrolysis of cellular glucose",
-        "Absorption of atmospheric nitrogen"
-      ],
-      answer: 1,
-      explanation: "Protons concentrated in the thylakoid lumen flow through ATP synthase down their electrochemical gradient into the stroma, synthesizing ATP."
+      explanation: "Δx·Δp ≥ ℏ/2 proves position and momentum cannot both have zero uncertainty simultaneously."
     }
   ],
 
   flashcards: [
     {
-      front: "What is Photolysis?",
-      back: "The light-driven splitting of water (H2O) into oxygen, hydrogen ions, and replacement electrons at Photosystem II."
+      front: "What is Planck's constant?",
+      back: "h ≈ 6.626 × 10⁻³⁴ J·s: The fundamental physical constant relating photon frequency to electromagnetic energy (E = hν)."
     },
     {
-      front: "What is RuBisCO?",
-      back: "Ribulose-1,5-bisphosphate carboxylase-oxygenase: The primary enzyme catalyzing carbon fixation in the Calvin cycle."
+      front: "Quantum Tunneling",
+      back: "A quantum mechanical phenomenon where a wave-particle penetrates and traverses a potential energy barrier higher than its kinetic energy."
     },
     {
-      front: "Thylakoid vs. Stroma",
-      back: "Thylakoids are membranes hosting the light reactions; the stroma is the fluid matrix where the Calvin Cycle synthesizes sugars."
+      front: "Wave-Particle Duality",
+      back: "The principle that light and matter exhibit both wave-like (interference, diffraction) and particle-like (localized collisions) properties."
     },
     {
-      front: "Role of NADPH in Photosynthesis",
-      back: "Serves as an essential reducing agent, donating electrons and protons to convert 3-PGA into glyceraldehyde-3-phosphate (G3P)."
+      front: "Heisenberg Uncertainty Principle",
+      back: "Fundamental limit stating position and momentum cannot simultaneously be known with arbitrary precision: Δx·Δp ≥ ℏ/2."
     },
     {
-      front: "Chemiosmosis in Chloroplasts",
-      back: "The generation of ATP by ATP Synthase driven by a transmembrane proton gradient across the thylakoid membrane."
+      front: "Born Rule (|Ψ|²)",
+      back: "The postulate stating the squared absolute magnitude of the wavefunction gives the probability density of observing a particle."
+    },
+    {
+      front: "Quantum Superposition",
+      back: "The ability of a quantum system to exist simultaneously in a linear combination of multiple possible eigenstates prior to measurement."
     }
   ],
+
   glossary: [
     {
-      term: "Photosynthesis",
-      definition: "The biochemical process by which autotrophic organisms convert solar radiant energy into chemical energy stored in glucose."
+      term: "Planck's Constant",
+      definition: "A fundamental physical constant (h ≈ 6.626 × 10⁻³⁴ J·s) that sets the scale of quantum effects."
     },
     {
-      term: "Chloroplast",
-      definition: "A specialized organelle containing thylakoids and stroma, serving as the primary site of photosynthetic reactions in plants."
+      term: "Wave-Particle Duality",
+      definition: "The property where matter and electromagnetic radiation exhibit both wave and particle characteristics."
     },
     {
-      term: "Chlorophyll",
-      definition: "The primary photosynthetic green pigment that absorbs light energy (chiefly blue and red wavelengths) to excite electrons."
+      term: "Quantum Tunneling",
+      definition: "The transit of a particle through a potential energy barrier higher than the particle's kinetic energy."
     },
     {
-      term: "Thylakoid",
-      definition: "Flattened membrane-bound sac inside the chloroplast where the light-dependent reactions and photolysis occur."
+      term: "Wavefunction",
+      definition: "A mathematical function (Ψ) that completely characterizes the quantum state of a particle or system."
     },
     {
-      term: "Stroma",
-      definition: "The colorless, protein-rich fluid matrix surrounding thylakoids where the light-independent Calvin cycle occurs."
+      term: "Superposition",
+      definition: "A principle where a quantum system can exist in multiple distinct states concurrently until measured."
     },
     {
-      term: "Photolysis",
-      definition: "The light-activated enzymatic splitting of water molecules into protons, electrons, and oxygen gas at Photosystem II."
+      term: "Photoelectric Effect",
+      definition: "The emission of electrons from a material when illuminated by photons with energy above the work function."
     },
     {
-      term: "RuBisCO",
-      definition: "Ribulose-1,5-bisphosphate carboxylase-oxygenase, the critical enzyme catalyzing carbon dioxide fixation in the Calvin cycle."
+      term: "Uncertainty Principle",
+      definition: "Heisenberg's theorem establishing that conjugate physical variables cannot both be determined with infinite accuracy."
     },
     {
-      term: "ATP Synthase",
-      definition: "A membrane-bound protein complex that synthesizes ATP from ADP and phosphate driven by a proton gradient."
+      term: "Photon",
+      definition: "An elementary particle and quantum packet of electromagnetic radiation with zero rest mass."
     }
   ]
 };
 
 /**
- * Primary coordinator: renders summary, quiz, flashcards, glossary, and quiz progress into DOM containers.
- * @param {Object} studyKit - Study kit object { summary, quiz, flashcards, glossary }
+ * Primary coordinator: renders summary, quiz, flashcards, glossary, outline, and quiz progress into DOM containers.
+ * @param {Object} studyKit - Study kit object { summary, quiz, flashcards, glossary, outline }
  * @param {string} [sessionId=''] - Unique history session ID for tracking card mastery
  * @param {Object} [meta={}] - Session metadata { topicTitle, difficulty }
  */
 function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '', meta = {}) {
+  if (!studyKit || typeof studyKit !== 'object') {
+    console.error('render.js: Invalid studyKit passed to renderStudyKit', studyKit);
+    return;
+  }
+
+  // Update active session subtitle in top navbar
+  const sessionBannerEl = document.getElementById('active-session-title');
+  if (sessionBannerEl) {
+    const topicTitle = meta.topicTitle || studyKit.title || 'Quantum Mechanics';
+    sessionBannerEl.textContent = topicTitle;
+  }
+
   const summaryEl = document.getElementById('summary-content');
   const quizEl = document.getElementById('quiz-content');
   const flashcardsEl = document.getElementById('flashcards-content');
   const glossaryEl = document.getElementById('glossary-content');
+  const outlineEl = document.getElementById('outline-content');
+  const outlineTabBtn = document.getElementById('tab-outline-btn');
   const progressEl = document.getElementById('quiz-progress-section');
 
   if (summaryEl && studyKit.summary) {
@@ -167,6 +223,14 @@ function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '', meta = {}) 
 
   if (glossaryEl && Array.isArray(studyKit.glossary)) {
     renderGlossary(studyKit.glossary, glossaryEl);
+  }
+
+  if (outlineEl && Array.isArray(studyKit.outline) && studyKit.outline.length > 0) {
+    if (outlineTabBtn) outlineTabBtn.classList.remove('hidden');
+    renderOutline(studyKit.outline, outlineEl);
+  } else if (outlineTabBtn) {
+    // If no outline present, keep tab hidden gracefully
+    outlineTabBtn.classList.add('hidden');
   }
 
   if (progressEl) {
@@ -881,8 +945,23 @@ function renderFlashcards(flashcards, container, sessionId = '') {
       <div class="fc-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="${totalCards}" aria-valuenow="0" aria-label="Flashcard mastery progress">
         <div class="fc-progress-fill" id="fc-progress-fill" style="width: 0%"></div>
       </div>
+      <!-- Leitner 3-Box Stats Chips -->
+      <div class="fc-srs-boxes-bar" id="fc-srs-boxes-bar">
+        <span class="srs-box-chip srs-chip-1" title="Box 1: Challenging / Reviewed most often">Box 1: <strong id="srs-count-box1">0</strong></span>
+        <span class="srs-box-chip srs-chip-2" title="Box 2: Familiar / Moderate interval">Box 2: <strong id="srs-count-box2">0</strong></span>
+        <span class="srs-box-chip srs-chip-3" title="Box 3: Mastered / Longest interval">Box 3: <strong id="srs-count-box3">0</strong></span>
+      </div>
     </div>
     <div class="fc-toolbar-actions">
+      <!-- Leitner SRS Review Due Cards Button -->
+      <button type="button" class="btn btn-sm btn-srs-review" id="fc-srs-review-btn" title="Review due cards using Leitner 3-box spaced repetition">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 14 14"></polyline>
+        </svg>
+        <span>Review due cards</span>
+      </button>
+
       <!-- "Study only unknown cards" filter toggle -->
       <label class="fc-filter-toggle" for="fc-unknown-toggle" title="Filter to show only cards not yet marked as Known">
         <input type="checkbox" id="fc-unknown-toggle">
@@ -921,7 +1000,23 @@ function renderFlashcards(flashcards, container, sessionId = '') {
   const progressTrackEl = toolbar.querySelector('.fc-progress-track');
   const resetBtn = toolbar.querySelector('#fc-reset-progress-btn');
   const shuffleBtn = toolbar.querySelector('#fc-shuffle-btn');
+  const srsReviewBtn = toolbar.querySelector('#fc-srs-review-btn');
   const unknownFilterToggle = toolbar.querySelector('#fc-unknown-toggle');
+  const srsCount1El = toolbar.querySelector('#srs-count-box1');
+  const srsCount2El = toolbar.querySelector('#srs-count-box2');
+  const srsCount3El = toolbar.querySelector('#srs-count-box3');
+
+  /**
+   * Updates SRS Leitner box counters in the toolbar.
+   */
+  function updateSrsBoxCounts() {
+    if (window.StudySRS && typeof window.StudySRS.getBoxCounts === 'function') {
+      const counts = window.StudySRS.getBoxCounts();
+      if (srsCount1El) srsCount1El.textContent = counts.box1 || 0;
+      if (srsCount2El) srsCount2El.textContent = counts.box2 || 0;
+      if (srsCount3El) srsCount3El.textContent = counts.box3 || 0;
+    }
+  }
 
   /**
    * Recalculates mastery counts, updates progress bar & counter, and persists to localStorage.
@@ -956,6 +1051,8 @@ function renderFlashcards(flashcards, container, sessionId = '') {
     if (shouldSave) {
       window.StudyStorage.saveFlashcardMastery(sessionId, masteryObj);
     }
+
+    updateSrsBoxCounts();
   }
 
   // Preserve cards list with original indices for correct mastery persistence across shuffles
@@ -997,6 +1094,7 @@ function renderFlashcards(flashcards, container, sessionId = '') {
 
     cardsToDisplay.forEach((card, displayIndex) => {
       const originalIdx = card.originalIndex;
+      const srsBox = window.StudySRS ? window.StudySRS.getCardBox(card) : 1;
 
       // Card container holding the 3D flipping card AND the action buttons under it
       const cardContainer = document.createElement('div');
@@ -1018,6 +1116,7 @@ function renderFlashcards(flashcards, container, sessionId = '') {
             <div class="flashcard-meta">
               <span class="flashcard-tag">Term / Question</span>
               <div class="flashcard-meta-right">
+                <span class="fc-srs-box-badge srs-box-${srsBox}" id="fc-srs-front-${originalIdx}">Box ${srsBox}</span>
                 <span class="fc-green-badge hidden" id="fc-badge-front-${originalIdx}">✓ Known</span>
                 <span class="flashcard-number">${displayIndex + 1} of ${cardsToDisplay.length}</span>
               </div>
@@ -1036,6 +1135,7 @@ function renderFlashcards(flashcards, container, sessionId = '') {
             <div class="flashcard-meta">
               <span class="flashcard-tag">Explanation / Answer</span>
               <div class="flashcard-meta-right">
+                <span class="fc-srs-box-badge srs-box-${srsBox}" id="fc-srs-back-${originalIdx}">Box ${srsBox}</span>
                 <span class="fc-green-badge hidden" id="fc-badge-back-${originalIdx}">✓ Known</span>
                 <span class="flashcard-number">${displayIndex + 1} of ${cardsToDisplay.length}</span>
               </div>
@@ -1070,7 +1170,7 @@ function renderFlashcards(flashcards, container, sessionId = '') {
       actionsEl.setAttribute('aria-label', `Mark mastery for card ${displayIndex + 1}`);
 
       actionsEl.innerHTML = `
-        <button type="button" class="fc-btn fc-btn-not-known" id="btn-not-known-${originalIdx}" title="Mark as not known / review needed">
+        <button type="button" class="fc-btn fc-btn-not-known" id="btn-not-known-${originalIdx}" title="Mark as not known / review needed (moves to Leitner Box 1)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -1078,7 +1178,7 @@ function renderFlashcards(flashcards, container, sessionId = '') {
           </svg>
           <span>Not known</span>
         </button>
-        <button type="button" class="fc-btn fc-btn-known" id="btn-known-${originalIdx}" title="Mark as known / mastered">
+        <button type="button" class="fc-btn fc-btn-known" id="btn-known-${originalIdx}" title="Mark as known / mastered (promotes to next Leitner Box)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
@@ -1098,6 +1198,8 @@ function renderFlashcards(flashcards, container, sessionId = '') {
       const btnCopyCard = actionsEl.querySelector(`#btn-copy-card-${originalIdx}`);
       const badgeFront = cardEl.querySelector(`#fc-badge-front-${originalIdx}`);
       const badgeBack = cardEl.querySelector(`#fc-badge-back-${originalIdx}`);
+      const srsBadgeFront = cardEl.querySelector(`#fc-srs-front-${originalIdx}`);
+      const srsBadgeBack = cardEl.querySelector(`#fc-srs-back-${originalIdx}`);
 
       // Copy handler for single flashcard
       if (btnCopyCard) {
@@ -1159,6 +1261,24 @@ function renderFlashcards(flashcards, container, sessionId = '') {
           cardMastery.delete(originalIdx);
         }
         applyCardVisualState(nextStatus);
+
+        // Promote in Leitner SRS
+        if (window.StudySRS && window.StudySRS.promoteCard) {
+          const newBox = window.StudySRS.promoteCard(card);
+          if (srsBadgeFront) {
+            srsBadgeFront.textContent = `Box ${newBox}`;
+            srsBadgeFront.className = `fc-srs-box-badge srs-box-${newBox}`;
+          }
+          if (srsBadgeBack) {
+            srsBadgeBack.textContent = `Box ${newBox}`;
+            srsBadgeBack.className = `fc-srs-box-badge srs-box-${newBox}`;
+          }
+        }
+
+        if (window.StudyStorage && window.StudyStorage.recordActivity) {
+          window.StudyStorage.recordActivity();
+        }
+
         updateProgressUI(true);
 
         // If unknown-only filter is active and card marked known, update grid view
@@ -1177,6 +1297,24 @@ function renderFlashcards(flashcards, container, sessionId = '') {
           cardMastery.delete(originalIdx);
         }
         applyCardVisualState(nextStatus);
+
+        // Demote in Leitner SRS to Box 1
+        if (window.StudySRS && window.StudySRS.demoteCard) {
+          window.StudySRS.demoteCard(card);
+          if (srsBadgeFront) {
+            srsBadgeFront.textContent = `Box 1`;
+            srsBadgeFront.className = `fc-srs-box-badge srs-box-1`;
+          }
+          if (srsBadgeBack) {
+            srsBadgeBack.textContent = `Box 1`;
+            srsBadgeBack.className = `fc-srs-box-badge srs-box-1`;
+          }
+        }
+
+        if (window.StudyStorage && window.StudyStorage.recordActivity) {
+          window.StudyStorage.recordActivity();
+        }
+
         updateProgressUI(true);
       });
 
@@ -1184,6 +1322,29 @@ function renderFlashcards(flashcards, container, sessionId = '') {
       cardContainer.appendChild(cardEl);
       cardContainer.appendChild(actionsEl);
       grid.appendChild(cardContainer);
+    });
+  }
+
+  // Initial Grid Render and SRS Counts
+  renderCardsGrid();
+  updateSrsBoxCounts();
+
+  // Bind SRS Due Cards Review button
+  if (srsReviewBtn) {
+    srsReviewBtn.addEventListener('click', () => {
+      if (window.StudySRS && window.StudySRS.buildWeightedReviewSession) {
+        const weighted = window.StudySRS.buildWeightedReviewSession(flashcards);
+        if (weighted && weighted.length > 0) {
+          currentCards = weighted.map((c, i) => ({
+            ...c,
+            originalIndex: c.originalIndex !== undefined ? c.originalIndex : i,
+          }));
+          renderCardsGrid();
+          if (window.StudyUtils && window.StudyUtils.showToast) {
+            window.StudyUtils.showToast(`Loaded ${weighted.length} due cards via Leitner spaced repetition!`, 'info');
+          }
+        }
+      }
     });
   }
 
@@ -1676,6 +1837,280 @@ function renderGlossary(glossaryItems, container) {
   }
 }
 
+/**
+ * Renders hierarchical collapsible outline tree (<details><summary>).
+ * @param {Array<Object>} outline - Array of { title, children }
+ * @param {HTMLElement} container - DOM container element
+ */
+function renderOutline(outline, container) {
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!Array.isArray(outline) || outline.length === 0) {
+    container.innerHTML = `
+      <div class="summary-card-placeholder">
+        <h4>No Outline Available</h4>
+        <p>This study set does not include a hierarchical outline.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'outline-rendered-wrapper';
+
+  const header = document.createElement('div');
+  header.className = 'outline-header-bar';
+  header.innerHTML = `
+    <div class="outline-header-info">
+      <span class="outline-count-badge">${outline.length} Sections</span>
+      <span class="outline-hint">Click sections to expand / collapse</span>
+    </div>
+    <div class="outline-header-actions">
+      <button type="button" class="btn btn-sm btn-secondary" id="outline-expand-all-btn">Expand All</button>
+      <button type="button" class="btn btn-sm btn-secondary" id="outline-collapse-all-btn">Collapse All</button>
+    </div>
+  `;
+  wrapper.appendChild(header);
+
+  const list = document.createElement('div');
+  list.className = 'outline-list';
+
+  outline.forEach((section, idx) => {
+    const details = document.createElement('details');
+    details.className = 'outline-item';
+    details.open = idx === 0;
+
+    const summary = document.createElement('summary');
+    summary.className = 'outline-summary';
+    const childrenCount = Array.isArray(section.children) ? section.children.length : 0;
+    summary.innerHTML = `
+      <div class="outline-summary-content">
+        <svg class="outline-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span class="outline-section-title">${window.StudyUtils ? window.StudyUtils.escapeHtml(section.title) : section.title}</span>
+      </div>
+      <span class="outline-points-count">${childrenCount} points</span>
+    `;
+
+    const childrenList = document.createElement('ul');
+    childrenList.className = 'outline-children';
+    if (Array.isArray(section.children)) {
+      section.children.forEach((child) => {
+        const li = document.createElement('li');
+        li.className = 'outline-child-item';
+        const escaped = window.StudyUtils ? window.StudyUtils.escapeHtml(child) : child;
+        li.innerHTML = `<span class="outline-bullet" aria-hidden="true">•</span><span>${escaped}</span>`;
+        childrenList.appendChild(li);
+      });
+    }
+
+    details.appendChild(summary);
+    details.appendChild(childrenList);
+    list.appendChild(details);
+  });
+
+  wrapper.appendChild(list);
+  container.appendChild(wrapper);
+
+  const expandBtn = header.querySelector('#outline-expand-all-btn');
+  const collapseBtn = header.querySelector('#outline-collapse-all-btn');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', () => {
+      wrapper.querySelectorAll('.outline-item').forEach((d) => (d.open = true));
+    });
+  }
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', () => {
+      wrapper.querySelectorAll('.outline-item').forEach((d) => (d.open = false));
+    });
+  }
+}
+
+/**
+ * Renders the live Dashboard view with streaks, study kit stats, and a CSS bar chart.
+ * @param {HTMLElement} container
+ */
+function renderDashboard(container) {
+  if (!container) return;
+  const stats = window.StudyStorage.getDashboardStats();
+  const streak = window.StudyStorage.getStreakData();
+
+  container.innerHTML = `
+    <div class="dashboard-wrapper">
+      <div class="dashboard-hero">
+        <div class="dashboard-hero-content">
+          <span class="dashboard-greeting">Study Assistant Hub</span>
+          <h2 class="dashboard-title">Learning & Performance Dashboard</h2>
+          <p class="dashboard-subtitle">Monitor your study streak, quiz scores, and spaced repetition retention over time.</p>
+        </div>
+        <div class="streak-hero-card">
+          <div class="streak-fire-icon" aria-hidden="true">🔥</div>
+          <div class="streak-hero-info">
+            <span class="streak-hero-count">${streak.currentStreak || 1} Days</span>
+            <span class="streak-hero-label">Current Streak &bull; Best: ${streak.bestStreak || 1} Days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-Card Metrics Grid -->
+      <div class="dashboard-metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap metric-icon-packs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-value">${stats.totalGenerations}</span>
+            <span class="metric-label">Study Packs Generated</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap metric-icon-quizzes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-value">${stats.quizzesCompleted}</span>
+            <span class="metric-label">Quizzes Completed</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap metric-icon-score">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-value">${stats.averageScorePercent}%</span>
+            <span class="metric-label">Average Quiz Score</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap metric-icon-mastery">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <span class="metric-value">${stats.cardsMastered}</span>
+            <span class="metric-label">Cards in Box 3 (Mastered)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CSS Bar Chart for Recent Quiz Scores -->
+      <div class="card dashboard-chart-card">
+        <div class="chart-header">
+          <div>
+            <h3 class="chart-title">Recent Quiz Performance (Last 10 Quizzes)</h3>
+            <p class="chart-subtitle">Chronological score accuracy plotted with pure CSS bars</p>
+          </div>
+        </div>
+        <div class="dashboard-chart-body" id="dashboard-bar-chart"></div>
+      </div>
+    </div>
+  `;
+
+  const chartBody = container.querySelector('#dashboard-bar-chart');
+  if (chartBody) {
+    if (stats.recentScores.length === 0) {
+      chartBody.innerHTML = `
+        <div class="history-empty-state" style="padding: 2.5rem 1rem;">
+          <p class="empty-title">No Quiz Attempts Recorded</p>
+          <p class="empty-subtitle">Take a quiz in Study Hub to start tracking your accuracy chart here!</p>
+        </div>
+      `;
+    } else {
+      const chartWrap = document.createElement('div');
+      chartWrap.className = 'quiz-chart-container';
+      stats.recentScores.forEach((item, idx) => {
+        const pct = Math.round(((item.score || 0) / (item.total || 5)) * 100);
+        const col = document.createElement('div');
+        col.className = 'quiz-chart-col';
+        col.innerHTML = `
+          <div class="quiz-chart-bar-wrapper" title="${item.topicTitle}: ${item.score}/${item.total} (${pct}%)">
+            <span class="quiz-bar-pct">${pct}%</span>
+            <div class="quiz-chart-bar" style="height: ${Math.max(10, pct)}%;"></div>
+          </div>
+          <span class="quiz-bar-label">#${idx + 1}</span>
+        `;
+        chartWrap.appendChild(col);
+      });
+      chartBody.appendChild(chartWrap);
+    }
+  }
+}
+
+/**
+ * Renders the Pomodoro Focus Timer widget / section.
+ * @param {HTMLElement} container
+ */
+function renderPomodoro(container) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="pomodoro-wrapper card">
+      <div class="pomodoro-header">
+        <div class="pomodoro-title-group">
+          <div class="pomodoro-icon-wrap" aria-hidden="true">
+            <svg class="pomodoro-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h2 class="pomodoro-title">Focus & Pomodoro Timer</h2>
+            <p class="pomodoro-subtitle">25-minute deep focus intervals with 5-minute cognitive breaks</p>
+          </div>
+        </div>
+        <div class="pomodoro-mode-chips" role="tablist">
+          <button type="button" class="pomo-mode-btn active" id="pomo-mode-focus" data-minutes="25">25m Focus</button>
+          <button type="button" class="pomo-mode-btn" id="pomo-mode-break" data-minutes="5">5m Break</button>
+        </div>
+      </div>
+
+      <div class="pomodoro-display-area">
+        <div class="pomodoro-circle-wrap">
+          <svg class="pomodoro-ring-svg" viewBox="0 0 220 220" aria-hidden="true">
+            <circle class="pomo-ring-bg" cx="110" cy="110" r="95"></circle>
+            <circle class="pomo-ring-fill" id="pomo-ring-fill" cx="110" cy="110" r="95" stroke-dasharray="596.9" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="pomodoro-time-text">
+            <span class="pomo-digits" id="pomo-digits">25:00</span>
+            <span class="pomo-status-label" id="pomo-status-label">Ready to Focus</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pomodoro-controls">
+        <button type="button" class="btn btn-primary pomo-btn-start" id="pomo-start-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span id="pomo-start-label">Start Focus</span>
+        </button>
+        <button type="button" class="btn btn-secondary pomo-btn-reset" id="pomo-reset-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 // Global namespace exposure
 window.StudyRender = {
   FAKE_AI_RESPONSE,
@@ -1686,5 +2121,8 @@ window.StudyRender = {
   renderQuizProgress,
   renderFlashcards,
   renderGlossary,
+  renderOutline,
+  renderDashboard,
+  renderPomodoro,
   renderHistory,
 };

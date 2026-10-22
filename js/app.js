@@ -12,132 +12,170 @@
 /**
  * Hard-coded fake AI response object for testing and fallback demonstrations.
  */
+/**
+ * Hard-coded fake AI response object for testing and initial UI demonstrations.
+ * Synced with Quantum Mechanics study kit shown in the reference Study Hub UI.
+ */
 const FAKE_AI_RESPONSE = {
-  summary: `Photosynthesis is the fundamental biochemical pathway by which photoautotrophs convert solar radiant energy into chemical energy stored in glucose molecules.
+  title: "Quantum Mechanics",
+  summary: `### Quantum Mechanics: Core Principles & Wave-Particle Duality
+Quantum mechanics provides the mathematical framework describing the behavior of matter and light at atomic and subatomic dimensions.
 
-### Stage 1: Light-Dependent Reactions
-- **Location:** Occurs across the thylakoid membrane within chloroplasts.
-- **Mechanism:** Photons excite electrons in Photosystem II (P680) and Photosystem I (P700).
-- **Photolysis:** Water molecules split ($2H_2O \\rightarrow O_2 + 4H^+ + 4e^-$), liberating oxygen as a vital byproduct.
-- **Energy Products:** Electron transport generates a proton gradient that drives ATP Synthase (chemiosmosis) and reduces NADP+ into NADPH.
+#### 1. Wave-Particle Duality
+- **de Broglie Hypothesis:** Every moving particle (such as an electron) has an associated matter wave: $\\lambda = \\frac{h}{p}$ where $h$ is Planck's constant ($6.626 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$) and $p$ is linear momentum.
+- **Photoelectric Effect:** Einstein demonstrated that light consists of discrete energy packets (photons) with energy $E = h\\nu$.
+- **Electron Diffraction:** Davisson and Germer proved electrons diffract like light through crystal lattices.
 
-### Stage 2: Light-Independent Reactions (Calvin Cycle)
-- **Location:** Occurs in the chloroplast stroma.
-- **Carbon Fixation:** Catalyzed by the abundant enzyme **RuBisCO**, fixing atmospheric CO2 into 3-phosphoglycerate (3-PGA).
-- **Synthesis:** Utilizes ATP and NADPH to reduce intermediates into G3P (glyceraldehyde-3-phosphate), the fundamental building block for glucose and starches.`,
+#### 2. The Schrödinger Equation & Wavefunction
+- **Wavefunction ($\\Psi$):** Completely specifies the quantum state of a physical system.
+- **Born Probability Rule:** The probability density of locating a particle in space is given by $|\\Psi(x, t)|^2$.
+- **Superposition Principle:** Before measurement, a quantum system exists as a linear combination of all possible eigenstates.
+
+#### 3. Heisenberg Uncertainty Principle
+- **Fundamental Limit:** Position ($x$) and momentum ($p$) cannot be simultaneously measured with arbitrary precision: $\\Delta x \\cdot \\Delta p \\ge \\frac{\\hbar}{2}$.
+- **Energy-Time Uncertainty:** $\\Delta E \\cdot \\Delta t \\ge \\frac{\\hbar}{2}$, allowing brief quantum vacuum fluctuations.
+
+#### 4. Quantum Tunneling & Modern Applications
+- **Barrier Penetration:** Particles possess a non-zero transmission probability to traverse potential barriers higher than their kinetic energy.
+- **Key Technologies:** Powers tunnel diodes, Flash memory floating gates, scanning tunneling microscopes (STM), and nuclear fusion inside stars.`,
+
+  outline: [
+    {
+      title: "1. Dual Nature of Light & Matter",
+      children: [
+        "Planck's quantum hypothesis and blackbody radiation resolution",
+        "Photoelectric effect and photon energy quanta (E = hv)",
+        "De Broglie relation (lambda = h/p) and matter wave interference",
+        "Experimental proof via electron double-slit diffraction"
+      ]
+    },
+    {
+      title: "2. Wavefunctions & Quantum Measurement",
+      children: [
+        "Schrödinger wave equation (time-dependent and stationary states)",
+        "Born interpretation: probability density |Psi|^2",
+        "Quantum superposition and state collapse upon observation"
+      ]
+    },
+    {
+      title: "3. Uncertainty & Quantum Tunneling",
+      children: [
+        "Heisenberg position-momentum inequality (Delta x * Delta p >= hbar/2)",
+        "Energy-time uncertainty relation and quantum fluctuations",
+        "Tunneling through finite potential barriers and practical applications"
+      ]
+    }
+  ],
 
   quiz: [
     {
-      question: "Where do the light-dependent reactions of photosynthesis take place?",
+      question: "What does the de Broglie equation (λ = h/p) establish?",
       options: [
-        "Stroma of the chloroplast",
-        "Thylakoid membrane",
-        "Outer mitochondrial matrix",
-        "Cellular cytoplasm"
+        "Speed of light in a vacuum",
+        "Wave-particle duality of moving matter",
+        "Total binding energy of a nucleus",
+        "Radioactive decay half-life"
       ],
       answer: 1,
-      explanation: "Light-dependent reactions occur within the thylakoid membrane where chlorophyll pigments, photosystems, and ATP synthase are embedded."
+      explanation: "The de Broglie relation demonstrates that any moving mass with momentum p possesses an associated wavelength λ."
     },
     {
-      question: "Which molecule is split during photolysis to donate replacement electrons to Photosystem II?",
+      question: "According to Max Born, what physical property does |Ψ|² represent?",
       options: [
-        "Carbon Dioxide (CO2)",
-        "Glucose (C6H12O6)",
-        "Water (H2O)",
-        "NADPH"
+        "Exact kinetic energy of the electron",
+        "Probability density of finding the particle in space",
+        "Total electrical charge density",
+        "Instantaneous linear acceleration"
+      ],
+      answer: 1,
+      explanation: "The Born rule states that the squared magnitude of the wavefunction |Ψ|² gives the probability density of finding the particle at that location."
+    },
+    {
+      question: "What is Planck's constant (h) fundamental value?",
+      options: [
+        "3.00 × 10⁸ m/s",
+        "6.626 × 10⁻³⁴ J·s",
+        "1.602 × 10⁻¹⁹ C",
+        "9.109 × 10⁻³¹ kg"
+      ],
+      answer: 1,
+      explanation: "Planck's constant h ≈ 6.626 × 10⁻³⁴ J·s relates photon frequency to its quantum of energy (E = hν)."
+    },
+    {
+      question: "Which quantum phenomenon allows electrons to cross energy barriers higher than their kinetic energy?",
+      options: [
+        "Photoelectric effect",
+        "Thermal expansion",
+        "Quantum tunneling",
+        "Centripetal acceleration"
       ],
       answer: 2,
-      explanation: "Water (H2O) is photolyzed by the oxygen-evolving complex at Photosystem II, releasing molecular oxygen (O2), protons, and electrons."
+      explanation: "Quantum tunneling occurs when the wave-like particle leaks exponentially through a finite potential barrier."
     },
     {
-      question: "What is the primary enzyme responsible for carbon fixation in the Calvin Cycle?",
+      question: "What does the Heisenberg Uncertainty Principle forbid?",
       options: [
-        "ATP Synthase",
-        "RuBisCO",
-        "DNA Polymerase",
-        "Catalase"
-      ],
-      answer: 1,
-      explanation: "RuBisCO (Ribulose-1,5-bisphosphate carboxylase-oxygenase) catalyzes the crucial initial fixation of atmospheric CO2 into 3-PGA."
-    },
-    {
-      question: "Which two energy-rich products generated by light reactions power the Calvin Cycle?",
-      options: [
-        "ATP and NADPH",
-        "ADP and NADP+",
-        "Glucose and Oxygen",
-        "Pyruvate and Acetyl-CoA"
+        "Simultaneously measuring exact position and momentum",
+        "Photons travelling at the speed of light",
+        "Electrons having negative electrical charge",
+        "Energy conservation in chemical reactions"
       ],
       answer: 0,
-      explanation: "ATP provides phosphorylation energy and NADPH supplies high-energy reducing electrons needed to synthesize G3P."
-    },
-    {
-      question: "What directly drives ATP synthesis during chloroplast photophosphorylation?",
-      options: [
-        "Direct photon absorption by ATP Synthase",
-        "Electrochemical proton (H+) gradient across the thylakoid membrane",
-        "Hydrolysis of cellular glucose",
-        "Absorption of atmospheric nitrogen"
-      ],
-      answer: 1,
-      explanation: "Protons concentrated in the thylakoid lumen flow through ATP synthase down their electrochemical gradient into the stroma, synthesizing ATP."
+      explanation: "Δx·Δp ≥ ℏ/2 proves position and momentum cannot both have zero uncertainty simultaneously."
     }
   ],
 
   flashcards: [
     {
-      front: "What is Photolysis?",
-      back: "The light-driven splitting of water (H2O) into oxygen, hydrogen ions, and replacement electrons at Photosystem II."
+      front: "What is Planck's constant?",
+      back: "h ≈ 6.626 × 10⁻³⁴ J·s: The fundamental physical constant relating photon frequency to electromagnetic energy (E = hν)."
     },
     {
-      front: "What is RuBisCO?",
-      back: "Ribulose-1,5-bisphosphate carboxylase-oxygenase: The primary enzyme catalyzing carbon fixation in the Calvin cycle."
+      front: "Quantum Tunneling",
+      back: "A quantum mechanical phenomenon where a wave-particle penetrates and traverses a potential energy barrier higher than its kinetic energy."
     },
     {
-      front: "Thylakoid vs. Stroma",
-      back: "Thylakoids are membranes hosting the light reactions; the stroma is the fluid matrix where the Calvin Cycle synthesizes sugars."
+      front: "Wave-Particle Duality",
+      back: "The principle that light and matter exhibit both wave-like (interference, diffraction) and particle-like (localized collisions) properties."
     },
     {
-      front: "Role of NADPH in Photosynthesis",
-      back: "Serves as an essential reducing agent, donating electrons and protons to convert 3-PGA into glyceraldehyde-3-phosphate (G3P)."
+      front: "Heisenberg Uncertainty Principle",
+      back: "Fundamental limit stating position and momentum cannot simultaneously be known with arbitrary precision: Δx·Δp ≥ ℏ/2."
     },
     {
-      front: "Chemiosmosis in Chloroplasts",
-      back: "The generation of ATP by ATP Synthase driven by a transmembrane proton gradient across the thylakoid membrane."
+      front: "Born Rule (|Ψ|²)",
+      back: "The postulate stating the squared absolute magnitude of the wavefunction gives the probability density of observing a particle."
+    },
+    {
+      front: "Quantum Superposition",
+      back: "The ability of a quantum system to exist simultaneously in a linear combination of multiple possible eigenstates prior to measurement."
     }
   ],
+
   glossary: [
     {
-      term: "Photosynthesis",
-      definition: "The biochemical process by which autotrophic organisms convert solar radiant energy into chemical energy stored in glucose."
+      term: "Planck's Constant",
+      definition: "A fundamental physical constant (h ≈ 6.626 × 10⁻³⁴ J·s) that sets the scale of quantum effects."
     },
     {
-      term: "Chloroplast",
-      definition: "A specialized organelle containing thylakoids and stroma, serving as the primary site of photosynthetic reactions in plants."
+      term: "Wave-Particle Duality",
+      definition: "The property where matter and electromagnetic radiation exhibit both wave and particle characteristics."
     },
     {
-      term: "Chlorophyll",
-      definition: "The primary photosynthetic green pigment that absorbs light energy (chiefly blue and red wavelengths) to excite electrons."
+      term: "Quantum Tunneling",
+      definition: "The transit of a particle through a potential energy barrier higher than the particle's kinetic energy."
     },
     {
-      term: "Thylakoid",
-      definition: "Flattened membrane-bound sac inside the chloroplast where the light-dependent reactions and photolysis occur."
+      term: "Superposition",
+      definition: "A principle of quantum mechanics where a physical system exists in multiple states at once until observed."
     },
     {
-      term: "Stroma",
-      definition: "The colorless, protein-rich fluid matrix surrounding thylakoids where the light-independent Calvin cycle occurs."
+      term: "Schrödinger Equation",
+      definition: "The fundamental differential equation describing the time evolution of a quantum mechanical wavefunction."
     },
     {
-      term: "Photolysis",
-      definition: "The light-activated enzymatic splitting of water molecules into protons, electrons, and oxygen gas at Photosystem II."
-    },
-    {
-      term: "RuBisCO",
-      definition: "Ribulose-1,5-bisphosphate carboxylase-oxygenase, the critical enzyme catalyzing carbon dioxide fixation in the Calvin cycle."
-    },
-    {
-      term: "ATP Synthase",
-      definition: "A membrane-bound protein complex that synthesizes ATP from ADP and phosphate driven by a proton gradient."
+      term: "Photoelectric Effect",
+      definition: "The emission of electrons from a material when light of sufficient frequency strikes its surface."
     }
   ]
 };
@@ -145,20 +183,24 @@ const FAKE_AI_RESPONSE = {
 // Global state tracking the current active study kit (for export and Q&A)
 let currentStudyKit = FAKE_AI_RESPONSE;
 
-// Global state tracking the current session title (for export filenames)
-let currentSessionTitle = 'Photosynthesis Study Kit';
+// Global state tracking the current session title (for export filenames and active session badge)
+let currentSessionTitle = 'Quantum Mechanics';
 
 // Global state tracking the current active summary text (for Copy / Download)
 let currentSummaryText = '';
 
 // Global state tracking the active session ID (for flashcard mastery persistence per history item)
-let currentSessionId = 'current_session';
+let currentSessionId = 'quantum_mechanics_default';
 
 // Initialize application modules when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initAccentColors();
   initSettings();
+  initViewNavigation();
+  initSidebarMobile();
   initTabSwitching();
+  initInputToggle();
   initCharacterCounter();
   initFileUpload();
   initExportMenu();
@@ -168,6 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initSummaryActions();
   initHistoryModule();
   initQuizProgressModule();
+  initSpeechRecognition();
+  initDraftNotes();
+  initPomodoroModule();
+  initInteractiveTutor();
+  initKeyboardShortcuts();
+  initServiceWorker();
+  initInitialStudyKit();
 });
 
 /**
@@ -204,10 +253,56 @@ function updateThemeButtonUI(theme, btn) {
 }
 
 /**
- * Loads saved settings from localStorage and binds save button listener.
+ * Manages accent color selection (blue, indigo, emerald, amber, rose)
+ * and persists user preference in localStorage.
+ */
+function initAccentColors() {
+  const accentMenuBtn = document.getElementById('accent-menu-btn');
+  const accentDropdown = document.getElementById('accent-dropdown');
+  const chips = document.querySelectorAll('.accent-picker-chip');
+
+  const savedAccent = window.StudyStorage.getAccentColor();
+  if (savedAccent) {
+    document.documentElement.setAttribute('data-accent', savedAccent);
+  }
+
+  if (accentMenuBtn && accentDropdown) {
+    accentMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      accentDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!accentDropdown.contains(e.target) && e.target !== accentMenuBtn) {
+        accentDropdown.classList.add('hidden');
+      }
+    });
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const accent = chip.getAttribute('data-accent');
+      if (accent) {
+        document.documentElement.setAttribute('data-accent', accent);
+        window.StudyStorage.saveAccentColor(accent);
+      }
+      if (accentDropdown) accentDropdown.classList.add('hidden');
+    });
+  });
+}
+
+/**
+ * Loads saved settings from localStorage, binds AI provider switcher, and handles save action.
  */
 function initSettings() {
+  const providerSelect = document.getElementById('ai-provider-select');
+  const geminiKeyGroup = document.getElementById('gemini-key-group');
+  const groqKeyGroup = document.getElementById('groq-key-group');
   const apiKeyInput = document.getElementById('api-key-input');
+  const groqApiKeyInput = document.getElementById('groq-api-key-input');
+  const toggleGeminiKeyBtn = document.getElementById('toggle-gemini-key-btn');
+  const toggleGroqKeyBtn = document.getElementById('toggle-groq-key-btn');
+  const closeSettingsBtn = document.getElementById('close-settings-btn');
   const answerStyleSelect = document.getElementById('answer-style-select');
   const difficultySelect = document.getElementById('difficulty-select');
   const questionCountSelect = document.getElementById('question-count-select');
@@ -215,12 +310,51 @@ function initSettings() {
   const settingsToggleBtn = document.getElementById('settings-toggle-btn');
   const settingsPanel = document.getElementById('settings-panel');
 
-  // 1. Populate form from localStorage
-  const savedKey = window.StudyStorage.getApiKey();
-  if (savedKey && apiKeyInput) {
-    apiKeyInput.value = savedKey;
+  // Password Visibility Eye Toggles
+  function bindPasswordToggle(btn, input) {
+    if (!btn || !input) return;
+    btn.addEventListener('click', () => {
+      const isPass = input.type === 'password';
+      input.type = isPass ? 'text' : 'password';
+      btn.textContent = isPass ? '🔒' : '👁';
+    });
+  }
+  bindPasswordToggle(toggleGeminiKeyBtn, apiKeyInput);
+  bindPasswordToggle(toggleGroqKeyBtn, groqApiKeyInput);
+
+  // Provider Selection & Visibility
+  function updateProviderUI(provider) {
+    const isGroq = provider === 'groq';
+    if (geminiKeyGroup) geminiKeyGroup.classList.toggle('hidden', isGroq);
+    if (groqKeyGroup) groqKeyGroup.classList.toggle('hidden', !isGroq);
+    const label = document.getElementById('sidebar-provider-label');
+    if (label) {
+      label.textContent = isGroq ? 'Groq LLaMA 3.3 70B' : 'Gemini 1.5 Flash';
+    }
   }
 
+  const savedProvider = window.StudyStorage.getProvider();
+  if (providerSelect) {
+    providerSelect.value = savedProvider;
+    updateProviderUI(savedProvider);
+    providerSelect.addEventListener('change', () => {
+      const p = providerSelect.value;
+      window.StudyStorage.saveProvider(p);
+      updateProviderUI(p);
+    });
+  }
+
+  // Populate API Keys
+  const savedGeminiKey = window.StudyStorage.getApiKey('gemini');
+  if (savedGeminiKey && apiKeyInput) {
+    apiKeyInput.value = savedGeminiKey;
+  }
+  const savedGroqKey = window.StudyStorage.getApiKey('groq');
+  if (savedGroqKey && groqApiKeyInput) {
+    groqApiKeyInput.value = savedGroqKey;
+  }
+
+  // General Settings
   const savedSettings = window.StudyStorage.getSettings();
   if (savedSettings.answerStyle && answerStyleSelect) {
     answerStyleSelect.value = savedSettings.answerStyle;
@@ -253,8 +387,8 @@ function initSettings() {
     }
     if (studyTextarea) {
       studyTextarea.placeholder = isTopic
-        ? 'Enter a specific topic or concept here... (e.g., Photosynthesis light reactions, Operating System Deadlocks, Causes of World War I)'
-        : 'Paste your study notes, textbook excerpt, lecture transcription, or complex topic here... (e.g., Photosynthesis light reactions, Operating System Deadlocks, French Revolution causes)';
+        ? 'Enter a specific topic or concept here... (e.g., Quantum Mechanics, Wave-Particle Duality, Photosynthesis light reactions)'
+        : 'Paste your study notes, textbook excerpt, lecture transcription, or enter a topic (e.g., Quantum Mechanics, Wave-Particle Duality, Photosynthesis light reactions)...';
     }
     const cur = window.StudyStorage.getSettings();
     window.StudyStorage.saveSettings({ ...cur, mode: isTopic ? 'topic' : 'notes' });
@@ -281,7 +415,6 @@ function initSettings() {
     });
   }
 
-  // 2. Remember dropdowns' and checkboxes' last values in localStorage whenever changed
   if (answerStyleSelect) {
     answerStyleSelect.addEventListener('change', () => {
       const current = window.StudyStorage.getSettings();
@@ -322,16 +455,20 @@ function initSettings() {
     });
   }
 
-  // 3. Save Settings Handler (API key and settings)
+  // Save Settings Handler (Both API keys and parameters)
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
-      const key = apiKeyInput ? apiKeyInput.value.trim() : '';
+      const geminiKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+      const groqKey = groqApiKeyInput ? groqApiKeyInput.value.trim() : '';
+      const provider = providerSelect ? providerSelect.value : 'gemini';
       const style = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
       const diff = difficultySelect ? difficultySelect.value : 'medium';
       const qCount = questionCountSelect ? (parseInt(questionCountSelect.value, 10) || 5) : 5;
       const isTimed = timedQuizCheckbox ? timedQuizCheckbox.checked : false;
 
-      window.StudyStorage.saveApiKey(key);
+      window.StudyStorage.saveApiKey(geminiKey, 'gemini');
+      window.StudyStorage.saveApiKey(groqKey, 'groq');
+      window.StudyStorage.saveProvider(provider);
       window.StudyStorage.saveSettings({
         answerStyle: style,
         difficulty: diff,
@@ -350,8 +487,9 @@ function initSettings() {
       saveBtn.style.borderColor = 'var(--color-primary-500)';
 
       // Hide error box if it was warning about missing API key
+      const activeKey = provider === 'groq' ? groqKey : geminiKey;
       const errorBox = document.getElementById('error-box');
-      if (key && errorBox && !errorBox.classList.contains('hidden')) {
+      if (activeKey && errorBox && !errorBox.classList.contains('hidden')) {
         const errorMsg = document.getElementById('error-message')?.textContent || '';
         if (errorMsg.includes('API key')) {
           errorBox.classList.add('hidden');
@@ -365,14 +503,19 @@ function initSettings() {
     });
   }
 
-  // 4. Settings Panel Toggle Button
+  // Settings Panel Toggle and Close Buttons
   if (settingsToggleBtn && settingsPanel) {
     settingsToggleBtn.addEventListener('click', () => {
       settingsPanel.classList.toggle('hidden');
     });
   }
+  if (closeSettingsBtn && settingsPanel) {
+    closeSettingsBtn.addEventListener('click', () => {
+      settingsPanel.classList.add('hidden');
+    });
+  }
 
-  // 5. Global leak-proof cleanup: clear all timers when user leaves the browser tab or page
+  // Global leak-proof cleanup: clear all timers when user leaves the browser tab or page
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && window.StudyRender && window.StudyRender.cleanupQuizTimers) {
       window.StudyRender.cleanupQuizTimers();
@@ -390,6 +533,117 @@ function initSettings() {
       window.StudyRender.cleanupQuizTimers();
     }
   });
+}
+
+/**
+ * Switches the active application view between Study Hub, Dashboard, Sessions, Pomodoro, and Settings.
+ * @param {string} viewId - One of 'study-hub', 'dashboard', 'sessions', 'pomodoro', 'settings'
+ */
+function switchView(viewId) {
+  const navBtns = document.querySelectorAll('.sidebar-nav .nav-item-btn');
+  const views = document.querySelectorAll('.views-container .view-panel');
+  const pageTitle = document.querySelector('.header-page-title');
+
+  navBtns.forEach((btn) => {
+    const isTarget = btn.getAttribute('data-view') === viewId;
+    btn.classList.toggle('active', isTarget);
+    btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+  });
+
+  views.forEach((panel) => {
+    const isTarget = panel.id === `view-${viewId}`;
+    panel.classList.toggle('hidden', !isTarget);
+    panel.classList.toggle('active-view', isTarget);
+  });
+
+  const titles = {
+    'study-hub': 'Study Hub',
+    'dashboard': 'Performance Dashboard',
+    'sessions': 'Saved Study Sessions',
+    'pomodoro': 'Focus & Pomodoro Timer',
+    'settings': 'Assistant Settings',
+  };
+  if (pageTitle && titles[viewId]) {
+    pageTitle.textContent = titles[viewId];
+  }
+
+  // View-specific initialization triggers
+  if (viewId === 'dashboard') {
+    const dbContainer = document.getElementById('dashboard-container');
+    if (dbContainer && window.StudyRender?.renderDashboard) {
+      window.StudyRender.renderDashboard(dbContainer);
+    }
+  } else if (viewId === 'sessions') {
+    refreshHistoryUI();
+  } else if (viewId === 'pomodoro') {
+    const pomoContainer = document.getElementById('pomodoro-container');
+    if (pomoContainer && !pomoContainer.hasChildNodes() && window.StudyRender?.renderPomodoro) {
+      window.StudyRender.renderPomodoro(pomoContainer);
+      bindPomodoroControls();
+    }
+  } else if (viewId === 'settings') {
+    const settingsPanel = document.getElementById('settings-panel');
+    if (settingsPanel) {
+      settingsPanel.classList.remove('hidden');
+    }
+  }
+
+  // Close mobile sidebar if open
+  const sidebar = document.getElementById('app-sidebar');
+  if (sidebar) sidebar.classList.remove('mobile-open');
+}
+
+/**
+ * Binds view switching listeners to sidebar buttons.
+ */
+function initViewNavigation() {
+  const navBtns = document.querySelectorAll('.sidebar-nav .nav-item-btn');
+  navBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const view = btn.getAttribute('data-view');
+      if (view) switchView(view);
+    });
+  });
+}
+
+/**
+ * Initializes mobile responsive drawer toggle for the left sidebar.
+ */
+function initSidebarMobile() {
+  const toggleBtn = document.getElementById('sidebar-mobile-toggle');
+  const sidebar = document.getElementById('app-sidebar');
+
+  if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('mobile-open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('mobile-open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+        sidebar.classList.remove('mobile-open');
+      }
+    });
+  }
+}
+
+/**
+ * Enables expanding/collapsing the study material input card to maximize output viewing area.
+ */
+function initInputToggle() {
+  const toggleBtn = document.getElementById('btn-toggle-input');
+  const body = document.getElementById('input-card-body');
+  const label = document.getElementById('input-toggle-label');
+
+  if (toggleBtn && body) {
+    toggleBtn.addEventListener('click', () => {
+      const isCollapsed = body.classList.toggle('collapsed');
+      if (label) {
+        label.textContent = isCollapsed ? 'Show Input' : 'Hide Input';
+      }
+      toggleBtn.classList.toggle('is-collapsed', isCollapsed);
+    });
+  }
 }
 
 /**
@@ -473,22 +727,27 @@ function initGenerateHandler() {
   if (!generateBtn) return;
 
   generateBtn.addEventListener('click', async () => {
-    // 1. Read API Key from localStorage (or fallback to active settings input)
-    let apiKey = window.StudyStorage.getApiKey();
-    if (!apiKey && apiKeyInput && apiKeyInput.value.trim()) {
-      apiKey = apiKeyInput.value.trim();
-      window.StudyStorage.saveApiKey(apiKey);
+    // 1. Read API Key for the active provider (Gemini or Groq)
+    const activeProvider = window.StudyStorage.getProvider();
+    let apiKey = window.StudyStorage.getApiKey(activeProvider);
+    const activeInput = activeProvider === 'groq'
+      ? document.getElementById('groq-api-key-input')
+      : document.getElementById('api-key-input');
+    if (!apiKey && activeInput && activeInput.value.trim()) {
+      apiKey = activeInput.value.trim();
+      window.StudyStorage.saveApiKey(apiKey, activeProvider);
     }
 
     // Validation: Check for missing API key
     if (!apiKey) {
+      const providerLabel = activeProvider === 'groq' ? 'Groq' : 'Google Gemini';
       showError(
-        'No API key found. Please enter your Google Gemini API key in the Settings panel above and click "Save Settings".',
+        `No API key found for ${providerLabel}. Please enter your key in the Settings panel above and click "Save Settings".`,
         'API Key Required'
       );
       const settingsPanel = document.getElementById('settings-panel');
       if (settingsPanel) settingsPanel.classList.remove('hidden');
-      if (apiKeyInput) apiKeyInput.focus();
+      if (activeInput) activeInput.focus();
       return;
     }
 
@@ -528,9 +787,10 @@ function initGenerateHandler() {
     setWorkingState(true, generateBtn, loadingIndicator, errorBox);
 
     try {
-      // 4. Request study kit from Google Gemini API via POST with fetch()
+      // 4. Request study kit from active AI provider API via fetch()
       const rawText = await window.StudyApi.fetchStudyKit({
         apiKey,
+        provider: activeProvider,
         content,
         difficulty,
         style: answerStyle,
@@ -548,6 +808,12 @@ function initGenerateHandler() {
       const sessionTitle = extractSessionTitle(content, studyKit);
       currentSessionTitle = sessionTitle;
 
+      // Update active session pill
+      const activeSessionTitleEl = document.getElementById('active-session-title');
+      if (activeSessionTitleEl) {
+        activeSessionTitleEl.textContent = sessionTitle;
+      }
+
       // 7. Save successful result to history in localStorage
       const savedItem = window.StudyStorage.saveHistoryItem({
         title: sessionTitle,
@@ -557,6 +823,7 @@ function initGenerateHandler() {
         questionCount: questionCount,
         mode: mode,
         language: language,
+        provider: activeProvider,
         result: studyKit,
         date: new Date().toISOString(),
       });
@@ -571,7 +838,8 @@ function initGenerateHandler() {
       // 9. Update panel status indicators
       updatePanelIndicators(studyKit);
 
-      // 10. Refresh history list UI
+      // 10. Refresh history list UI & record activity
+      window.StudyStorage.recordActivity();
       refreshHistoryUI();
 
     } catch (err) {
@@ -1408,6 +1676,11 @@ function handleSelectHistoryItem(item) {
   currentStudyKit = item.result;
   currentSessionTitle = item.title || 'Study Kit';
 
+  const activeSessionTitleEl = document.getElementById('active-session-title');
+  if (activeSessionTitleEl) {
+    activeSessionTitleEl.textContent = currentSessionTitle;
+  }
+
   // 4. Set active session ID and render study kit into DOM without calling API
   currentSessionId = item.id;
   window.StudyRender.renderStudyKit(item.result, currentSessionId, {
@@ -1418,7 +1691,8 @@ function handleSelectHistoryItem(item) {
   // 5. Update panel indicators
   updatePanelIndicators(item.result);
 
-  // 6. Switch to the Summary tab view
+  // 6. Switch to the Study Hub view and Summary tab
+  switchView('study-hub');
   activateTab('tab-summary-panel', summaryTabBtn);
 
   // 7. Smoothly scroll up to the study material workspace
@@ -1467,11 +1741,13 @@ function initRegenerateHandler() {
   if (!regenerateBtn) return;
 
   regenerateBtn.addEventListener('click', async () => {
-    // 1. Read API Key from storage
-    const apiKey = window.StudyStorage.getApiKey();
+    // 1. Read API Key for active provider
+    const activeProvider = window.StudyStorage.getProvider();
+    const apiKey = window.StudyStorage.getApiKey(activeProvider);
     if (!apiKey) {
+      const providerLabel = activeProvider === 'groq' ? 'Groq' : 'Google Gemini';
       showError(
-        'No API key found. Please enter and save your Gemini API key in the Settings panel above.',
+        `No API key found for ${providerLabel}. Please enter and save your key in the Settings panel above.`,
         'API Key Required'
       );
       const settingsPanel = document.getElementById('settings-panel');
@@ -1532,6 +1808,7 @@ function initRegenerateHandler() {
       // 4. Request alternative variation from API with "give a different variation" prompt
       const rawText = await window.StudyApi.fetchStudyKit({
         apiKey,
+        provider: activeProvider,
         content,
         difficulty,
         style: answerStyle,
@@ -1552,6 +1829,11 @@ function initRegenerateHandler() {
       const variationTitle = `${baseTitle} (Variation ${timeStr})`;
       currentSessionTitle = variationTitle;
 
+      const activeSessionTitleEl = document.getElementById('active-session-title');
+      if (activeSessionTitleEl) {
+        activeSessionTitleEl.textContent = variationTitle;
+      }
+
       const savedItem = window.StudyStorage.saveHistoryItem({
         title: variationTitle,
         notes: content,
@@ -1560,6 +1842,7 @@ function initRegenerateHandler() {
         questionCount: questionCount,
         mode,
         language,
+        provider: activeProvider,
         result: studyKit,
         date: new Date().toISOString(),
       });
@@ -1573,6 +1856,7 @@ function initRegenerateHandler() {
 
       // 8. Update tab status indicators & history list
       updatePanelIndicators(studyKit);
+      window.StudyStorage.recordActivity();
       refreshHistoryUI();
 
     } catch (err) {
@@ -1589,22 +1873,567 @@ function initRegenerateHandler() {
   });
 }
 
+/**
+ * Voice dictation for study notes via the Web Speech API (webkitSpeechRecognition).
+ * Displays a live recording indicator, appends transcribed text, updates character count,
+ * and shows clear permission error messages.
+ */
+function initSpeechRecognition() {
+  const micBtn = document.getElementById('mic-dictate-btn');
+  const micLabel = document.getElementById('mic-btn-label');
+  const textarea = document.getElementById('study-textarea');
+
+  if (!micBtn || !textarea) return;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    micBtn.title = 'Speech recognition is not supported in this browser (Chrome or Edge recommended).';
+    micBtn.setAttribute('aria-disabled', 'true');
+    return;
+  }
+
+  let recognition = null;
+  let isRecording = false;
+
+  try {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      isRecording = true;
+      micBtn.classList.add('is-recording');
+      if (micLabel) micLabel.textContent = 'Listening...';
+    };
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          transcript += event.results[i][0].transcript + ' ';
+        }
+      }
+      if (transcript) {
+        const prefix = textarea.value.trim().length > 0 ? '\n' : '';
+        textarea.value = (textarea.value + prefix + transcript).slice(0, 8000);
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.warn('Speech recognition error:', event.error);
+      if (event.error === 'not-allowed') {
+        showError(
+          'Microphone permission was denied. Please allow microphone access in your browser site permissions to use voice dictation.',
+          'Microphone Permission Denied'
+        );
+      }
+      stopRecording();
+    };
+
+    recognition.onend = () => {
+      stopRecording();
+    };
+  } catch (err) {
+    console.warn('Unable to initialize SpeechRecognition:', err);
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    micBtn.classList.remove('is-recording');
+    if (micLabel) micLabel.textContent = 'Dictate';
+    try {
+      recognition?.stop();
+    } catch {}
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (!recognition) return;
+    if (isRecording) {
+      stopRecording();
+    } else {
+      try {
+        recognition.start();
+      } catch (e) {
+        console.warn('Recognition start error:', e);
+      }
+    }
+  });
+}
+
+/**
+ * Automatically persists draft study notes in localStorage, debounced at 500ms,
+ * and restores draft content on initial page load.
+ */
+function initDraftNotes() {
+  const textarea = document.getElementById('study-textarea');
+  if (!textarea) return;
+
+  // Restore saved draft if textarea is currently empty
+  const savedDraft = window.StudyStorage.getDraftNotes();
+  if (savedDraft && !textarea.value) {
+    textarea.value = savedDraft;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  // Debounced auto-save (500ms)
+  let debounceTimer = null;
+  textarea.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      window.StudyStorage.saveDraftNotes(textarea.value);
+    }, 500);
+  });
+}
+
+// Global Pomodoro Timer State
+let pomodoroState = {
+  totalSeconds: 25 * 60,
+  remainingSeconds: 25 * 60,
+  isRunning: false,
+  timerId: null,
+};
+
+/**
+ * Plays a pleasant 880Hz chime with an exponential gain decay using the Web Audio API.
+ */
+function playPomodoroChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 1.2);
+  } catch (err) {
+    console.warn('AudioContext playback error', err);
+  }
+}
+
+/**
+ * Binds Pomodoro countdown controls, modes (25m Focus / 5m Break), and display updates.
+ */
+function bindPomodoroControls() {
+  const startBtn = document.getElementById('pomo-start-btn');
+  const resetBtn = document.getElementById('pomo-reset-btn');
+  const digits = document.getElementById('pomo-digits');
+  const statusLabel = document.getElementById('pomo-status-label');
+  const ringFill = document.getElementById('pomo-ring-fill');
+  const startLabel = document.getElementById('pomo-start-label');
+  const modeFocus = document.getElementById('pomo-mode-focus');
+  const modeBreak = document.getElementById('pomo-mode-break');
+
+  const RING_CIRCUMFERENCE = 596.9; // 2 * PI * 95
+
+  function updateDisplay() {
+    const mins = Math.floor(pomodoroState.remainingSeconds / 60);
+    const secs = pomodoroState.remainingSeconds % 60;
+    if (digits) {
+      digits.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    if (ringFill) {
+      const progress = 1 - (pomodoroState.remainingSeconds / pomodoroState.totalSeconds);
+      const offset = RING_CIRCUMFERENCE * (1 - progress);
+      ringFill.style.strokeDashoffset = String(offset);
+    }
+  }
+
+  function setMode(minutes, isFocus) {
+    clearInterval(pomodoroState.timerId);
+    pomodoroState.isRunning = false;
+    pomodoroState.totalSeconds = minutes * 60;
+    pomodoroState.remainingSeconds = minutes * 60;
+    if (startLabel) startLabel.textContent = isFocus ? 'Start Focus' : 'Start Break';
+    if (statusLabel) statusLabel.textContent = isFocus ? 'Ready to Focus' : 'Ready for Break';
+    if (modeFocus && modeBreak) {
+      modeFocus.classList.toggle('active', isFocus);
+      modeBreak.classList.toggle('active', !isFocus);
+    }
+    updateDisplay();
+  }
+
+  if (modeFocus) {
+    modeFocus.addEventListener('click', () => setMode(25, true));
+  }
+  if (modeBreak) {
+    modeBreak.addEventListener('click', () => setMode(5, false));
+  }
+
+  if (startBtn) {
+    startBtn.addEventListener('click', () => {
+      if (pomodoroState.isRunning) {
+        // Pause
+        clearInterval(pomodoroState.timerId);
+        pomodoroState.isRunning = false;
+        if (startLabel) startLabel.textContent = 'Resume';
+        if (statusLabel) statusLabel.textContent = 'Paused';
+      } else {
+        // Start
+        pomodoroState.isRunning = true;
+        if (startLabel) startLabel.textContent = 'Pause';
+        if (statusLabel) statusLabel.textContent = 'In Progress';
+
+        pomodoroState.timerId = setInterval(() => {
+          if (pomodoroState.remainingSeconds > 0) {
+            pomodoroState.remainingSeconds--;
+            updateDisplay();
+          } else {
+            clearInterval(pomodoroState.timerId);
+            pomodoroState.isRunning = false;
+            playPomodoroChime();
+            if (startLabel) startLabel.textContent = 'Start';
+            if (statusLabel) statusLabel.textContent = 'Interval Complete! 🎉';
+            if (window.StudyUtils?.showToast) {
+              window.StudyUtils.showToast('Pomodoro interval complete!', 'success');
+            }
+          }
+        }, 1000);
+      }
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      clearInterval(pomodoroState.timerId);
+      pomodoroState.isRunning = false;
+      pomodoroState.remainingSeconds = pomodoroState.totalSeconds;
+      if (startLabel) startLabel.textContent = 'Start';
+      if (statusLabel) statusLabel.textContent = 'Reset';
+      updateDisplay();
+    });
+  }
+
+  updateDisplay();
+}
+
+/**
+ * Initializes the Pomodoro section container and renders its DOM structure.
+ */
+function initPomodoroModule() {
+  const container = document.getElementById('pomodoro-container');
+  if (container && window.StudyRender?.renderPomodoro) {
+    window.StudyRender.renderPomodoro(container);
+    bindPomodoroControls();
+  }
+}
+
+/**
+ * Manages the floating 24/7 Interactive AI Tutor chat widget, quick prompt chips,
+ * and follow-up question requests to the active AI provider.
+ */
+function initInteractiveTutor() {
+  const triggerBtn = document.getElementById('tutor-floating-trigger');
+  const chatCard = document.getElementById('tutor-chat-card');
+  const closeBtn = document.getElementById('tutor-close-btn');
+  const askTutorBtn = document.getElementById('summary-ask-tutor-btn');
+  const form = document.getElementById('tutor-input-form');
+  const input = document.getElementById('tutor-input');
+  const sendBtn = document.getElementById('tutor-send-btn');
+  const messagesList = document.getElementById('tutor-messages-list');
+  const promptChips = document.querySelectorAll('.tutor-chip');
+
+  function openTutor() {
+    if (chatCard) {
+      chatCard.classList.remove('hidden');
+      if (input) input.focus();
+    }
+  }
+
+  function closeTutor() {
+    if (chatCard) chatCard.classList.add('hidden');
+  }
+
+  if (triggerBtn) {
+    triggerBtn.addEventListener('click', () => {
+      if (chatCard?.classList.contains('hidden')) {
+        openTutor();
+      } else {
+        closeTutor();
+      }
+    });
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeTutor);
+  if (askTutorBtn) askTutorBtn.addEventListener('click', openTutor);
+
+  // Quick prompt chips
+  promptChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const prompt = chip.getAttribute('data-prompt');
+      if (prompt && input) {
+        input.value = prompt;
+        sendMessage(prompt);
+      }
+    });
+  });
+
+  async function sendMessage(text) {
+    const question = (text || input?.value || '').trim();
+    if (!question || !messagesList) return;
+    if (input) input.value = '';
+
+    // Append User Message Bubble
+    const userMsg = document.createElement('div');
+    userMsg.className = 'tutor-msg tutor-msg-user';
+    userMsg.innerHTML = `<div class="tutor-bubble user-bubble">${window.StudyUtils ? window.StudyUtils.escapeHtml(question) : question}</div>`;
+    messagesList.appendChild(userMsg);
+
+    // Append Loading Bubble
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'tutor-msg tutor-msg-ai';
+    loadingMsg.innerHTML = `
+      <div class="tutor-ai-row">
+        <div class="tutor-ai-avatar">✨</div>
+        <div class="tutor-bubble ai-bubble tutor-loading-bubble">
+          <span class="tutor-typing-dot"></span>
+          <span class="tutor-typing-dot"></span>
+          <span class="tutor-typing-dot"></span>
+        </div>
+      </div>
+    `;
+    messagesList.appendChild(loadingMsg);
+    messagesList.scrollTop = messagesList.scrollHeight;
+    if (sendBtn) sendBtn.disabled = true;
+
+    const provider = window.StudyStorage.getProvider();
+    const apiKey = window.StudyStorage.getApiKey(provider);
+    const notesContext = currentSummaryText || (document.getElementById('study-textarea')?.value) || 'Quantum Mechanics principles';
+
+    try {
+      const reply = await window.StudyApi.fetchFollowUpAnswer({
+        apiKey,
+        provider,
+        originalNotes: notesContext,
+        question,
+      });
+
+      // Format markdown bold & newlines in reply
+      const formatted = reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n•\s/g, '<br>&bull; ')
+        .replace(/\n/g, '<br>');
+
+      loadingMsg.innerHTML = `
+        <div class="tutor-ai-row">
+          <div class="tutor-ai-avatar">✨</div>
+          <div class="tutor-bubble ai-bubble">${formatted}</div>
+        </div>
+      `;
+    } catch (err) {
+      loadingMsg.innerHTML = `
+        <div class="tutor-ai-row">
+          <div class="tutor-ai-avatar">✨</div>
+          <div class="tutor-bubble ai-bubble tutor-error-bubble">
+            I encountered an error retrieving an answer: ${err.message || 'Please verify your network connection or API key.'}
+          </div>
+        </div>
+      `;
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      messagesList.scrollTop = messagesList.scrollHeight;
+    }
+  }
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
+  }
+}
+
+/**
+ * Global keyboard shortcuts modal management and key event handlers:
+ * - Ctrl+Enter / ⌘+Enter: Trigger Generate
+ * - ? : Toggle Keyboard Shortcuts modal
+ * - Esc : Close open modals and dropdowns
+ * - Space : Flip active flashcard
+ * - 1 - 4 : Select quiz option
+ */
+function initKeyboardShortcuts() {
+  const modal = document.getElementById('shortcuts-modal');
+  const shortcutsBtn = document.getElementById('shortcuts-btn');
+  const closeBtn = document.getElementById('shortcuts-modal-close-btn');
+
+  function openModal() {
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    if (modal) modal.classList.add('hidden');
+  }
+
+  if (shortcutsBtn) shortcutsBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName);
+
+    // Ctrl+Enter or Cmd+Enter -> Generate
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      const generateBtn = document.getElementById('generate-btn');
+      if (generateBtn && !generateBtn.disabled) {
+        generateBtn.click();
+      }
+      return;
+    }
+
+    // Escape -> Close modals / panels
+    if (e.key === 'Escape') {
+      closeModal();
+      document.getElementById('settings-panel')?.classList.add('hidden');
+      document.getElementById('accent-dropdown')?.classList.add('hidden');
+      document.getElementById('tutor-chat-card')?.classList.add('hidden');
+      document.getElementById('export-dropdown-menu')?.classList.add('hidden');
+      document.getElementById('app-sidebar')?.classList.remove('mobile-open');
+      return;
+    }
+
+    if (isTyping) return;
+
+    // ? -> Toggle shortcuts modal
+    if (e.key === '?') {
+      e.preventDefault();
+      if (modal?.classList.contains('hidden')) {
+        openModal();
+      } else {
+        closeModal();
+      }
+      return;
+    }
+
+    // Space -> Flip active flashcard
+    if (e.code === 'Space') {
+      const flashcardsPanel = document.getElementById('tab-flashcards-panel');
+      if (flashcardsPanel && !flashcardsPanel.classList.contains('hidden')) {
+        const activeCard = flashcardsPanel.querySelector('.flashcard-inner');
+        if (activeCard) {
+          e.preventDefault();
+          activeCard.closest('.flashcard-card')?.click();
+        }
+      }
+      return;
+    }
+
+    // 1 - 4 -> Select quiz option
+    if (['1', '2', '3', '4'].includes(e.key)) {
+      const quizPanel = document.getElementById('tab-quiz-panel');
+      if (quizPanel && !quizPanel.classList.contains('hidden')) {
+        const optionIndex = parseInt(e.key, 10) - 1;
+        const optionBtns = quizPanel.querySelectorAll('.quiz-option-btn:not([disabled])');
+        if (optionBtns && optionBtns[optionIndex]) {
+          e.preventDefault();
+          optionBtns[optionIndex].click();
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Loads the default Quantum Mechanics study kit on initial launch to match the Study Hub reference UI,
+ * updates the active session banner, and refreshes the streak indicator.
+ */
+function initInitialStudyKit() {
+  // Record activity today for streak tracking
+  window.StudyStorage.recordActivity();
+
+  // Update sidebar streak indicator
+  const streak = window.StudyStorage.getStreakData();
+  const streakCountEl = document.getElementById('sidebar-streak-count');
+  if (streakCountEl) {
+    const days = streak.currentStreak || 1;
+    streakCountEl.textContent = `${days} Day Streak`;
+  }
+
+  // Update active AI Provider label
+  const provider = window.StudyStorage.getProvider();
+  const providerLabel = document.getElementById('sidebar-provider-label');
+  if (providerLabel) {
+    providerLabel.textContent = provider === 'groq' ? 'Groq LLaMA 3.3 70B' : 'Gemini 1.5 Flash';
+  }
+
+  // Pre-load Quantum Mechanics study kit
+  const initialKit = window.StudyRender.FAKE_AI_RESPONSE || FAKE_AI_RESPONSE;
+  currentStudyKit = initialKit;
+  currentSessionTitle = initialKit.title || 'Quantum Mechanics';
+  currentSummaryText = initialKit.summary || '';
+  currentSessionId = 'quantum_mechanics_default';
+
+  const activeSessionTitleEl = document.getElementById('active-session-title');
+  if (activeSessionTitleEl) {
+    activeSessionTitleEl.textContent = currentSessionTitle;
+  }
+
+  // Render into workspace
+  window.StudyRender.renderStudyKit(initialKit, currentSessionId, {
+    topicTitle: currentSessionTitle,
+    difficulty: 'medium',
+  });
+
+  updatePanelIndicators(initialKit);
+}
+
+/**
+ * Registers the Service Worker for Progressive Web App (PWA) offline capability.
+ */
+function initServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch((err) => {
+        console.warn('sw.js registration:', err);
+      });
+    });
+  }
+}
+
 // Global namespace exposure
 window.StudyApp = {
   FAKE_AI_RESPONSE,
   initTheme,
+  initAccentColors,
   initSettings,
+  initViewNavigation,
+  initSidebarMobile,
   initTabSwitching,
+  initInputToggle,
   initGenerateHandler,
   initRegenerateHandler,
   initSummaryActions,
   initHistoryModule,
   initQuizProgressModule,
+  initSpeechRecognition,
+  initDraftNotes,
+  initPomodoroModule,
+  initInteractiveTutor,
+  initKeyboardShortcuts,
+  initInitialStudyKit,
   applyHistoryFilters,
   resetHistoryFilters,
   refreshHistoryUI,
   handleSelectHistoryItem,
   handleDeleteHistoryItem,
   showError,
+  switchView,
 };
 
