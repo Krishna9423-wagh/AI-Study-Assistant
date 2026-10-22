@@ -100,6 +100,20 @@ function validateStudyKit(data, expectedQuestionCount = 5) {
     }
   });
 
+  // 5. Optional outline validation (tolerant: validates if present, does not fail if absent)
+  if (data.outline) {
+    if (Array.isArray(data.outline)) {
+      data.outline.forEach((section, idx) => {
+        if (!section.title || typeof section.title !== 'string') {
+          throw new Error(`Malformed JSON: Outline section #${idx + 1} is missing a "title" string.`);
+        }
+        if (section.children && !Array.isArray(section.children)) {
+          throw new Error(`Malformed JSON: Outline section #${idx + 1} "children" must be an array.`);
+        }
+      });
+    }
+  }
+
   return true;
 }
 
