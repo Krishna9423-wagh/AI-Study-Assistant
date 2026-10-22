@@ -705,7 +705,7 @@ body {
 
 .controls-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.85rem;
   align-items: flex-end;
   margin-bottom: 1rem;
@@ -713,7 +713,8 @@ body {
 
 .control-group,
 .difficulty-control-group,
-.style-control-group {
+.style-control-group,
+.count-control-group {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -726,7 +727,7 @@ body {
 }
 
 .generate-btn-group {
-  grid-column: span 2;
+  grid-column: 1 / -1;
   display: flex;
 }
 

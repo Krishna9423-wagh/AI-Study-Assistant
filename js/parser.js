@@ -24,13 +24,14 @@ function stripCodeFences(text) {
 /**
  * Validates that the parsed study kit object adheres to the required schema:
  * - summary: non-empty string
- * - quiz: array of items with question, options (array), and answer (number index)
+ * - quiz: array of items with question, options (array), answer (number index), and one-line explanation (string)
  * - flashcards: array of items with front and back
  *
  * @param {Object} data - Parsed JSON object
+ * @param {number} [expectedQuestionCount=5] - Number of quiz questions expected
  * @returns {boolean} True if valid, throws an error otherwise
  */
-function validateStudyKit(data) {
+function validateStudyKit(data, expectedQuestionCount = 5) {
   if (!data || typeof data !== 'object') {
     throw new Error('Malformed JSON: Root response is not a valid object.');
   }
@@ -45,6 +46,14 @@ function validateStudyKit(data) {
     throw new Error('Malformed JSON: Missing or empty "quiz" questions array in AI output.');
   }
 
+  // Helpful error if AI returned fewer questions than requested
+  const expectedCount = parseInt(expectedQuestionCount, 10) || 5;
+  if (data.quiz.length < expectedCount) {
+    throw new Error(
+      `The AI returned too few quiz questions (${data.quiz.length} received, ${expectedCount} requested). Please click "Regenerate" or try with more detailed study notes.`
+    );
+  }
+
   data.quiz.forEach((q, idx) => {
     if (!q.question || typeof q.question !== 'string') {
       throw new Error(`Malformed JSON: Quiz question #${idx + 1} is missing a "question" text.`);
@@ -54,6 +63,9 @@ function validateStudyKit(data) {
     }
     if (typeof q.answer !== 'number' || q.answer < 0 || q.answer >= q.options.length) {
       throw new Error(`Malformed JSON: Quiz question #${idx + 1} has an invalid correct "answer" index.`);
+    }
+    if (!q.explanation || typeof q.explanation !== 'string' || !q.explanation.trim()) {
+      throw new Error(`Malformed JSON: Quiz question #${idx + 1} is missing a one-line "explanation" field.`);
     }
   });
 
@@ -76,9 +88,10 @@ function validateStudyKit(data) {
  * Strips code fences first, parses with JSON.parse inside try/catch, and validates fields.
  *
  * @param {string} rawResponse - The raw output text from the Gemini model
+ * @param {number} [expectedQuestionCount=5] - Number of quiz questions expected
  * @returns {Object} Validated study kit object { summary, quiz, flashcards }
  */
-function parseStudyKitResponse(rawResponse) {
+function parseStudyKitResponse(rawResponse, expectedQuestionCount = 5) {
   if (!rawResponse || typeof rawResponse !== 'string') {
     throw new Error('Malformed JSON: Received empty response from AI model.');
   }
@@ -95,8 +108,8 @@ function parseStudyKitResponse(rawResponse) {
     throw new Error('Malformed JSON: The AI model response could not be parsed as valid JSON.');
   }
 
-  // 3. Validate presence of required schema fields
-  validateStudyKit(parsed);
+  // 3. Validate presence of required schema fields and question count
+  validateStudyKit(parsed, expectedQuestionCount);
 
   return parsed;
 }

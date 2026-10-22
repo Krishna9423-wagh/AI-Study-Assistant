@@ -168,6 +168,7 @@ function initSettings() {
   const apiKeyInput = document.getElementById('api-key-input');
   const answerStyleSelect = document.getElementById('answer-style-select');
   const difficultySelect = document.getElementById('difficulty-select');
+  const questionCountSelect = document.getElementById('question-count-select');
   const saveBtn = document.getElementById('save-settings-btn');
   const settingsToggleBtn = document.getElementById('settings-toggle-btn');
   const settingsPanel = document.getElementById('settings-panel');
@@ -185,8 +186,11 @@ function initSettings() {
   if (savedSettings.difficulty && difficultySelect) {
     difficultySelect.value = savedSettings.difficulty;
   }
+  if (savedSettings.questionCount && questionCountSelect) {
+    questionCountSelect.value = String(savedSettings.questionCount);
+  }
 
-  // 2. Remember both dropdowns' last values in localStorage whenever changed
+  // 2. Remember dropdowns' last values in localStorage whenever changed
   if (answerStyleSelect) {
     answerStyleSelect.addEventListener('change', () => {
       const current = window.StudyStorage.getSettings();
@@ -207,15 +211,26 @@ function initSettings() {
     });
   }
 
+  if (questionCountSelect) {
+    questionCountSelect.addEventListener('change', () => {
+      const current = window.StudyStorage.getSettings();
+      window.StudyStorage.saveSettings({
+        ...current,
+        questionCount: parseInt(questionCountSelect.value, 10) || 5,
+      });
+    });
+  }
+
   // 3. Save Settings Handler (API key and settings)
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
       const key = apiKeyInput ? apiKeyInput.value.trim() : '';
       const style = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
       const diff = difficultySelect ? difficultySelect.value : 'medium';
+      const qCount = questionCountSelect ? (parseInt(questionCountSelect.value, 10) || 5) : 5;
 
       window.StudyStorage.saveApiKey(key);
-      window.StudyStorage.saveSettings({ answerStyle: style, difficulty: diff });
+      window.StudyStorage.saveSettings({ answerStyle: style, difficulty: diff, questionCount: qCount });
 
       // Visual feedback on save button
       const originalText = saveBtn.innerHTML;
@@ -321,6 +336,7 @@ function initGenerateHandler() {
   const textarea = document.getElementById('study-textarea');
   const difficultySelect = document.getElementById('difficulty-select');
   const answerStyleSelect = document.getElementById('answer-style-select');
+  const questionCountSelect = document.getElementById('question-count-select');
   const apiKeyInput = document.getElementById('api-key-input');
 
   if (!generateBtn) return;
@@ -368,6 +384,7 @@ function initGenerateHandler() {
 
     const difficulty = difficultySelect ? difficultySelect.value : 'medium';
     const answerStyle = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
+    const questionCount = questionCountSelect ? (parseInt(questionCountSelect.value, 10) || 5) : 5;
 
     // 3. Enter working state: disable Generate button, show loading indicator
     setWorkingState(true, generateBtn, loadingIndicator, errorBox);
@@ -379,10 +396,11 @@ function initGenerateHandler() {
         content,
         difficulty,
         style: answerStyle,
+        questionCount,
       });
 
-      // 5. Parse and validate JSON (strips ```json code fences and verifies schema)
-      const studyKit = window.StudyParser.parseStudyKitResponse(rawText);
+      // 5. Parse and validate JSON (strips ```json code fences and verifies schema + question count)
+      const studyKit = window.StudyParser.parseStudyKitResponse(rawText, questionCount);
 
       // 6. Update current active summary text for Copy/Download
       currentSummaryText = studyKit.summary || '';
@@ -394,6 +412,7 @@ function initGenerateHandler() {
         notes: content,
         difficulty: difficulty,
         answerStyle: answerStyle,
+        questionCount: questionCount,
         result: studyKit,
         date: new Date().toISOString(),
       });
@@ -927,12 +946,17 @@ function handleSelectHistoryItem(item) {
     }
   }
 
-  // 2. Restore difficulty and answerStyle dropdowns if recorded
+  // 2. Restore difficulty, answerStyle, and questionCount dropdowns if recorded
+  const questionCountSelect = document.getElementById('question-count-select');
   if (item.difficulty && difficultySelect) {
     difficultySelect.value = item.difficulty;
   }
   if (item.answerStyle && answerStyleSelect) {
     answerStyleSelect.value = item.answerStyle;
+  }
+  if (questionCountSelect) {
+    const qCount = item.questionCount || (Array.isArray(item.result?.quiz) ? item.result.quiz.length : 5);
+    questionCountSelect.value = String(qCount);
   }
 
   // 3. Set current active summary text for Copy/Download
@@ -989,6 +1013,7 @@ function initRegenerateHandler() {
   const textarea = document.getElementById('study-textarea');
   const difficultySelect = document.getElementById('difficulty-select');
   const answerStyleSelect = document.getElementById('answer-style-select');
+  const questionCountSelect = document.getElementById('question-count-select');
   const generateBtn = document.getElementById('generate-btn');
   const loadingIndicator = document.getElementById('loading-indicator');
   const errorBox = document.getElementById('error-box');
@@ -1029,6 +1054,7 @@ function initRegenerateHandler() {
 
     const difficulty = difficultySelect ? difficultySelect.value : 'medium';
     const answerStyle = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
+    const questionCount = questionCountSelect ? (parseInt(questionCountSelect.value, 10) || 5) : 5;
 
     // 3. Enter working state on regenerate and generate buttons
     regenerateBtn.disabled = true;
@@ -1058,11 +1084,12 @@ function initRegenerateHandler() {
         content,
         difficulty,
         style: answerStyle,
+        questionCount,
         isVariation: true,
       });
 
-      // 5. Parse JSON response
-      const studyKit = window.StudyParser.parseStudyKitResponse(rawText);
+      // 5. Parse JSON response and validate
+      const studyKit = window.StudyParser.parseStudyKitResponse(rawText, questionCount);
       currentSummaryText = studyKit.summary || '';
 
       // 6. Save as a new history entry
@@ -1075,6 +1102,7 @@ function initRegenerateHandler() {
         notes: content,
         difficulty: difficulty,
         answerStyle: answerStyle,
+        questionCount: questionCount,
         result: studyKit,
         date: new Date().toISOString(),
       });

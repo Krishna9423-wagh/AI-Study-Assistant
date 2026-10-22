@@ -350,13 +350,13 @@ function handleOptionSelect(params) {
     pillEl.className = 'quiz-status-pill wrong';
   }
 
-  // 3. Reveal Explanation Box
-  if (explanation) {
-    const explanationBox = document.createElement('div');
-    explanationBox.className = 'quiz-explanation-box';
-    explanationBox.innerHTML = `<strong>Explanation:</strong> ${explanation}`;
-    cardEl.appendChild(explanationBox);
-  }
+  // 3. Reveal Explanation Box under the question
+  const explanationText = explanation ? explanation.trim() : 'Correct answer explanation.';
+  const safeExplanation = window.StudyUtils && window.StudyUtils.escapeHtml ? window.StudyUtils.escapeHtml(explanationText) : explanationText;
+  const explanationBox = document.createElement('div');
+  explanationBox.className = 'quiz-explanation-box';
+  explanationBox.innerHTML = `<strong>Explanation:</strong> ${safeExplanation}`;
+  cardEl.appendChild(explanationBox);
 
   // 4. Trigger score tally callback
   onAnswered(isCorrect);

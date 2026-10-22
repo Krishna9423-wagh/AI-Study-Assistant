@@ -21,9 +21,10 @@ const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models
  * @param {string} difficulty - Selected difficulty ('easy', 'medium', 'hard')
  * @param {string} style - Selected answer style ('explain-10', 'exam-focused', 'detailed')
  * @param {boolean} [isVariation=false] - Whether to generate an alternative variation
+ * @param {number|string} [questionCount=5] - Number of quiz questions (5, 10, 15)
  * @returns {string} The formatted prompt string
  */
-function buildGeminiPrompt(content, difficulty, style, isVariation = false) {
+function buildGeminiPrompt(content, difficulty, style, isVariation = false, questionCount = 5) {
   const styleGuides = {
     'explain-10': 'Explain concepts simply using intuitive analogies and accessible language suitable for a beginner or 10-year-old, while preserving scientific/factual accuracy.',
     'exam-focused': 'Focus on high-yield testable concepts, precise terminology, potential exam traps, formulas, and critical distinctions needed for top exam scores.',
@@ -31,6 +32,7 @@ function buildGeminiPrompt(content, difficulty, style, isVariation = false) {
   };
 
   const styleText = styleGuides[style] || styleGuides['explain-10'];
+  const count = parseInt(questionCount, 10) || 5;
   const variationText = isVariation
     ? '\n6. Variation Instruction: Please give a different variation of this study material with alternative explanations, fresh quiz questions, and new flashcard angles.'
     : '';
@@ -50,7 +52,7 @@ JSON Schema:
       "question": "Question text here?",
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "answer": 0,
-      "explanation": "Detailed explanation of why this option is correct and others are not."
+      "explanation": "One-line concise explanation of why this answer is correct."
     }
   ],
   "flashcards": [
@@ -63,7 +65,7 @@ JSON Schema:
 
 Specific Requirements:
 1. "summary": Provide a structured synthesis of the material with headings and bullet points.
-2. "quiz": Exactly 5 multiple-choice questions. Each question MUST have exactly 4 choices in "options" and a zero-based integer "answer" index (0, 1, 2, or 3). Provide an "explanation".
+2. "quiz": Exactly ${count} multiple-choice questions. Each question MUST have exactly 4 choices in "options", a zero-based integer "answer" index (0, 1, 2, or 3), and a one-line "explanation" field explaining why the correct choice is right.
 3. "flashcards": At least 5 high-yield flashcard items with "front" and "back".
 4. Pedagogical Style: ${styleText}
 5. Difficulty Target: ${difficulty.toUpperCase()} level. Adjust conceptual depth and question challenge accordingly.${variationText}
@@ -81,10 +83,11 @@ ${content}`;
  * @param {string} options.difficulty - Difficulty level ('easy', 'medium', 'hard')
  * @param {string} options.style - Pedagogical tone ('explain-10', 'exam-focused', 'detailed')
  * @param {boolean} [options.isVariation=false] - Whether to request an alternative variation
+ * @param {number|string} [options.questionCount=5] - Number of quiz questions (5, 10, 15)
  * @returns {Promise<string>} The raw text response from the Gemini model
  */
 async function fetchStudyKit(options) {
-  const { apiKey, content, difficulty = 'medium', style = 'explain-10', isVariation = false } = options;
+  const { apiKey, content, difficulty = 'medium', style = 'explain-10', isVariation = false, questionCount = 5 } = options;
 
   // 1. Validation: Verify API key presence
   if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
@@ -98,7 +101,7 @@ async function fetchStudyKit(options) {
 
   // Construct official v1beta generateContent endpoint
   const endpoint = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
-  const promptText = buildGeminiPrompt(content.trim(), difficulty, style, isVariation);
+  const promptText = buildGeminiPrompt(content.trim(), difficulty, style, isVariation, questionCount);
 
   // Request payload configured for JSON response mode
   const requestBody = {
