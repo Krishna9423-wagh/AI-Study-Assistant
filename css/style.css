@@ -651,6 +651,54 @@ body {
   font-weight: 400;
 }
 
+/* Character Counter Warning States */
+.char-counter-badge.warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-color: var(--color-warning-border);
+}
+
+.char-counter-badge.critical {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-color: var(--color-error-border);
+  animation: counterPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes counterPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Character Limit Warning Message Box */
+.char-limit-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  color: var(--color-warning-text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-top: 0.4rem;
+  animation: fadeIn 0.25s ease;
+}
+
+.char-limit-warning.critical {
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+  color: var(--color-error-text);
+}
+
+.char-limit-warning .warning-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 /* --------------------------------------------------------------------------
    8. DIFFICULTY DROPDOWN & GENERATE BUTTON
    -------------------------------------------------------------------------- */

@@ -496,17 +496,61 @@ function updatePanelIndicators(studyKit) {
 }
 
 /**
- * Live character counter for the study material textarea.
+ * Live character counter with warning thresholds for very long notes.
  */
 function initCharacterCounter() {
   const textarea = document.getElementById('study-textarea');
   const counter = document.getElementById('char-counter');
+  const counterBadge = document.getElementById('char-counter-container');
+  const warningBox = document.getElementById('char-limit-warning');
+  const warningText = document.getElementById('char-warning-text');
 
   if (!textarea || !counter) return;
 
-  textarea.addEventListener('input', () => {
-    counter.textContent = textarea.value.length.toLocaleString();
-  });
+  function updateCount() {
+    const len = textarea.value.length;
+    counter.textContent = len.toLocaleString();
+
+    // Check thresholds: 7,500 (warning) and 9,500 (critical limit)
+    if (len >= 10000) {
+      if (counterBadge) {
+        counterBadge.className = 'char-counter-badge critical';
+      }
+      if (warningBox && warningText) {
+        warningBox.className = 'char-limit-warning critical';
+        warningText.textContent = '⛔ Maximum character limit reached (10,000 / 10,000). You cannot type additional notes.';
+        warningBox.classList.remove('hidden');
+      }
+    } else if (len >= 9500) {
+      if (counterBadge) {
+        counterBadge.className = 'char-counter-badge critical';
+      }
+      if (warningBox && warningText) {
+        warningBox.className = 'char-limit-warning critical';
+        warningText.textContent = `⚠️ Approaching limit (${len.toLocaleString()} / 10,000 characters). Notes exceeding 10,000 will be truncated.`;
+        warningBox.classList.remove('hidden');
+      }
+    } else if (len >= 7500) {
+      if (counterBadge) {
+        counterBadge.className = 'char-counter-badge warning';
+      }
+      if (warningBox && warningText) {
+        warningBox.className = 'char-limit-warning';
+        warningText.textContent = `⚠️ Very long notes (${len.toLocaleString()} characters). Consider keeping key concepts for optimal AI synthesis.`;
+        warningBox.classList.remove('hidden');
+      }
+    } else {
+      if (counterBadge) {
+        counterBadge.className = 'char-counter-badge';
+      }
+      if (warningBox) {
+        warningBox.classList.add('hidden');
+      }
+    }
+  }
+
+  textarea.addEventListener('input', updateCount);
+  window.updateNotesCount = updateCount;
 }
 
 /**
@@ -745,7 +789,9 @@ function handleSelectHistoryItem(item) {
   // 1. Populate textarea with saved notes
   if (textarea) {
     textarea.value = item.notes || '';
-    if (counter) {
+    if (window.updateNotesCount) {
+      window.updateNotesCount();
+    } else if (counter) {
       counter.textContent = textarea.value.length.toLocaleString();
     }
   }
