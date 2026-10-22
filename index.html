@@ -18,7 +18,19 @@
 
   <link rel="stylesheet" href="css/style.css">
 
+  <!-- Immediate Theme Initializer to eliminate flash of light mode -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('ai_study_assistant_theme');
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+      } catch (e) {}
+    })();
+  </script>
 
+  <!-- Application Scripts -->
   <script src="js/utils.js" defer></script>
   <script src="js/storage.js" defer></script>
   <script src="js/api.js" defer></script>
