@@ -11,21 +11,64 @@
 
 const STORAGE_KEYS = {
   API_KEY: 'ai_study_assistant_api_key',
+  PROVIDER: 'ai_study_assistant_provider',
+  API_KEY_GEMINI: 'ai_study_assistant_api_key_gemini',
+  API_KEY_GROQ: 'ai_study_assistant_api_key_groq',
   SETTINGS: 'ai_study_assistant_settings',
   HISTORY: 'ai_study_assistant_history',
   THEME: 'ai_study_assistant_theme',
+  ACCENT_COLOR: 'ai_study_assistant_accent_color',
+  DRAFT_NOTES: 'ai_study_assistant_draft_notes',
+  STREAK_DATA: 'ai_study_assistant_streak_data',
   FLASHCARD_MASTERY_PREFIX: 'ai_study_assistant_mastery_',
   QUIZ_SCORES: 'ai_study_assistant_quiz_scores',
 };
 
 /**
- * Retrieves the stored Gemini API key from localStorage.
- * @returns {string|null} The stored API key or null if not set
+ * Retrieves the currently active AI provider ('gemini' or 'groq').
+ * Defaults to 'gemini'.
+ * @returns {string} 'gemini' | 'groq'
  */
-function getApiKey() {
+function getProvider() {
   try {
-    const key = localStorage.getItem(STORAGE_KEYS.API_KEY);
-    return key && key.trim() ? key.trim() : null;
+    return localStorage.getItem(STORAGE_KEYS.PROVIDER) || 'gemini';
+  } catch (err) {
+    return 'gemini';
+  }
+}
+
+/**
+ * Saves the selected AI provider to localStorage.
+ * @param {string} provider - 'gemini' or 'groq'
+ */
+function saveProvider(provider) {
+  try {
+    const p = provider === 'groq' ? 'groq' : 'gemini';
+    localStorage.setItem(STORAGE_KEYS.PROVIDER, p);
+  } catch (err) {
+    console.error('storage.js: Failed to save provider', err);
+  }
+}
+
+/**
+ * Retrieves the stored API key for a given provider.
+ * Falls back to legacy key for Gemini if provider-specific key is not set.
+ * @param {string} [provider] - 'gemini' or 'groq' (defaults to active provider)
+ * @returns {string|null} The stored API key or null
+ */
+function getApiKey(provider) {
+  const p = provider || getProvider();
+  try {
+    if (p === 'groq') {
+      const groqKey = localStorage.getItem(STORAGE_KEYS.API_KEY_GROQ);
+      return groqKey && groqKey.trim() ? groqKey.trim() : null;
+    }
+    // Gemini
+    const geminiKey = localStorage.getItem(STORAGE_KEYS.API_KEY_GEMINI);
+    if (geminiKey && geminiKey.trim()) return geminiKey.trim();
+    // Legacy fallback
+    const legacy = localStorage.getItem(STORAGE_KEYS.API_KEY);
+    return legacy && legacy.trim() ? legacy.trim() : null;
   } catch (err) {
     console.error('storage.js: Unable to read API key from localStorage', err);
     return null;
@@ -33,13 +76,20 @@ function getApiKey() {
 }
 
 /**
- * Saves the user's Gemini API key to localStorage.
+ * Saves an API key for a specified provider.
  * @param {string} key - The API key provided by the user
+ * @param {string} [provider] - 'gemini' or 'groq' (defaults to active provider)
  */
-function saveApiKey(key) {
+function saveApiKey(key, provider) {
+  const p = provider || getProvider();
   try {
-    if (typeof key === 'string') {
-      localStorage.setItem(STORAGE_KEYS.API_KEY, key.trim());
+    const val = typeof key === 'string' ? key.trim() : '';
+    if (p === 'groq') {
+      localStorage.setItem(STORAGE_KEYS.API_KEY_GROQ, val);
+    } else {
+      localStorage.setItem(STORAGE_KEYS.API_KEY_GEMINI, val);
+      // Also update legacy key for backward compatibility
+      localStorage.setItem(STORAGE_KEYS.API_KEY, val);
     }
   } catch (err) {
     console.error('storage.js: Unable to save API key to localStorage', err);
@@ -309,15 +359,194 @@ function clearQuizScores() {
   }
 }
 
+/**
+ * Retrieves the user-selected accent color preset from localStorage.
+ * Defaults to 'blue' (Gemini Blue).
+ * @returns {string} Preset name ('blue', 'indigo', 'emerald', 'amber', 'rose')
+ */
+function getAccentColor() {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.ACCENT_COLOR) || 'blue';
+  } catch (err) {
+    return 'blue';
+  }
+}
+
+/**
+ * Saves the selected accent color preset to localStorage.
+ * @param {string} colorName - 'blue' | 'indigo' | 'emerald' | 'amber' | 'rose'
+ */
+function saveAccentColor(colorName) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.ACCENT_COLOR, colorName);
+  } catch (err) {
+    console.error('storage.js: Failed to save accent color', err);
+  }
+}
+
+/**
+ * Retrieves auto-saved draft study notes from localStorage.
+ * @returns {string}
+ */
+function getDraftNotes() {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.DRAFT_NOTES) || '';
+  } catch (err) {
+    return '';
+  }
+}
+
+/**
+ * Auto-saves user draft study notes to localStorage.
+ * @param {string} text
+ */
+function saveDraftNotes(text) {
+  try {
+    if (typeof text === 'string') {
+      localStorage.setItem(STORAGE_KEYS.DRAFT_NOTES, text);
+    }
+  } catch (err) {
+    console.error('storage.js: Failed to save draft notes', err);
+  }
+}
+
+/**
+ * Clears auto-saved draft notes from localStorage.
+ */
+function clearDraftNotes() {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.DRAFT_NOTES);
+  } catch (err) {
+    console.error('storage.js: Failed to clear draft notes', err);
+  }
+}
+
+/**
+ * Retrieves streak and activity data from localStorage.
+ * @returns {Object} { currentStreak: number, bestStreak: number, lastActiveDate: string, activeDates: string[] }
+ */
+function getStreakData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.STREAK_DATA);
+    const defaults = {
+      currentStreak: 1,
+      bestStreak: 1,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      activeDates: [new Date().toISOString().split('T')[0]],
+    };
+    if (!raw) return defaults;
+    const parsed = JSON.parse(raw);
+    return { ...defaults, ...parsed };
+  } catch (err) {
+    return {
+      currentStreak: 1,
+      bestStreak: 1,
+      lastActiveDate: new Date().toISOString().split('T')[0],
+      activeDates: [],
+    };
+  }
+}
+
+/**
+ * Records a learning activity (generating material, completing quiz, reviewing flashcards).
+ * Updates streak calculations based on consecutive days.
+ * @returns {Object} Updated streak object
+ */
+function recordActivity() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const data = getStreakData();
+
+    if (!data.activeDates) data.activeDates = [];
+
+    if (!data.activeDates.includes(today)) {
+      data.activeDates.push(today);
+
+      if (data.lastActiveDate) {
+        const last = new Date(data.lastActiveDate);
+        const curr = new Date(today);
+        const diffDays = Math.round((curr - last) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          data.currentStreak = (data.currentStreak || 0) + 1;
+        } else if (diffDays > 1) {
+          data.currentStreak = 1;
+        }
+      } else {
+        data.currentStreak = 1;
+      }
+
+      data.lastActiveDate = today;
+      data.bestStreak = Math.max(data.bestStreak || 1, data.currentStreak || 1);
+      localStorage.setItem(STORAGE_KEYS.STREAK_DATA, JSON.stringify(data));
+    }
+
+    return data;
+  } catch (err) {
+    console.error('storage.js: Failed to record activity', err);
+    return getStreakData();
+  }
+}
+
+/**
+ * Aggregates live dashboard metrics from storage.
+ * @returns {Object} Metrics for dashboard cards
+ */
+function getDashboardStats() {
+  const history = getHistory();
+  const quizScores = getQuizScores();
+  const streak = getStreakData();
+
+  let totalScore = 0;
+  let totalPossible = 0;
+  quizScores.forEach((s) => {
+    totalScore += s.score || 0;
+    totalPossible += s.total || 5;
+  });
+
+  const avgPercentage = totalPossible > 0 ? Math.round((totalScore / totalPossible) * 100) : 0;
+
+  // Count cards in Leitner Box 3
+  let cardsMastered = 0;
+  try {
+    if (window.StudySRS && typeof window.StudySRS.getBoxCounts === 'function') {
+      const counts = window.StudySRS.getBoxCounts();
+      cardsMastered = counts.box3 || 0;
+    }
+  } catch {
+    // Fallback
+  }
+
+  return {
+    totalGenerations: history.length,
+    quizzesCompleted: quizScores.length,
+    averageScorePercent: avgPercentage,
+    cardsMastered,
+    currentStreak: streak.currentStreak || 1,
+    bestStreak: streak.bestStreak || 1,
+    recentScores: quizScores.slice(-10),
+  };
+}
+
 // Global namespace exposure
 window.StudyStorage = {
   STORAGE_KEYS,
+  getProvider,
+  saveProvider,
   getApiKey,
   saveApiKey,
   getSettings,
   saveSettings,
   getTheme,
   saveTheme,
+  getAccentColor,
+  saveAccentColor,
+  getDraftNotes,
+  saveDraftNotes,
+  clearDraftNotes,
+  getStreakData,
+  recordActivity,
+  getDashboardStats,
   getHistory,
   saveHistoryItem,
   deleteHistoryItem,
