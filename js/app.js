@@ -362,6 +362,8 @@ function initGenerateHandler() {
       window.StudyStorage.saveHistoryItem({
         title: sessionTitle,
         notes: content,
+        difficulty: difficulty,
+        answerStyle: answerStyle,
         result: studyKit,
         date: new Date().toISOString(),
       });
@@ -685,40 +687,47 @@ function initSummaryActions() {
   });
 }
 
+// Active history search & difficulty filter state
+let currentHistorySearchQuery = '';
+let currentHistoryDifficultyFilter = 'all';
+
 /**
- * Initializes History module: loading, filtering, selecting without API call,
- * individual deletion, and Clear All.
+ * Initializes History module: loading, search filtering, difficulty chip filtering,
+ * selecting without API call, individual deletion, and Clear All.
  */
 function initHistoryModule() {
   const searchInput = document.getElementById('history-search-input');
   const clearAllBtn = document.getElementById('clear-history-btn');
+  const filterChips = document.querySelectorAll('.history-chip');
 
   // Initial render of saved history
-  refreshHistoryUI();
+  applyHistoryFilters();
 
   // Search filter with debouncing
   if (searchInput) {
     const handleSearch = window.StudyUtils.debounce(() => {
-      const query = searchInput.value.toLowerCase().trim();
-      const allItems = window.StudyStorage.getHistory();
-
-      if (!query) {
-        renderHistoryList(allItems);
-        return;
-      }
-
-      const filtered = allItems.filter((item) => {
-        const titleMatch = item.title && item.title.toLowerCase().includes(query);
-        const notesMatch = item.notes && item.notes.toLowerCase().includes(query);
-        const dateMatch = item.date && item.date.toLowerCase().includes(query);
-        return titleMatch || notesMatch || dateMatch;
-      });
-
-      renderHistoryList(filtered);
+      currentHistorySearchQuery = searchInput.value;
+      applyHistoryFilters();
     }, 200);
 
     searchInput.addEventListener('input', handleSearch);
+
+    // Also trigger on native search clear ('x' clicked) or Enter
+    searchInput.addEventListener('search', () => {
+      currentHistorySearchQuery = searchInput.value;
+      applyHistoryFilters();
+    });
   }
+
+  // Difficulty filter chips handler
+  filterChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      filterChips.forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentHistoryDifficultyFilter = chip.getAttribute('data-filter') || 'all';
+      applyHistoryFilters();
+    });
+  });
 
   // Clear All button handler
   if (clearAllBtn) {
@@ -729,25 +738,77 @@ function initHistoryModule() {
       const confirmed = window.confirm('Are you sure you want to delete all saved study sessions?');
       if (confirmed) {
         window.StudyStorage.clearHistory();
-        refreshHistoryUI();
+        resetHistoryFilters();
       }
     });
   }
 }
 
 /**
- * Refreshes the history list from localStorage and renders it.
+ * Filters history items based on search query and difficulty filter, then renders.
+ */
+function applyHistoryFilters() {
+  const allItems = window.StudyStorage.getHistory();
+  const query = (currentHistorySearchQuery || '').toLowerCase().trim();
+  const filter = (currentHistoryDifficultyFilter || 'all').toLowerCase();
+
+  const filtered = allItems.filter((item) => {
+    // 1. Difficulty filter check
+    if (filter !== 'all') {
+      const itemDiff = (item.difficulty || item.result?.difficulty || 'medium').toLowerCase();
+      if (itemDiff !== filter) return false;
+    }
+
+    // 2. Search query check against title, notes, and date
+    if (query) {
+      const titleMatch = item.title && item.title.toLowerCase().includes(query);
+      const notesMatch = item.notes && item.notes.toLowerCase().includes(query);
+      const dateMatch = item.date && item.date.toLowerCase().includes(query);
+      if (!titleMatch && !notesMatch && !dateMatch) return false;
+    }
+
+    return true;
+  });
+
+  const isFiltered = Boolean(query) || filter !== 'all';
+  renderHistoryList(filtered, isFiltered);
+}
+
+/**
+ * Resets search input and difficulty filter chips back to "All".
+ */
+function resetHistoryFilters() {
+  currentHistorySearchQuery = '';
+  currentHistoryDifficultyFilter = 'all';
+
+  const searchInput = document.getElementById('history-search-input');
+  if (searchInput) searchInput.value = '';
+
+  const filterChips = document.querySelectorAll('.history-chip');
+  filterChips.forEach((c) => {
+    if (c.getAttribute('data-filter') === 'all') {
+      c.classList.add('active');
+    } else {
+      c.classList.remove('active');
+    }
+  });
+
+  applyHistoryFilters();
+}
+
+/**
+ * Refreshes the history list from localStorage according to active filters.
  */
 function refreshHistoryUI() {
-  const historyItems = window.StudyStorage.getHistory();
-  renderHistoryList(historyItems);
+  applyHistoryFilters();
 }
 
 /**
  * Passes items to the render service with click-to-load and delete handlers.
  * @param {Array<Object>} items - History items to render
+ * @param {boolean} [isFiltered=false] - Whether a filter/query is currently applied
  */
-function renderHistoryList(items) {
+function renderHistoryList(items, isFiltered = false) {
   const container = document.getElementById('history-list');
 
   window.StudyRender.renderHistory(
@@ -756,14 +817,16 @@ function renderHistoryList(items) {
     // OnSelect callback: re-display without calling API
     (item) => handleSelectHistoryItem(item),
     // OnDelete callback: remove item from localStorage
-    (id) => handleDeleteHistoryItem(id)
+    (id) => handleDeleteHistoryItem(id),
+    isFiltered,
+    () => resetHistoryFilters()
   );
 }
 
 /**
  * Handles selecting a history session:
  * Re-displays the result without calling the API, populates the input textarea,
- * updates currentSummaryText, switches to Summary tab, and scrolls up.
+ * restores difficulty and style, updates currentSummaryText, switches to Summary tab, and scrolls up.
  * @param {Object} item - The history session item
  */
 function handleSelectHistoryItem(item) {
@@ -785,6 +848,8 @@ function handleSelectHistoryItem(item) {
   const textarea = document.getElementById('study-textarea');
   const counter = document.getElementById('char-counter');
   const summaryTabBtn = document.getElementById('tab-summary-btn');
+  const difficultySelect = document.getElementById('difficulty-select');
+  const answerStyleSelect = document.getElementById('answer-style-select');
 
   // 1. Populate textarea with saved notes
   if (textarea) {
@@ -796,19 +861,27 @@ function handleSelectHistoryItem(item) {
     }
   }
 
-  // 2. Set current active summary text for Copy/Download
+  // 2. Restore difficulty and answerStyle dropdowns if recorded
+  if (item.difficulty && difficultySelect) {
+    difficultySelect.value = item.difficulty;
+  }
+  if (item.answerStyle && answerStyleSelect) {
+    answerStyleSelect.value = item.answerStyle;
+  }
+
+  // 3. Set current active summary text for Copy/Download
   currentSummaryText = item.result.summary || '';
 
-  // 3. Render the study kit into DOM (Summary, Quiz, Flashcards) without calling API
+  // 4. Render the study kit into DOM (Summary, Quiz, Flashcards) without calling API
   window.StudyRender.renderStudyKit(item.result);
 
-  // 4. Update panel indicators
+  // 5. Update panel indicators
   updatePanelIndicators(item.result);
 
-  // 5. Switch to the Summary tab view
+  // 6. Switch to the Summary tab view
   activateTab('tab-summary-panel', summaryTabBtn);
 
-  // 6. Smoothly scroll up to the study material workspace
+  // 7. Smoothly scroll up to the study material workspace
   const mainContent = document.getElementById('main-content');
   if (mainContent) {
     mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -833,8 +906,11 @@ window.StudyApp = {
   initGenerateHandler,
   initSummaryActions,
   initHistoryModule,
+  applyHistoryFilters,
+  resetHistoryFilters,
   refreshHistoryUI,
   handleSelectHistoryItem,
   handleDeleteHistoryItem,
   showError,
 };
+

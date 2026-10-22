@@ -449,6 +449,7 @@
 
 
           <div class="history-controls">
+            <!-- Search Input -->
             <div class="history-search-wrapper">
               <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -456,8 +457,18 @@
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
               <input type="search" id="history-search-input" class="history-search-input"
-                placeholder="Search past sessions by title, keyword, or date..." aria-label="Search study history">
+                placeholder="Search past sessions by title, notes, or date..." aria-label="Search study history">
             </div>
+
+            <!-- Filter Chips by Difficulty -->
+            <div class="history-filter-chips" id="history-filter-chips" role="group" aria-label="Filter study history by difficulty">
+              <button type="button" class="history-chip active" data-filter="all">All</button>
+              <button type="button" class="history-chip" data-filter="easy">Easy</button>
+              <button type="button" class="history-chip" data-filter="medium">Medium</button>
+              <button type="button" class="history-chip" data-filter="hard">Hard</button>
+            </div>
+
+            <!-- Clear All Button -->
             <button type="button" id="clear-history-btn" class="btn-clear-history" title="Clear all history sessions" aria-label="Clear all study history">
               <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="3 6 5 6 21 6"></polyline>

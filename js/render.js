@@ -549,28 +549,56 @@ function renderFlashcards(flashcards, container) {
 
 /**
  * Renders the saved study history list with preview information,
- * click-to-open handlers, and individual delete buttons.
+ * difficulty badges, click-to-open handlers, and individual delete buttons.
  *
- * @param {Array<Object>} historyItems - List of past sessions [{ id, title, notes, result, date }]
+ * @param {Array<Object>} historyItems - List of past sessions [{ id, title, notes, difficulty, result, date }]
  * @param {HTMLElement} container - Target container (#history-list)
  * @param {Function} onSelect - Callback when a history card is clicked: (item) => void
  * @param {Function} onDelete - Callback when delete button is clicked: (id) => void
+ * @param {boolean} [isFiltered=false] - Whether a search query or difficulty filter is currently active
+ * @param {Function} [onResetFilters=null] - Callback when "Clear Search & Filters" button is clicked
  */
-function renderHistory(historyItems, container, onSelect, onDelete) {
+function renderHistory(historyItems, container, onSelect, onDelete, isFiltered = false, onResetFilters = null) {
   if (!container) return;
 
   container.innerHTML = '';
 
   if (!historyItems || historyItems.length === 0) {
-    container.innerHTML = `
-      <div class="history-empty-state">
-        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
-        </svg>
-        <p class="empty-title">No Previous Study Sessions</p>
-        <p class="empty-subtitle">Generated study kits are preserved automatically in your local browser storage for offline review.</p>
-      </div>
-    `;
+    if (isFiltered) {
+      container.innerHTML = `
+        <div class="history-empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+          <p class="empty-title">No Matching Sessions Found</p>
+          <p class="empty-subtitle">No saved study kits match your current search query or difficulty filter.</p>
+          <button type="button" class="btn-reset-filter" id="reset-history-filter-btn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            <span>Clear Search & Filters</span>
+          </button>
+        </div>
+      `;
+
+      const resetBtn = container.querySelector('#reset-history-filter-btn');
+      if (resetBtn && typeof onResetFilters === 'function') {
+        resetBtn.addEventListener('click', onResetFilters);
+      }
+    } else {
+      container.innerHTML = `
+        <div class="history-empty-state">
+          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"></path>
+          </svg>
+          <p class="empty-title">No Previous Study Sessions</p>
+          <p class="empty-subtitle">Generated study kits are preserved automatically in your local browser storage for offline review.</p>
+        </div>
+      `;
+    }
     return;
   }
 
@@ -587,6 +615,9 @@ function renderHistory(historyItems, container, onSelect, onDelete) {
     const qCount = item.result?.quiz?.length || 5;
     const fCount = item.result?.flashcards?.length || 5;
     const snippet = item.notes ? item.notes.slice(0, 150) + (item.notes.length > 150 ? '...' : '') : 'No notes recorded.';
+    const diff = (item.difficulty || item.result?.difficulty || 'medium').toLowerCase();
+    const diffLabel = diff.charAt(0).toUpperCase() + diff.slice(1);
+    const diffClass = `badge-${diff}`;
 
     card.innerHTML = `
       <div class="history-item-main">
@@ -596,6 +627,7 @@ function renderHistory(historyItems, container, onSelect, onDelete) {
         </div>
         <p class="history-item-preview">${escapeFn(snippet)}</p>
         <div class="history-item-badges">
+          <span class="history-badge ${diffClass}">${escapeFn(diffLabel)}</span>
           <span class="history-badge">${qCount} Questions</span>
           <span class="history-badge">${fCount} Flashcards</span>
         </div>

@@ -126,6 +126,8 @@ function saveHistoryItem(item) {
       id: 'session_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
       title: item.title || 'Untitled Study Kit',
       notes: item.notes || '',
+      difficulty: item.difficulty || 'medium',
+      answerStyle: item.answerStyle || '',
       result: item.result,
       date: item.date || new Date().toISOString(),
     };
