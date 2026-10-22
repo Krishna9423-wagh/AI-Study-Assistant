@@ -343,6 +343,16 @@
                 <span class="tab-pill">Retention</span>
               </button>
             </div>
+
+            <!-- Regenerate Button Next to Results Tabs -->
+            <div class="tabs-header-actions">
+              <button type="button" id="regenerate-btn" class="action-btn-sm btn-regenerate" title="Regenerate this study material with a different variation" aria-label="Regenerate with different variation">
+                <svg class="icon-sm spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+                <span>Regenerate</span>
+              </button>
+            </div>
           </div>
 
 
@@ -436,6 +446,9 @@
                     after generation.</p>
                 </div>
               </div>
+
+              <!-- Quiz Progress Section: Bar Chart, Average Score, Best Score, and Clear Scores Button -->
+              <div class="quiz-progress-section" id="quiz-progress-section"></div>
             </div>
 
 
@@ -507,6 +520,21 @@
               <button type="button" class="history-chip" data-filter="easy">Easy</button>
               <button type="button" class="history-chip" data-filter="medium">Medium</button>
               <button type="button" class="history-chip" data-filter="hard">Hard</button>
+            </div>
+
+            <!-- Sort Dropdown (Newest / Oldest) -->
+            <div class="history-sort-group">
+              <label for="history-sort-select" class="visually-hidden">Sort History</label>
+              <div class="select-wrapper history-sort-wrapper">
+                <select id="history-sort-select" class="form-control form-select history-sort-select" aria-label="Sort study history">
+                  <option value="newest" selected>Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+                <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
             </div>
 
             <!-- Clear All Button -->

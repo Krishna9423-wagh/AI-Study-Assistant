@@ -15,6 +15,7 @@ const STORAGE_KEYS = {
   HISTORY: 'ai_study_assistant_history',
   THEME: 'ai_study_assistant_theme',
   FLASHCARD_MASTERY_PREFIX: 'ai_study_assistant_mastery_',
+  QUIZ_SCORES: 'ai_study_assistant_quiz_scores',
 };
 
 /**
@@ -238,6 +239,61 @@ function clearFlashcardMastery(sessionId) {
   }
 }
 
+/**
+ * Retrieves saved quiz score history from localStorage.
+ * @returns {Array<Object>} List of score records [{ id, date, topicTitle, score, total, difficulty }]
+ */
+function getQuizScores() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_SCORES);
+    return raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    console.error('storage.js: Failed to retrieve quiz scores', err);
+    return [];
+  }
+}
+
+/**
+ * Saves a completed quiz score record { date, topicTitle, score, total, difficulty } to localStorage.
+ * @param {Object} entry
+ * @param {string} [entry.date] - ISO timestamp or formatted date
+ * @param {string} [entry.topicTitle] - Title of the topic / session
+ * @param {number} entry.score - Points scored
+ * @param {number} entry.total - Total points
+ * @param {string} [entry.difficulty] - 'easy' | 'medium' | 'hard'
+ * @returns {Object} The saved score entry
+ */
+function saveQuizScore(entry) {
+  try {
+    const scores = getQuizScores();
+    const newEntry = {
+      id: 'score_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      date: entry.date || new Date().toISOString(),
+      topicTitle: entry.topicTitle || 'Study Session Quiz',
+      score: typeof entry.score === 'number' ? entry.score : 0,
+      total: typeof entry.total === 'number' ? entry.total : 5,
+      difficulty: entry.difficulty || 'medium',
+    };
+    scores.push(newEntry);
+    localStorage.setItem(STORAGE_KEYS.QUIZ_SCORES, JSON.stringify(scores));
+    return newEntry;
+  } catch (err) {
+    console.error('storage.js: Failed to save quiz score', err);
+    return null;
+  }
+}
+
+/**
+ * Clears all saved quiz score records from localStorage.
+ */
+function clearQuizScores() {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.QUIZ_SCORES);
+  } catch (err) {
+    console.error('storage.js: Failed to clear quiz scores', err);
+  }
+}
+
 // Global namespace exposure
 window.StudyStorage = {
   STORAGE_KEYS,
@@ -254,5 +310,8 @@ window.StudyStorage = {
   getFlashcardMastery,
   saveFlashcardMastery,
   clearFlashcardMastery,
+  getQuizScores,
+  saveQuizScore,
+  clearQuizScores,
 };
 

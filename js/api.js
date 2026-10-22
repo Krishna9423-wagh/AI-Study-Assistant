@@ -20,9 +20,10 @@ const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models
  * @param {string} content - The study notes/input text
  * @param {string} difficulty - Selected difficulty ('easy', 'medium', 'hard')
  * @param {string} style - Selected answer style ('explain-10', 'exam-focused', 'detailed')
+ * @param {boolean} [isVariation=false] - Whether to generate an alternative variation
  * @returns {string} The formatted prompt string
  */
-function buildGeminiPrompt(content, difficulty, style) {
+function buildGeminiPrompt(content, difficulty, style, isVariation = false) {
   const styleGuides = {
     'explain-10': 'Explain concepts simply using intuitive analogies and accessible language suitable for a beginner or 10-year-old, while preserving scientific/factual accuracy.',
     'exam-focused': 'Focus on high-yield testable concepts, precise terminology, potential exam traps, formulas, and critical distinctions needed for top exam scores.',
@@ -30,6 +31,9 @@ function buildGeminiPrompt(content, difficulty, style) {
   };
 
   const styleText = styleGuides[style] || styleGuides['explain-10'];
+  const variationText = isVariation
+    ? '\n6. Variation Instruction: Please give a different variation of this study material with alternative explanations, fresh quiz questions, and new flashcard angles.'
+    : '';
 
   return `You are an elite educational AI assistant.
 Your task is to analyze the provided study notes and synthesize a structured study kit.
@@ -62,7 +66,7 @@ Specific Requirements:
 2. "quiz": Exactly 5 multiple-choice questions. Each question MUST have exactly 4 choices in "options" and a zero-based integer "answer" index (0, 1, 2, or 3). Provide an "explanation".
 3. "flashcards": At least 5 high-yield flashcard items with "front" and "back".
 4. Pedagogical Style: ${styleText}
-5. Difficulty Target: ${difficulty.toUpperCase()} level. Adjust conceptual depth and question challenge accordingly.
+5. Difficulty Target: ${difficulty.toUpperCase()} level. Adjust conceptual depth and question challenge accordingly.${variationText}
 
 Study Material to Analyze:
 ${content}`;
@@ -76,10 +80,11 @@ ${content}`;
  * @param {string} options.content - Raw study notes or topic text
  * @param {string} options.difficulty - Difficulty level ('easy', 'medium', 'hard')
  * @param {string} options.style - Pedagogical tone ('explain-10', 'exam-focused', 'detailed')
+ * @param {boolean} [options.isVariation=false] - Whether to request an alternative variation
  * @returns {Promise<string>} The raw text response from the Gemini model
  */
 async function fetchStudyKit(options) {
-  const { apiKey, content, difficulty = 'medium', style = 'explain-10' } = options;
+  const { apiKey, content, difficulty = 'medium', style = 'explain-10', isVariation = false } = options;
 
   // 1. Validation: Verify API key presence
   if (!apiKey || typeof apiKey !== 'string' || !apiKey.trim()) {
@@ -93,7 +98,7 @@ async function fetchStudyKit(options) {
 
   // Construct official v1beta generateContent endpoint
   const endpoint = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
-  const promptText = buildGeminiPrompt(content.trim(), difficulty, style);
+  const promptText = buildGeminiPrompt(content.trim(), difficulty, style, isVariation);
 
   // Request payload configured for JSON response mode
   const requestBody = {

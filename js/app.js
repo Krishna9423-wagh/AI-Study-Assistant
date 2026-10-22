@@ -122,8 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharacterCounter();
   initErrorDismissal();
   initGenerateHandler();
+  initRegenerateHandler();
   initSummaryActions();
   initHistoryModule();
+  initQuizProgressModule();
 });
 
 /**
@@ -397,8 +399,11 @@ function initGenerateHandler() {
       });
       currentSessionId = savedItem ? savedItem.id : ('session_' + Date.now());
 
-      // 8. Render the generated study kit into the tabs with session ID
-      window.StudyRender.renderStudyKit(studyKit, currentSessionId);
+      // 8. Render the generated study kit into the tabs with session ID and metadata
+      window.StudyRender.renderStudyKit(studyKit, currentSessionId, {
+        topicTitle: sessionTitle,
+        difficulty: difficulty,
+      });
 
       // 9. Update panel status indicators
       updatePanelIndicators(studyKit);
@@ -722,34 +727,46 @@ function initSummaryActions() {
   });
 }
 
-// Active history search & difficulty filter state
+// Active history search, difficulty filter, and sort state
 let currentHistorySearchQuery = '';
 let currentHistoryDifficultyFilter = 'all';
+let currentHistorySort = 'newest';
 
 /**
- * Initializes History module: loading, search filtering, difficulty chip filtering,
- * selecting without API call, individual deletion, and Clear All.
+ * Initializes History module: loading, search filtering (title and notes as user types),
+ * sort dropdown (newest/oldest), difficulty chip filtering, selecting without API call,
+ * individual deletion, and Clear All.
  */
 function initHistoryModule() {
   const searchInput = document.getElementById('history-search-input');
+  const sortSelect = document.getElementById('history-sort-select');
   const clearAllBtn = document.getElementById('clear-history-btn');
   const filterChips = document.querySelectorAll('.history-chip');
 
   // Initial render of saved history
   applyHistoryFilters();
 
-  // Search filter with debouncing
+  // Search filter as user types with debouncing (filters by title and notes)
   if (searchInput) {
     const handleSearch = window.StudyUtils.debounce(() => {
       currentHistorySearchQuery = searchInput.value;
       applyHistoryFilters();
-    }, 200);
+    }, 150);
 
     searchInput.addEventListener('input', handleSearch);
 
     // Also trigger on native search clear ('x' clicked) or Enter
     searchInput.addEventListener('search', () => {
       currentHistorySearchQuery = searchInput.value;
+      applyHistoryFilters();
+    });
+  }
+
+  // Sort dropdown handler (newest / oldest)
+  if (sortSelect) {
+    sortSelect.value = currentHistorySort;
+    sortSelect.addEventListener('change', (e) => {
+      currentHistorySort = e.target.value;
       applyHistoryFilters();
     });
   }
@@ -780,7 +797,8 @@ function initHistoryModule() {
 }
 
 /**
- * Filters history items based on search query and difficulty filter, then renders.
+ * Filters history items by title and notes as the user types,
+ * applies difficulty chip filtering, and sorts by newest/oldest.
  */
 function applyHistoryFilters() {
   const allItems = window.StudyStorage.getHistory();
@@ -794,15 +812,24 @@ function applyHistoryFilters() {
       if (itemDiff !== filter) return false;
     }
 
-    // 2. Search query check against title, notes, and date
+    // 2. Search query check against title and notes as user types
     if (query) {
       const titleMatch = item.title && item.title.toLowerCase().includes(query);
       const notesMatch = item.notes && item.notes.toLowerCase().includes(query);
-      const dateMatch = item.date && item.date.toLowerCase().includes(query);
-      if (!titleMatch && !notesMatch && !dateMatch) return false;
+      if (!titleMatch && !notesMatch) return false;
     }
 
     return true;
+  });
+
+  // 3. Sort dropdown (newest or oldest first)
+  filtered.sort((a, b) => {
+    const timeA = new Date(a.date || 0).getTime();
+    const timeB = new Date(b.date || 0).getTime();
+    if (currentHistorySort === 'oldest') {
+      return timeA - timeB;
+    }
+    return timeB - timeA; // default newest
   });
 
   const isFiltered = Boolean(query) || filter !== 'all';
@@ -810,14 +837,18 @@ function applyHistoryFilters() {
 }
 
 /**
- * Resets search input and difficulty filter chips back to "All".
+ * Resets search input, sort dropdown, and difficulty filter chips back to defaults.
  */
 function resetHistoryFilters() {
   currentHistorySearchQuery = '';
   currentHistoryDifficultyFilter = 'all';
+  currentHistorySort = 'newest';
 
   const searchInput = document.getElementById('history-search-input');
   if (searchInput) searchInput.value = '';
+
+  const sortSelect = document.getElementById('history-sort-select');
+  if (sortSelect) sortSelect.value = 'newest';
 
   const filterChips = document.querySelectorAll('.history-chip');
   filterChips.forEach((c) => {
@@ -909,7 +940,10 @@ function handleSelectHistoryItem(item) {
 
   // 4. Set active session ID and render study kit into DOM without calling API
   currentSessionId = item.id;
-  window.StudyRender.renderStudyKit(item.result, currentSessionId);
+  window.StudyRender.renderStudyKit(item.result, currentSessionId, {
+    topicTitle: item.title,
+    difficulty: item.difficulty,
+  });
 
   // 5. Update panel indicators
   updatePanelIndicators(item.result);
@@ -934,6 +968,142 @@ function handleDeleteHistoryItem(id) {
   refreshHistoryUI();
 }
 
+/**
+ * Initializes Quiz Progress display on page load and tab activation.
+ */
+function initQuizProgressModule() {
+  const container = document.getElementById('quiz-progress-section');
+  if (container && window.StudyRender && window.StudyRender.renderQuizProgress) {
+    window.StudyRender.renderQuizProgress(container);
+  }
+}
+
+/**
+ * Binds the "Regenerate" button next to results.
+ * Re-runs the active study notes with an alternative variation instruction
+ * ("give a different variation"), disables itself while loading,
+ * and saves the generated result as a new history entry.
+ */
+function initRegenerateHandler() {
+  const regenerateBtn = document.getElementById('regenerate-btn');
+  const textarea = document.getElementById('study-textarea');
+  const difficultySelect = document.getElementById('difficulty-select');
+  const answerStyleSelect = document.getElementById('answer-style-select');
+  const generateBtn = document.getElementById('generate-btn');
+  const loadingIndicator = document.getElementById('loading-indicator');
+  const errorBox = document.getElementById('error-box');
+
+  if (!regenerateBtn) return;
+
+  regenerateBtn.addEventListener('click', async () => {
+    // 1. Read API Key from storage
+    const apiKey = window.StudyStorage.getApiKey();
+    if (!apiKey) {
+      showError(
+        'No API key found. Please enter and save your Gemini API key in the Settings panel above.',
+        'API Key Required'
+      );
+      const settingsPanel = document.getElementById('settings-panel');
+      if (settingsPanel) settingsPanel.classList.remove('hidden');
+      return;
+    }
+
+    // 2. Read notes content from textarea
+    const content = textarea ? textarea.value.trim() : '';
+    if (!content) {
+      showError(
+        'Study notes are empty. Please enter notes or select a past study kit before regenerating a variation.',
+        'Study Material Required'
+      );
+      if (textarea) textarea.focus();
+      return;
+    }
+
+    if (content.length > 8000) {
+      showError(
+        `Your study notes exceed 8,000 characters (${content.length.toLocaleString()} / 8,000). Please shorten your notes before regenerating.`,
+        'Character Limit Exceeded'
+      );
+      return;
+    }
+
+    const difficulty = difficultySelect ? difficultySelect.value : 'medium';
+    const answerStyle = answerStyleSelect ? answerStyleSelect.value : 'explain-10';
+
+    // 3. Enter working state on regenerate and generate buttons
+    regenerateBtn.disabled = true;
+    regenerateBtn.classList.add('is-loading');
+    const origHtml = regenerateBtn.innerHTML;
+    regenerateBtn.innerHTML = `
+      <svg class="icon-sm spin-icon spinning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="2" x2="12" y2="6"></line>
+        <line x1="12" y1="18" x2="12" y2="22"></line>
+        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+        <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+        <line x1="2" y1="12" x2="6" y2="12"></line>
+        <line x1="18" y1="12" x2="22" y2="12"></line>
+        <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+        <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+      </svg>
+      <span>Regenerating...</span>
+    `;
+    if (generateBtn) generateBtn.disabled = true;
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+    if (errorBox) errorBox.classList.add('hidden');
+
+    try {
+      // 4. Request alternative variation from API with "give a different variation" prompt
+      const rawText = await window.StudyApi.fetchStudyKit({
+        apiKey,
+        content,
+        difficulty,
+        style: answerStyle,
+        isVariation: true,
+      });
+
+      // 5. Parse JSON response
+      const studyKit = window.StudyParser.parseStudyKitResponse(rawText);
+      currentSummaryText = studyKit.summary || '';
+
+      // 6. Save as a new history entry
+      const baseTitle = extractSessionTitle(content, studyKit);
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const variationTitle = `${baseTitle} (Variation ${timeStr})`;
+
+      const savedItem = window.StudyStorage.saveHistoryItem({
+        title: variationTitle,
+        notes: content,
+        difficulty: difficulty,
+        answerStyle: answerStyle,
+        result: studyKit,
+        date: new Date().toISOString(),
+      });
+      currentSessionId = savedItem ? savedItem.id : ('session_' + Date.now());
+
+      // 7. Render into DOM with metadata
+      window.StudyRender.renderStudyKit(studyKit, currentSessionId, {
+        topicTitle: variationTitle,
+        difficulty: difficulty,
+      });
+
+      // 8. Update tab status indicators & history list
+      updatePanelIndicators(studyKit);
+      refreshHistoryUI();
+
+    } catch (err) {
+      console.error('app.js: Regenerate error:', err);
+      showError(err.message || 'Failed to generate variation.');
+    } finally {
+      // 9. Re-enable buttons and hide loading indicator
+      regenerateBtn.disabled = false;
+      regenerateBtn.classList.remove('is-loading');
+      regenerateBtn.innerHTML = origHtml;
+      if (generateBtn) generateBtn.disabled = false;
+      if (loadingIndicator) loadingIndicator.classList.add('hidden');
+    }
+  });
+}
+
 // Global namespace exposure
 window.StudyApp = {
   FAKE_AI_RESPONSE,
@@ -941,8 +1111,10 @@ window.StudyApp = {
   initSettings,
   initTabSwitching,
   initGenerateHandler,
+  initRegenerateHandler,
   initSummaryActions,
   initHistoryModule,
+  initQuizProgressModule,
   applyHistoryFilters,
   resetHistoryFilters,
   refreshHistoryUI,

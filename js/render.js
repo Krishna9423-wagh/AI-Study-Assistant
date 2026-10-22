@@ -107,25 +107,31 @@ const FAKE_AI_RESPONSE = {
 };
 
 /**
- * Primary coordinator: renders summary, quiz, and flashcards into DOM containers.
+ * Primary coordinator: renders summary, quiz, flashcards, and quiz progress into DOM containers.
  * @param {Object} studyKit - Study kit object { summary, quiz, flashcards }
  * @param {string} [sessionId=''] - Unique history session ID for tracking card mastery
+ * @param {Object} [meta={}] - Session metadata { topicTitle, difficulty }
  */
-function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '') {
+function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '', meta = {}) {
   const summaryEl = document.getElementById('summary-content');
   const quizEl = document.getElementById('quiz-content');
   const flashcardsEl = document.getElementById('flashcards-content');
+  const progressEl = document.getElementById('quiz-progress-section');
 
   if (summaryEl && studyKit.summary) {
     renderSummary(studyKit.summary, summaryEl);
   }
 
   if (quizEl && Array.isArray(studyKit.quiz)) {
-    renderQuiz(studyKit.quiz, quizEl);
+    renderQuiz(studyKit.quiz, quizEl, meta);
   }
 
   if (flashcardsEl && Array.isArray(studyKit.flashcards)) {
     renderFlashcards(studyKit.flashcards, flashcardsEl, sessionId);
+  }
+
+  if (progressEl) {
+    renderQuizProgress(progressEl);
   }
 }
 
@@ -185,14 +191,18 @@ function renderSummary(summaryText, container) {
 }
 
 /**
- * Renders 5 interactive quiz questions.
- * Handles option selection, question locking, visual feedback, and final score tally.
- * @param {Array<Object>} quizQuestions - 5 question items with options and answer index
+ * Renders interactive quiz questions.
+ * Handles option selection, question locking, visual feedback, final score tally,
+ * and records completed quiz scores in localStorage.
+ *
+ * @param {Array<Object>} quizQuestions - Question items with options and answer index
  * @param {HTMLElement} container - DOM container element
+ * @param {Object} [meta={}] - Session metadata { topicTitle, difficulty }
  */
-function renderQuiz(quizQuestions, container) {
+function renderQuiz(quizQuestions, container, meta = {}) {
   let score = 0;
   let answeredCount = 0;
+  let hasRecordedScore = false;
   const total = quizQuestions.length;
 
   container.innerHTML = '';
@@ -213,7 +223,7 @@ function renderQuiz(quizQuestions, container) {
   `;
   wrapper.appendChild(scoreBanner);
 
-  // 3. Final Score Container (populated once all 5 questions answered)
+  // 3. Final Score Container (populated once all questions answered)
   const finalCelebrationBox = document.createElement('div');
   finalCelebrationBox.id = 'quiz-final-box';
   finalCelebrationBox.className = 'quiz-final-celebration hidden';
@@ -273,6 +283,25 @@ function renderQuiz(quizQuestions, container) {
             if (isCorrect) score += 1;
             answeredCount += 1;
             updateQuizScoreUI(score, answeredCount, total, scoreBanner, finalCelebrationBox);
+
+            // If all questions are answered, save quiz score record to localStorage
+            if (answeredCount === total && !hasRecordedScore) {
+              hasRecordedScore = true;
+              const quizRecord = {
+                date: new Date().toISOString(),
+                topicTitle: meta.topicTitle || 'Study Session Quiz',
+                score: score,
+                total: total,
+                difficulty: meta.difficulty || 'medium',
+              };
+              if (window.StudyStorage && window.StudyStorage.saveQuizScore) {
+                window.StudyStorage.saveQuizScore(quizRecord);
+              }
+              const progressEl = document.getElementById('quiz-progress-section');
+              if (progressEl) {
+                renderQuizProgress(progressEl);
+              }
+            }
           }
         });
       });
@@ -768,12 +797,211 @@ function renderHistory(historyItems, container, onSelect, onDelete, isFiltered =
   });
 }
 
+/**
+ * Sanitizes strings for safe DOM HTML insertion.
+ * @param {string} str
+ * @returns {string} Sanitized string
+ */
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Renders the Quiz Progress section:
+ * - Summary metrics (Average score, Best score, Total quizzes completed)
+ * - Plain CSS bar chart visualizing the last 10 scores with hover details
+ * - "Clear scores" button
+ *
+ * @param {HTMLElement} container - Target container element (#quiz-progress-section)
+ */
+function renderQuizProgress(container) {
+  if (!container) return;
+  container.innerHTML = '';
+
+  const allScores = (window.StudyStorage && window.StudyStorage.getQuizScores)
+    ? window.StudyStorage.getQuizScores()
+    : [];
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'quiz-progress-card';
+
+  const totalCount = allScores.length;
+  let avgText = '—';
+  let bestText = '—';
+
+  if (totalCount > 0) {
+    const avgPct = Math.round(
+      allScores.reduce((sum, item) => sum + ((item.score / (item.total || 1)) * 100), 0) / totalCount
+    );
+    avgText = `${avgPct}%`;
+
+    let bestItem = allScores[0];
+    let bestRatio = bestItem.score / (bestItem.total || 1);
+    allScores.forEach((item) => {
+      const ratio = item.score / (item.total || 1);
+      if (ratio > bestRatio) {
+        bestRatio = ratio;
+        bestItem = item;
+      }
+    });
+    bestText = `${bestItem.score}/${bestItem.total} (${Math.round(bestRatio * 100)}%)`;
+  }
+
+  // Slice last 10 scores
+  const last10 = allScores.slice(-10);
+
+  // 1. Header with Title and "Clear scores" button
+  const header = document.createElement('div');
+  header.className = 'quiz-progress-header';
+  header.innerHTML = `
+    <div class="quiz-progress-title-group">
+      <svg class="progress-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="20" x2="18" y2="10"></line>
+        <line x1="12" y1="20" x2="12" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="14"></line>
+      </svg>
+      <div>
+        <h4 class="quiz-progress-title">Quiz Progress & Score History</h4>
+        <p class="quiz-progress-subtitle">Track your accuracy and performance over your last 10 quizzes</p>
+      </div>
+    </div>
+    <button type="button" class="btn btn-sm btn-clear-scores" id="clear-scores-btn" title="Clear all recorded quiz scores" ${totalCount === 0 ? 'disabled' : ''}>
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      </svg>
+      <span>Clear scores</span>
+    </button>
+  `;
+  wrapper.appendChild(header);
+
+  // 2. Metrics summary grid
+  const metricsGrid = document.createElement('div');
+  metricsGrid.className = 'quiz-metrics-grid';
+  metricsGrid.innerHTML = `
+    <div class="quiz-metric-card">
+      <span class="metric-label">Average Score</span>
+      <span class="metric-value" id="quiz-metric-avg">${avgText}</span>
+      <span class="metric-meta">${totalCount} ${totalCount === 1 ? 'quiz' : 'quizzes'} completed</span>
+    </div>
+    <div class="quiz-metric-card">
+      <span class="metric-label">Best Score</span>
+      <span class="metric-value" id="quiz-metric-best">${bestText}</span>
+      <span class="metric-meta">Highest recorded</span>
+    </div>
+    <div class="quiz-metric-card">
+      <span class="metric-label">Recent Quizzes</span>
+      <span class="metric-value">${last10.length}</span>
+      <span class="metric-meta">Showing last 10 in chart</span>
+    </div>
+  `;
+  wrapper.appendChild(metricsGrid);
+
+  // 3. Plain CSS Bar Chart
+  const chartWrapper = document.createElement('div');
+  chartWrapper.className = 'quiz-chart-container';
+
+  if (last10.length === 0) {
+    chartWrapper.innerHTML = `
+      <div class="quiz-chart-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>No quiz scores recorded yet. Complete a quiz above to track your progress over time!</p>
+      </div>
+    `;
+  } else {
+    const chart = document.createElement('div');
+    chart.className = 'quiz-bar-chart';
+    chart.setAttribute('role', 'img');
+    chart.setAttribute('aria-label', `Bar chart of last ${last10.length} quiz scores`);
+
+    // Guidelines for 100%, 75%, 50%, 25%, 0%
+    const guidelines = document.createElement('div');
+    guidelines.className = 'quiz-chart-guidelines';
+    guidelines.innerHTML = `
+      <div class="guideline-row" data-val="100%"><span>100%</span></div>
+      <div class="guideline-row" data-val="75%"><span>75%</span></div>
+      <div class="guideline-row" data-val="50%"><span>50%</span></div>
+      <div class="guideline-row" data-val="25%"><span>25%</span></div>
+      <div class="guideline-row" data-val="0%"><span>0%</span></div>
+    `;
+    chart.appendChild(guidelines);
+
+    // Columns
+    const columnsArea = document.createElement('div');
+    columnsArea.className = 'quiz-chart-bars';
+
+    last10.forEach((item, idx) => {
+      const pct = Math.round((item.score / (item.total || 1)) * 100);
+      const col = document.createElement('div');
+      col.className = 'quiz-bar-col';
+
+      let barClass = 'bar-mid';
+      if (pct >= 80) barClass = 'bar-high';
+      else if (pct < 60) barClass = 'bar-low';
+
+      let dateLabel = '#' + (idx + 1);
+      try {
+        const d = new Date(item.date);
+        if (!isNaN(d.getTime())) {
+          dateLabel = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+      } catch (e) {}
+
+      col.innerHTML = `
+        <div class="bar-slot">
+          <span class="bar-score-num">${item.score}/${item.total}</span>
+          <div class="bar-pillar ${barClass}" style="height: ${Math.max(pct, 6)}%;" tabindex="0">
+            <div class="bar-tooltip">
+              <strong class="tooltip-topic">${escapeHtml(item.topicTitle)}</strong>
+              <span class="tooltip-score">Score: ${item.score}/${item.total} (${pct}%)</span>
+              <span class="tooltip-diff">Difficulty: ${(item.difficulty || 'medium').toUpperCase()}</span>
+              <span class="tooltip-date">${dateLabel}</span>
+            </div>
+          </div>
+        </div>
+        <span class="bar-x-label" title="${dateLabel}">${dateLabel}</span>
+      `;
+      columnsArea.appendChild(col);
+    });
+
+    chart.appendChild(columnsArea);
+    chartWrapper.appendChild(chart);
+  }
+
+  wrapper.appendChild(chartWrapper);
+  container.appendChild(wrapper);
+
+  // 4. Bind Clear Scores handler
+  const clearBtn = wrapper.querySelector('#clear-scores-btn');
+  if (clearBtn && totalCount > 0) {
+    clearBtn.addEventListener('click', () => {
+      const confirmed = window.confirm('Are you sure you want to clear your quiz score history?');
+      if (confirmed) {
+        if (window.StudyStorage && window.StudyStorage.clearQuizScores) {
+          window.StudyStorage.clearQuizScores();
+        }
+        renderQuizProgress(container);
+      }
+    });
+  }
+}
+
 // Global namespace exposure
 window.StudyRender = {
   FAKE_AI_RESPONSE,
   renderStudyKit,
   renderSummary,
   renderQuiz,
+  renderQuizProgress,
   renderFlashcards,
   renderHistory,
 };
