@@ -372,14 +372,45 @@ function renderFlashcards(flashcards, container) {
   const wrapper = document.createElement('div');
   wrapper.className = 'flashcards-rendered-wrapper';
 
-  // Instructions header
+  const totalCards = flashcards.length;
+  // State map tracking each card's mastery: 'known' | 'not-known' | undefined
+  const cardMastery = new Map();
+
+  // Instructions header with live counter badges
   const headerBar = document.createElement('div');
   headerBar.className = 'flashcards-instruction-bar';
   headerBar.innerHTML = `
-    <span>Showing ${flashcards.length} Flashcards</span>
-    <span>Click any card to flip & reveal answer ↺</span>
+    <div class="flashcards-counter-group" id="fc-counter-group">
+      <span class="fc-counter-badge known" id="fc-counter-known">Known: 0</span>
+      <span class="fc-counter-badge not-known" id="fc-counter-not-known">Not Known: 0</span>
+      <span class="fc-counter-badge remaining" id="fc-counter-remaining">Remaining: ${totalCards}</span>
+    </div>
+    <span class="fc-hint-text">Click card to flip ↺</span>
   `;
   wrapper.appendChild(headerBar);
+
+  /**
+   * Updates counter badges based on current cardMastery map
+   */
+  function updateCounterUI() {
+    let knownCount = 0;
+    let notKnownCount = 0;
+
+    cardMastery.forEach((status) => {
+      if (status === 'known') knownCount += 1;
+      else if (status === 'not-known') notKnownCount += 1;
+    });
+
+    const remainingCount = totalCards - (knownCount + notKnownCount);
+
+    const knownBadge = wrapper.querySelector('#fc-counter-known');
+    const notKnownBadge = wrapper.querySelector('#fc-counter-not-known');
+    const remainingBadge = wrapper.querySelector('#fc-counter-remaining');
+
+    if (knownBadge) knownBadge.textContent = `Known: ${knownCount}`;
+    if (notKnownBadge) notKnownBadge.textContent = `Not Known: ${notKnownCount}`;
+    if (remainingBadge) remainingBadge.textContent = `Remaining: ${remainingCount}`;
+  }
 
   // Cards Grid
   const grid = document.createElement('div');
@@ -398,7 +429,10 @@ function renderFlashcards(flashcards, container) {
         <div class="flashcard-face flashcard-front">
           <div class="flashcard-meta">
             <span class="flashcard-tag">Term / Question</span>
-            <span class="flashcard-number">${index + 1} of ${flashcards.length}</span>
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span class="fc-status-pill unrated" id="pill-front-${index}">Unrated</span>
+              <span class="flashcard-number">${index + 1} of ${totalCards}</span>
+            </div>
           </div>
           <p class="flashcard-prompt-text">${card.front}</p>
           <div class="flashcard-hint">
@@ -413,31 +447,98 @@ function renderFlashcards(flashcards, container) {
         <div class="flashcard-face flashcard-back">
           <div class="flashcard-meta">
             <span class="flashcard-tag">Explanation / Answer</span>
-            <span class="flashcard-number">${index + 1} of ${flashcards.length}</span>
+            <span class="flashcard-number">${index + 1} of ${totalCards}</span>
           </div>
           <p class="flashcard-answer-text">${card.back}</p>
-          <div class="flashcard-hint">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-            <span>Click to flip back</span>
+          
+          <!-- Known / Not Known Buttons -->
+          <div class="flashcard-actions">
+            <button type="button" class="fc-btn fc-btn-not-known" id="btn-not-known-${index}" title="Need to study again">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+              <span>Not Known</span>
+            </button>
+            <button type="button" class="fc-btn fc-btn-known" id="btn-known-${index}" title="Mastered / Known">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Known</span>
+            </button>
           </div>
         </div>
       </div>
     `;
 
-    // Click to flip with 3D animation
-    cardEl.addEventListener('click', () => {
+    // Click on card body to 3D flip
+    cardEl.addEventListener('click', (e) => {
+      // Don't flip if user clicked action buttons
+      if (e.target.closest('.fc-btn')) return;
       cardEl.classList.toggle('is-flipped');
     });
 
-    // Keyboard support (Enter or Space)
+    // Keyboard support (Enter or Space) to flip
     cardEl.addEventListener('keydown', (e) => {
+      if (e.target.closest('.fc-btn')) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         cardEl.classList.toggle('is-flipped');
       }
     });
+
+    // Known Button Handler
+    const btnKnown = cardEl.querySelector(`#btn-known-${index}`);
+    const btnNotKnown = cardEl.querySelector(`#btn-not-known-${index}`);
+    const frontPill = cardEl.querySelector(`#pill-front-${index}`);
+
+    if (btnKnown) {
+      btnKnown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cardMastery.set(index, 'known');
+
+        // Update card styles
+        cardEl.classList.add('card-known');
+        cardEl.classList.remove('card-not-known');
+
+        // Update button active states
+        btnKnown.classList.add('active');
+        btnNotKnown.classList.remove('active');
+
+        // Update front status pill
+        if (frontPill) {
+          frontPill.textContent = 'Known';
+          frontPill.className = 'fc-status-pill known';
+        }
+
+        updateCounterUI();
+      });
+    }
+
+    // Not Known Button Handler
+    if (btnNotKnown) {
+      btnNotKnown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cardMastery.set(index, 'not-known');
+
+        // Update card styles
+        cardEl.classList.add('card-not-known');
+        cardEl.classList.remove('card-known');
+
+        // Update button active states
+        btnNotKnown.classList.add('active');
+        btnKnown.classList.remove('active');
+
+        // Update front status pill
+        if (frontPill) {
+          frontPill.textContent = 'Review';
+          frontPill.className = 'fc-status-pill not-known';
+        }
+
+        updateCounterUI();
+      });
+    }
 
     grid.appendChild(cardEl);
   });

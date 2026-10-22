@@ -1344,7 +1344,7 @@ body {
 .flashcard-item {
   background-color: transparent;
   perspective: 1000px;
-  height: 220px;
+  height: 250px;
   cursor: pointer;
   user-select: none;
   outline: none;
@@ -1457,6 +1457,120 @@ body {
   height: 14px;
   stroke-width: 2.5;
 }
+
+/* Flashcards Mastery Counters */
+.flashcards-counter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fc-counter-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-badge);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.fc-counter-badge.known {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: var(--color-success-border);
+}
+
+.fc-counter-badge.not-known {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-color: var(--color-error-border);
+}
+
+.fc-counter-badge.remaining {
+  background: var(--bg-badge);
+  color: var(--text-muted);
+}
+
+/* Flashcard Action Buttons (Known / Not Known) */
+.flashcard-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.fc-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-solid);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fc-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fc-btn-known:hover, .fc-btn-known.active {
+  background: var(--color-success-bg) !important;
+  color: var(--color-success-text) !important;
+  border-color: var(--color-success-border) !important;
+  font-weight: 700;
+}
+
+.fc-btn-not-known:hover, .fc-btn-not-known.active {
+  background: var(--color-error-bg) !important;
+  color: var(--color-error-text) !important;
+  border-color: var(--color-error-border) !important;
+  font-weight: 700;
+}
+
+/* Card mastery state styles */
+.flashcard-item.card-known .flashcard-front,
+.flashcard-item.card-known .flashcard-back {
+  border-color: var(--color-success-border);
+}
+
+.flashcard-item.card-not-known .flashcard-front,
+.flashcard-item.card-not-known .flashcard-back {
+  border-color: var(--color-error-border);
+}
+
+.fc-status-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.fc-status-pill.known {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+}
+
+.fc-status-pill.not-known {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border: 1px solid var(--color-error-border);
+}
+
 
 /* Disabled Button Style for Generate Button while working */
 .btn-primary:disabled {
