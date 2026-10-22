@@ -5353,6 +5353,1213 @@ body {
   }
 }
 
+/* ==========================================================================
+   GEMINI STUDY HUB - BENTO GRID & COSMIC DESIGN SYSTEM
+   Pixel-accurate recreation of uploaded reference mockup
+   ========================================================================== */
 
+/* 1. Cosmic Atmosphere & Meteor Streaks */
+body {
+  background: radial-gradient(ellipse at 85% 15%, rgba(6, 182, 212, 0.22) 0%, transparent 45%),
+              radial-gradient(ellipse at 15% 85%, rgba(147, 51, 234, 0.18) 0%, transparent 45%),
+              radial-gradient(ellipse at 50% 50%, rgba(15, 23, 42, 0.5) 0%, transparent 80%),
+              #070b16;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
 
+.cosmic-meteor-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
 
+.meteor-streak {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #38bdf8 60%, #ffffff 100%);
+  border-radius: 9999px;
+  box-shadow: 0 0 14px #38bdf8, 0 0 25px rgba(6, 182, 212, 0.6);
+  transform: rotate(-35deg);
+  opacity: 0.85;
+}
+
+.meteor-1 {
+  top: 60px;
+  right: 120px;
+  width: 220px;
+  animation: meteorShoot 6s infinite ease-in-out;
+}
+
+.meteor-2 {
+  top: 140px;
+  right: 40px;
+  width: 150px;
+  animation: meteorShoot 8s infinite 2.5s ease-in-out;
+}
+
+@keyframes meteorShoot {
+  0% { transform: translate(100px, -60px) rotate(-35deg); opacity: 0; }
+  20% { opacity: 0.9; }
+  50% { transform: translate(-350px, 220px) rotate(-35deg); opacity: 0; }
+  100% { transform: translate(-350px, 220px) rotate(-35deg); opacity: 0; }
+}
+
+.cosmic-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px #38bdf8;
+  animation: starTwinkle 3s infinite ease-in-out alternate;
+}
+.star-1 { top: 90px; left: 10%; animation-delay: 0.2s; }
+.star-2 { top: 40px; left: 82%; animation-delay: 1.1s; width: 4px; height: 4px; }
+.star-3 { top: 75%; left: 7%; animation-delay: 1.8s; }
+.star-4 { top: 88%; left: 93%; animation-delay: 0.6s; width: 4px; height: 4px; }
+
+@keyframes starTwinkle {
+  from { opacity: 0.3; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.3); }
+}
+
+/* 2. Big Hero Title Headline Centered in Cosmic Sky */
+.hub-floating-hero {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 1.75rem 1rem 1.25rem;
+}
+
+.hub-hero-headline {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3.2vw, 2.15rem);
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-shadow: 0 2px 25px rgba(56, 189, 248, 0.5), 0 0 45px rgba(6, 182, 212, 0.25);
+}
+
+/* 3. Outer Window Wrapper for App Shell */
+.hub-window-wrapper {
+  position: relative;
+  z-index: 10;
+  max-width: 1360px;
+  margin: 0 auto 3rem;
+  padding: 0 1.25rem;
+}
+
+.hub-window-wrapper .app-shell {
+  background: rgba(13, 20, 36, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 24px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8), 0 0 50px rgba(6, 182, 212, 0.1);
+  overflow: hidden;
+}
+
+/* 4. Sidebar Styles matching Mockup */
+.brand-logo-svg {
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+}
+
+.app-sidebar .sidebar-footer-menu {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-nav .nav-item-btn.active {
+  background: rgba(14, 165, 233, 0.22);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
+  font-weight: 600;
+}
+
+.sidebar-nav .nav-item-btn.active .nav-icon {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 6px #38bdf8);
+}
+
+/* 5. Header Actions matching Mockup */
+.header-page-title {
+  font-family: var(--font-heading);
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.action-btn-pill-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(14, 165, 233, 0.15);
+  color: #38bdf8;
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn-pill-new:hover {
+  background: rgba(14, 165, 233, 0.25);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.pill-icon-svg {
+  width: 14px;
+  height: 14px;
+}
+
+.hub-header-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.hub-header-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.hub-header-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hub-bell-btn {
+  position: relative;
+}
+
+.hub-notification-red-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+.hub-profile-avatar-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.hub-profile-avatar-wrapper:hover {
+  transform: scale(1.05);
+  border-color: #38bdf8;
+}
+
+.hub-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 6. Notifications & Info Popovers */
+.hub-notifications-dropdown,
+.hub-info-modal {
+  position: absolute;
+  top: 4.5rem;
+  right: 2rem;
+  width: 340px;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  z-index: 105;
+  padding: 1.15rem;
+  animation: slideDownFade 200ms ease-out;
+}
+
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-header, .info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  color: #ffffff;
+}
+
+.btn-clear-notifs {
+  background: transparent;
+  border: none;
+  color: #38bdf8;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.notif-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notif-item {
+  display: flex;
+  gap: 0.65rem;
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+}
+
+.notif-item strong {
+  color: #ffffff;
+}
+
+.notif-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.info-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+/* 7. Bento Grid Architecture */
+.hub-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  position: relative;
+  padding: 0.5rem 0 2rem;
+}
+
+.bento-card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: border-color var(--transition-normal);
+}
+
+.bento-card:hover {
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.bento-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.15rem;
+}
+
+.bento-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bento-header-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bento-header-icon-box svg {
+  width: 17px;
+  height: 17px;
+}
+
+.bento-card-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.bento-card-subtitle {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  margin: 0.2rem 0 0;
+}
+
+.bento-menu-wrapper {
+  position: relative;
+}
+
+.bento-more-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+
+.bento-more-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bento-dropdown {
+  position: absolute;
+  top: 1.75rem;
+  right: 0;
+  width: 190px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 0.4rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bento-drop-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.825rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.bento-drop-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+/* 8. Bento Card 1: Instant Notes Summaries */
+.bento-summary-card {
+  grid-column: 1 / 2;
+}
+
+.bento-summary-inner {
+  background: rgba(10, 15, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bento-subject-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.bento-subject-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.subject-flask-emoji {
+  font-size: 1.2rem;
+}
+
+.subject-topic-name {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.bento-subject-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.subject-action-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.subject-action-btn:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.subject-action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.bento-summary-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bento-block-heading {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.summary-icon-sparkle {
+  font-size: 0.9rem;
+}
+
+.bento-bullets-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bento-bullets-list li {
+  font-size: 0.815rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  padding-left: 0.25rem;
+}
+
+.bento-concepts-block .bento-bullets-list li {
+  color: #94a3b8;
+}
+
+/* 9. Bento Card 2: Active Recall Quiz */
+.bento-quiz-card {
+  grid-column: 2 / 3;
+}
+
+.bento-quiz-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.bento-quiz-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.775rem;
+  color: var(--text-muted);
+}
+
+.bento-quiz-qlabel {
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.bento-quiz-progress-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bento-quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4, #38bdf8);
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.8);
+  border-radius: 9999px;
+  transition: width 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-quiz-question-text {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.4;
+  margin: 0.25rem 0;
+}
+
+.bento-quiz-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.bento-quiz-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.65rem 0.95rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  text-align: left;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.bento-quiz-opt-btn:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.35);
+  transform: translateX(3px);
+}
+
+.quiz-opt-letter {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.bento-quiz-opt-btn:hover .quiz-opt-letter {
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+/* Selected option states */
+.bento-quiz-opt-btn.correct {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+}
+
+.bento-quiz-opt-btn.correct .quiz-opt-letter {
+  background: #22c55e;
+  color: #ffffff;
+  border-color: #22c55e;
+}
+
+.bento-quiz-opt-btn.incorrect {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.bento-quiz-opt-btn.incorrect .quiz-opt-letter {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+.bento-quiz-feedback {
+  font-size: 0.825rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #e0f2fe;
+}
+
+.bento-quiz-next-btn {
+  margin-top: 0.4rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.bento-quiz-next-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #0369a1 100%);
+  box-shadow: 0 6px 24px rgba(2, 132, 199, 0.55);
+  transform: translateY(-1px);
+}
+
+/* 10. Bento Card 3: Auto Flashcards (Leitner 3-Box Badges) */
+.bento-flashcards-card {
+  grid-column: 1 / -1;
+}
+
+.bento-leitner-boxes-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.bento-leitner-box {
+  border-radius: 16px;
+  padding: 1.15rem 1.35rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  user-select: none;
+}
+
+.bento-leitner-box:hover {
+  transform: translateY(-3px);
+}
+
+.leitner-box-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.leitner-box-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.leitner-box-state {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.leitner-box-state strong {
+  font-weight: 800;
+}
+
+.leitner-box-icon {
+  font-size: 1.45rem;
+  flex-shrink: 0;
+}
+
+/* Box 1: Red Glow */
+.bento-box-1 {
+  background: rgba(239, 68, 68, 0.06);
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.42), inset 0 0 10px rgba(239, 68, 68, 0.08);
+}
+.bento-box-1:hover {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.65), inset 0 0 14px rgba(239, 68, 68, 0.15);
+}
+
+/* Box 2: Yellow Glow */
+.bento-box-2 {
+  background: rgba(234, 179, 8, 0.06);
+  border: 2px solid #eab308;
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.42), inset 0 0 10px rgba(234, 179, 8, 0.08);
+}
+.bento-box-2:hover {
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.65), inset 0 0 14px rgba(234, 179, 8, 0.15);
+}
+
+/* Box 3: Green Glow */
+.bento-box-3 {
+  background: rgba(34, 197, 94, 0.06);
+  border: 2px solid #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.42), inset 0 0 10px rgba(34, 197, 94, 0.08);
+}
+.bento-box-3:hover {
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.65), inset 0 0 14px rgba(34, 197, 94, 0.15);
+}
+
+.check-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 900;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+/* 11. Docked 24/7 Interactive AI Tutor Widget (Cyan Neon Glow Halo) */
+.docked-ai-tutor-widget {
+  position: absolute;
+  bottom: 0px;
+  right: 15px;
+  width: 325px;
+  background: rgba(13, 22, 38, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2.5px solid #00f0ff;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.85), inset 0 0 12px rgba(0, 240, 255, 0.25);
+  z-index: 45;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.docked-ai-tutor-widget.minimized {
+  height: 52px;
+  width: 250px;
+  bottom: 10px;
+}
+
+.docked-tutor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(6, 182, 212, 0.12);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+}
+
+.docked-tutor-title {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.docked-tutor-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem 0.4rem;
+  transition: color var(--transition-fast);
+}
+
+.docked-tutor-close:hover {
+  color: #ffffff;
+}
+
+.docked-tutor-body {
+  padding: 0.9rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.docked-tutor-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.docked-tutor-avatar-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #06b6d4;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
+}
+
+.docked-tutor-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.docked-tutor-bubble {
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.825rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.docked-tutor-form {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.docked-tutor-input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8rem;
+  color: #ffffff;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.docked-tutor-input:focus {
+  border-color: #00f0ff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.docked-tutor-ask-btn {
+  padding: 0.55rem 0.95rem;
+  border: none;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.docked-tutor-ask-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #0369a1 100%);
+  transform: translateY(-1px);
+}
+
+/* 12. Leitner Flashcard Review Modal Popup */
+.leitner-review-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 20, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 1.5rem;
+  animation: fadeIn 200ms ease-out;
+}
+
+.leitner-modal-card {
+  width: 520px;
+  max-width: 100%;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(6, 182, 212, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.leitner-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leitner-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.leitner-modal-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.leitner-modal-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.leitner-modal-progress-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.leitner-modal-progress-fill {
+  height: 100%;
+  background: #38bdf8;
+  border-radius: 9999px;
+  transition: width 250ms ease;
+}
+
+.leitner-card-3d-scene {
+  perspective: 1000px;
+  width: 100%;
+  height: 220px;
+}
+
+.leitner-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.leitner-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.leitner-card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leitner-card-front {
+  background: rgba(30, 41, 59, 0.9);
+  color: #ffffff;
+}
+
+.leitner-card-back {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(56, 189, 248, 0.35);
+  transform: rotateY(180deg);
+}
+
+.card-side-tag {
+  font-size: 0.725rem;
+  color: #38bdf8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-text-body {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #f8fafc;
+}
+
+.card-flip-prompt {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.leitner-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.btn-leitner-demote,
+.btn-leitner-promote,
+.btn-leitner-speak {
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-leitner-demote {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  flex: 1;
+}
+
+.btn-leitner-demote:hover {
+  background: rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-leitner-promote {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid #22c55e;
+  color: #22c55e;
+  flex: 1;
+}
+
+.btn-leitner-promote:hover {
+  background: rgba(34, 197, 94, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-leitner-speak {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+}
+
+.btn-leitner-speak:hover {
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+/* 13. Detailed Modules Toggle Bar */
+.detailed-tabs-toggle-bar {
+  text-align: center;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.btn-toggle-detailed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-toggle-detailed:hover {
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.toggle-arrow {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--transition-fast);
+}
+
+.btn-toggle-detailed.is-expanded .toggle-arrow {
+  transform: rotate(180deg);
+}
+
+/* 14. Responsive Layouts for Bento Grid */
+@media (max-width: 1100px) {
+  .hub-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-summary-card,
+  .bento-quiz-card {
+    grid-column: 1 / -1;
+  }
+  .docked-ai-tutor-widget {
+    position: static;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hub-window-wrapper {
+    padding: 0 0.5rem;
+  }
+  .hub-window-wrapper .app-shell {
+    border-radius: 16px;
+  }
+  .bento-leitner-boxes-row {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .hub-hero-headline {
+    font-size: 1.25rem;
+  }
+}

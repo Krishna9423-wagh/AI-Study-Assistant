@@ -50,133 +50,221 @@
 
 <body>
 
-  <!-- Radiant Background Glow Orbs -->
+  <!-- Radiant Background Glow Orbs & Cosmic Atmosphere -->
   <div class="bg-glow-orb bg-glow-orb-1" aria-hidden="true"></div>
   <div class="bg-glow-orb bg-glow-orb-2" aria-hidden="true"></div>
+  <div class="cosmic-meteor-container" aria-hidden="true">
+    <div class="meteor-streak meteor-1"></div>
+    <div class="meteor-streak meteor-2"></div>
+    <div class="cosmic-star star-1"></div>
+    <div class="cosmic-star star-2"></div>
+    <div class="cosmic-star star-3"></div>
+    <div class="cosmic-star star-4"></div>
+  </div>
 
-  <div class="app-shell" id="app-shell">
+  <!-- Big Hero Headline Centered in the Cosmic Sky (Matching reference image) -->
+  <header class="hub-floating-hero">
+    <h1 class="hub-hero-headline">Gemini Study Hub - AI Study Assistant</h1>
+  </header>
 
-    <!-- =====================================================================
-         1. LEFT SIDEBAR NAVIGATION (Study Hub Layout matching reference image)
-         ===================================================================== -->
-    <aside class="app-sidebar" id="app-sidebar" aria-label="Main Navigation">
-      <div class="sidebar-header">
-        <div class="sidebar-brand">
-          <div class="brand-sparkle-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-            </svg>
-          </div>
-          <div class="brand-text-block">
-            <span class="brand-gradient-name">Gemini</span>
-            <span class="brand-hub-title">Study Hub</span>
-          </div>
-        </div>
-      </div>
+  <div class="hub-window-wrapper">
+    <div class="app-shell" id="app-shell">
 
-      <!-- Navigation Links -->
-      <nav class="sidebar-nav" role="navigation" aria-label="Study Assistant Views">
-        <ul class="nav-list" role="tablist">
-          <li role="presentation">
-            <button type="button" class="nav-item-btn" id="nav-btn-dashboard" role="tab" aria-selected="false" data-view="dashboard">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
+      <!-- =====================================================================
+           1. LEFT SIDEBAR NAVIGATION (Study Hub Layout matching reference image)
+           ===================================================================== -->
+      <aside class="app-sidebar" id="app-sidebar" aria-label="Main Navigation">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div class="brand-sparkle-icon" aria-hidden="true">
+              <!-- Stylized Gradient 'G' with Star Accents matching reference image -->
+              <svg viewBox="0 0 36 36" fill="none" class="brand-logo-svg">
+                <rect width="36" height="36" rx="10" fill="url(#brandGrad)"/>
+                <path d="M22 14.5C21 13 19 12 16.5 12C12.9 12 10 14.9 10 18.5C10 22.1 12.9 25 16.5 25C20.5 25 22.5 22.2 22.8 19.5H16.5V17H25.3C25.5 17.6 25.5 18.2 25.5 19C25.5 23.8 21.8 27.5 16.5 27.5C11.5 27.5 7.5 23.5 7.5 18.5C7.5 13.5 11.5 9.5 16.5 9.5C20 9.5 22.8 10.8 24.5 12.5L22 14.5Z" fill="#ffffff"/>
+                <path d="M28 8L28.6 9.4L30 10L28.6 10.6L28 12L27.4 10.6L26 10L27.4 9.4L28 8Z" fill="#38bdf8"/>
+                <path d="M8 8L8.4 8.9L9.3 9.3L8.4 9.7L8 10.6L7.6 9.7L6.7 9.3L7.6 8.9L8 8Z" fill="#c084fc"/>
+                <defs>
+                  <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="45%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#a855f7"/>
+                  </linearGradient>
+                </defs>
               </svg>
-              <span>Dashboard</span>
-            </button>
-          </li>
-          <li role="presentation">
-            <button type="button" class="nav-item-btn active" id="nav-btn-study-hub" role="tab" aria-selected="true" data-view="study-hub">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="m4.93 4.93 4.24 4.24"></path>
-                <path d="m14.83 9.17 4.24-4.24"></path>
-                <path d="m14.83 14.83 4.24 4.24"></path>
-                <path d="m9.17 14.83-4.24 4.24"></path>
-                <circle cx="12" cy="12" r="4"></circle>
-              </svg>
-              <span>Study Hub</span>
-              <span class="nav-active-dot"></span>
-            </button>
-          </li>
-          <li role="presentation">
-            <button type="button" class="nav-item-btn" id="nav-btn-sessions" role="tab" aria-selected="false" data-view="sessions">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              </svg>
-              <span>Sessions</span>
-            </button>
-          </li>
-          <li role="presentation">
-            <button type="button" class="nav-item-btn" id="nav-btn-pomodoro" role="tab" aria-selected="false" data-view="pomodoro">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <span>Focus / Timer</span>
-            </button>
-          </li>
-          <li role="presentation">
-            <button type="button" class="nav-item-btn" id="nav-btn-settings" role="tab" aria-selected="false" data-view="settings">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-              <span>Settings</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
-
-      <!-- Sidebar Footer: Streak & AI Provider Pill -->
-      <div class="sidebar-footer">
-        <div class="sidebar-streak-badge" id="sidebar-streak-card" title="Consecutive days studied">
-          <span class="streak-emoji" aria-hidden="true">🔥</span>
-          <div class="streak-text-group">
-            <span class="streak-count" id="sidebar-streak-count">1 Day Streak</span>
-            <span class="streak-caption">Keep it going!</span>
-          </div>
-        </div>
-        <div class="sidebar-provider-pill" id="sidebar-provider-pill" title="Active AI Engine">
-          <span class="provider-status-dot"></span>
-          <span class="provider-label" id="sidebar-provider-label">Gemini 1.5 Flash</span>
-        </div>
-      </div>
-    </aside>
-
-
-    <!-- =====================================================================
-         2. MAIN APPLICATION LAYOUT
-         ===================================================================== -->
-    <div class="app-main-layout">
-
-      <!-- Top Application Header Bar -->
-      <header class="app-header" id="app-header">
-        <div class="header-left">
-          <!-- Mobile Sidebar Toggle -->
-          <button type="button" class="sidebar-mobile-toggle" id="sidebar-mobile-toggle" aria-label="Toggle navigation menu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
-
-          <div class="header-title-group">
-            <h1 class="header-page-title">Study Hub</h1>
-            <!-- Active Session Banner (Featured prominently in user screenshot!) -->
-            <div class="active-session-pill" id="active-session-pill" title="Currently loaded session">
-              <span class="active-session-label">Active Session:</span>
-              <span class="active-session-title" id="active-session-title">Quantum Mechanics</span>
+            </div>
+            <div class="brand-text-block">
+              <span class="brand-gradient-name">Gemini</span>
+              <span class="brand-hub-title">Study Hub</span>
             </div>
           </div>
         </div>
 
-        <div class="header-actions">
+        <!-- Navigation Links (Matching: Dashboard, My Library [active], Courses, Progress) -->
+        <nav class="sidebar-nav" role="navigation" aria-label="Study Assistant Views">
+          <ul class="nav-list" role="tablist">
+            <li role="presentation">
+              <button type="button" class="nav-item-btn" id="nav-btn-dashboard" role="tab" aria-selected="false" data-view="dashboard">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                </svg>
+                <span>Dashboard</span>
+              </button>
+            </li>
+            <li role="presentation">
+              <button type="button" class="nav-item-btn active" id="nav-btn-study-hub" role="tab" aria-selected="true" data-view="study-hub">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>My Library</span>
+                <span class="nav-active-dot"></span>
+              </button>
+            </li>
+            <li role="presentation">
+              <button type="button" class="nav-item-btn" id="nav-btn-courses" role="tab" aria-selected="false" data-view="courses">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span>Courses</span>
+              </button>
+            </li>
+            <li role="presentation">
+              <button type="button" class="nav-item-btn" id="nav-btn-progress" role="tab" aria-selected="false" data-view="progress">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                  <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+                <span>Progress</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Sidebar Bottom Footer: Settings & Help (Matching reference image) -->
+        <div class="sidebar-footer-menu">
+          <ul class="nav-list">
+            <li>
+              <button type="button" class="nav-item-btn" id="nav-btn-settings" data-view="settings" aria-label="Open settings">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Settings</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="nav-item-btn" id="nav-btn-help" aria-label="Open keyboard shortcuts & help">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Help</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+
+      <!-- =====================================================================
+           2. MAIN APPLICATION LAYOUT
+           ===================================================================== -->
+      <div class="app-main-layout">
+
+        <!-- Top Application Header Bar (Matching reference image: "My Study Hub" + Info + Bell with red dot + Alex Avatar) -->
+        <header class="app-header" id="app-header">
+          <div class="header-left">
+            <!-- Mobile Sidebar Toggle -->
+            <button type="button" class="sidebar-mobile-toggle" id="sidebar-mobile-toggle" aria-label="Toggle navigation menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+
+            <div class="header-title-group">
+              <h2 class="header-page-title" id="main-header-title">My Study Hub</h2>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <!-- Input Drawer Toggle Pill ("+ New Notes") -->
+            <button type="button" class="action-btn-pill-new" id="toggle-input-drawer-btn" title="Create or edit study notes" aria-label="Create or edit study notes">
+              <svg class="pill-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+              <span>New Notes</span>
+            </button>
+
+            <!-- Info (i) Icon Button matching reference image -->
+            <button type="button" class="hub-header-icon-btn" id="hub-info-btn" title="About Study Hub" aria-label="About Study Hub">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </button>
+
+            <!-- Notification Bell with Red Dot matching reference image -->
+            <button type="button" class="hub-header-icon-btn hub-bell-btn" id="hub-bell-btn" title="Notifications" aria-label="Notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span class="hub-notification-red-dot" aria-label="Unread notifications"></span>
+            </button>
+
+            <!-- User Profile Avatar Circle: Alex portrait matching reference image -->
+            <div class="hub-profile-avatar-wrapper" id="user-profile-badge" title="Alex's Study Profile" tabindex="0" role="button" aria-label="Alex's profile">
+              <img src="assets/alex_avatar.jpg" alt="Alex" class="hub-profile-img">
+            </div>
+
+            <!-- Notifications Popover Drawer -->
+            <div class="hub-notifications-dropdown hidden" id="hub-notifications-dropdown" role="region" aria-label="Notifications panel">
+              <div class="notif-header">
+                <strong>Notifications</strong>
+                <button type="button" class="btn-clear-notifs" id="clear-notifs-btn">Mark read</button>
+              </div>
+              <ul class="notif-list">
+                <li class="notif-item unread">
+                  <span class="notif-bullet">🔥</span>
+                  <div>
+                    <p class="notif-text"><strong>23 cards due</strong> in Leitner Box 1 (To Review)</p>
+                    <span class="notif-time">Just now</span>
+                  </div>
+                </li>
+                <li class="notif-item">
+                  <span class="notif-bullet">🧬</span>
+                  <div>
+                    <p class="notif-text">Unit 4 Quiz: Cell Biology in progress (Question 6)</p>
+                    <span class="notif-time">10m ago</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Info Popover Modal -->
+            <div class="hub-info-modal hidden" id="hub-info-modal" role="dialog" aria-modal="true" aria-labelledby="hub-info-title">
+              <div class="info-card-inner">
+                <div class="info-header">
+                  <h3 id="hub-info-title">Gemini Study Hub</h3>
+                  <button type="button" class="info-close-btn" id="info-modal-close-btn">✕</button>
+                </div>
+                <p>Welcome to your AI-powered Study Assistant! Featuring:</p>
+                <ul>
+                  <li><strong>Instant Notes Summaries:</strong> Structured takeaways and key concepts.</li>
+                  <li><strong>Active Recall Quiz:</strong> Interactive MCQs with progressive tracking.</li>
+                  <li><strong>Auto Flashcards:</strong> 3-Box Leitner spaced repetition.</li>
+                  <li><strong>24/7 Interactive AI Tutor:</strong> Live intelligent contextual help.</li>
+                </ul>
+              </div>
+            </div>
 
           <!-- Accent Color Picker Dropdown -->
           <div class="accent-picker-wrapper">
@@ -547,8 +635,308 @@
           </section>
 
 
-          <!-- Output Modules Tabs & Workspace -->
-          <section class="output-tabs-section" aria-labelledby="output-section-title">
+          <!-- =============================================================
+               STUDY HUB BENTO GRID (Pixel-accurate match to reference mockup)
+               ============================================================= -->
+          <div class="hub-bento-grid" id="hub-bento-grid">
+
+            <!-- 1. TOP-LEFT CARD: Instant Notes Summaries -->
+            <div class="bento-card bento-summary-card" id="bento-summary-card">
+              <div class="bento-card-header">
+                <div class="bento-title-group">
+                  <div class="bento-header-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="bento-card-title">Instant Notes Summaries</h3>
+                    <p class="bento-card-subtitle">Summary avear, high-resolution web app</p>
+                  </div>
+                </div>
+                <div class="bento-menu-wrapper">
+                  <button type="button" class="bento-more-btn" id="bento-summary-more-btn" title="Options" aria-label="Summary options">•••</button>
+                  <div class="bento-dropdown hidden" id="bento-summary-dropdown">
+                    <button type="button" class="bento-drop-item" id="bento-read-summary-btn">🔊 Read Aloud</button>
+                    <button type="button" class="bento-drop-item" id="bento-copy-notes-btn">📋 Copy Text</button>
+                    <button type="button" class="bento-drop-item" id="bento-download-notes-btn">💾 Download Summary</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bento-card-body">
+                <div class="bento-summary-inner">
+                  <!-- Topic Pill matching reference image -->
+                  <div class="bento-subject-header">
+                    <div class="bento-subject-left">
+                      <span class="subject-flask-emoji" aria-hidden="true">⚗️</span>
+                      <strong class="subject-topic-name" id="bento-subject-title">Organic Chemistry: Alkanes</strong>
+                    </div>
+                    <div class="bento-subject-actions">
+                      <button type="button" class="subject-action-btn" id="bento-edit-notes-btn" title="Edit notes / Open generator" aria-label="Edit notes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                        </svg>
+                      </button>
+                      <button type="button" class="subject-action-btn" id="bento-delete-notes-btn" title="Reset Study Kit" aria-label="Reset Study Kit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Summary Bullets -->
+                  <div class="bento-summary-block">
+                    <h4 class="bento-block-heading">
+                      <span class="summary-icon-sparkle">📜</span> Summary:
+                    </h4>
+                    <ul class="bento-bullets-list" id="bento-summary-bullets">
+                      <li>• Organize the primary of suction of themietric alkane</li>
+                      <li>• Complete as the organic chemistry: alkanes</li>
+                      <li>• Complete all organic chemistry alkanes.</li>
+                      <li>• Complete another option and a organic mitochondriat</li>
+                    </ul>
+                  </div>
+
+                  <!-- Key Concepts Bullets -->
+                  <div class="bento-summary-block bento-concepts-block">
+                    <h4 class="bento-block-heading">Key Concepts</h4>
+                    <ul class="bento-bullets-list" id="bento-concepts-bullets">
+                      <li>• Unuars pronom carbon, and roohemiccon alkanes</li>
+                      <li>• Semining nolerchov-and chemistry alkanes</li>
+                      <li>• Dellogitzes athsenex chemical collitages</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. TOP-RIGHT CARD: Active Recall Quiz -->
+            <div class="bento-card bento-quiz-card" id="bento-quiz-card">
+              <div class="bento-card-header">
+                <div class="bento-title-group">
+                  <div class="bento-header-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="bento-card-title">Active Recall Quiz</h3>
+                    <p class="bento-card-subtitle" id="bento-quiz-unit-label">Unit 4 Quiz: Cell Biology</p>
+                  </div>
+                </div>
+                <div class="bento-menu-wrapper">
+                  <button type="button" class="bento-more-btn" id="bento-quiz-more-btn" title="Options" aria-label="Quiz options">•••</button>
+                  <div class="bento-dropdown hidden" id="bento-quiz-dropdown">
+                    <button type="button" class="bento-drop-item" id="bento-restart-quiz-btn">🔄 Restart Quiz</button>
+                    <button type="button" class="bento-drop-item" id="bento-timed-toggle-btn">⏱️ Toggle Timer</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bento-card-body bento-quiz-body">
+                <!-- Progress bar and Question Counter -->
+                <div class="bento-quiz-meta-row">
+                  <span class="bento-quiz-qlabel" id="bento-quiz-qlabel">Question 6</span>
+                  <span class="bento-quiz-progresstxt">Progress</span>
+                </div>
+                <div class="bento-quiz-progress-track">
+                  <div class="bento-quiz-progress-fill" id="bento-quiz-progress-fill" style="width: 60%;"></div>
+                </div>
+
+                <!-- Question Text -->
+                <h4 class="bento-quiz-question-text" id="bento-quiz-question-text">
+                  What is the primary function of mitochondria?
+                </h4>
+
+                <!-- Options A, B, C, D -->
+                <div class="bento-quiz-options-container" id="bento-quiz-options-container">
+                  <button type="button" class="bento-quiz-opt-btn" data-index="0" id="bento-quiz-opt-0">
+                    <span class="quiz-opt-letter">A</span>
+                    <span class="quiz-opt-text">Mitochondria?</span>
+                  </button>
+                  <button type="button" class="bento-quiz-opt-btn" data-index="1" id="bento-quiz-opt-1">
+                    <span class="quiz-opt-letter">B</span>
+                    <span class="quiz-opt-text">Primars cenporium</span>
+                  </button>
+                  <button type="button" class="bento-quiz-opt-btn" data-index="2" id="bento-quiz-opt-2">
+                    <span class="quiz-opt-letter">C</span>
+                    <span class="quiz-opt-text">Mitochondriar sponsam</span>
+                  </button>
+                  <button type="button" class="bento-quiz-opt-btn" data-index="3" id="bento-quiz-opt-3">
+                    <span class="quiz-opt-letter">D</span>
+                    <span class="quiz-opt-text">Altativin voroponie</span>
+                  </button>
+                </div>
+
+                <!-- Explanation / Feedback Banner -->
+                <div class="bento-quiz-feedback hidden" id="bento-quiz-feedback"></div>
+
+                <!-- Next Question Button -->
+                <button type="button" class="bento-quiz-next-btn" id="bento-quiz-next-btn">
+                  Next Question
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. BOTTOM FULL-WIDTH CARD: Auto Flashcards -->
+            <div class="bento-card bento-flashcards-card" id="bento-flashcards-card">
+              <div class="bento-card-header">
+                <div class="bento-title-group">
+                  <div class="bento-header-icon-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="bento-card-title">Auto Flashcards</h3>
+                    <p class="bento-card-subtitle">Leitner system badges (Leitner saycens)</p>
+                  </div>
+                </div>
+                <div class="bento-menu-wrapper">
+                  <button type="button" class="bento-more-btn" id="bento-flashcards-more-btn" title="Options" aria-label="Flashcards options">•••</button>
+                  <div class="bento-dropdown hidden" id="bento-flashcards-dropdown">
+                    <button type="button" class="bento-drop-item" id="bento-open-srs-session-btn">🎯 Start Full SRS Session</button>
+                    <button type="button" class="bento-drop-item" id="bento-export-csv-btn">📑 Export to CSV</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bento-card-body">
+                <div class="bento-leitner-boxes-row">
+                  <!-- Box 1: To Review (23) - Red Glow -->
+                  <div class="bento-leitner-box bento-box-1" id="bento-leitner-box-1" role="button" tabindex="0" title="Click to review Box 1 cards">
+                    <div class="leitner-box-left">
+                      <span class="leitner-box-label">Box 1:</span>
+                      <span class="leitner-box-state">To Review (<strong id="bento-box1-count">23</strong>)</span>
+                    </div>
+                    <span class="leitner-box-icon flame-icon" aria-hidden="true">🔥</span>
+                  </div>
+
+                  <!-- Box 2: Learning (45) - Yellow Glow -->
+                  <div class="bento-leitner-box bento-box-2" id="bento-leitner-box-2" role="button" tabindex="0" title="Click to review Box 2 cards">
+                    <div class="leitner-box-left">
+                      <span class="leitner-box-label">Box 2:</span>
+                      <span class="leitner-box-state">Learning (<strong id="bento-box2-count">45</strong>)</span>
+                    </div>
+                    <span class="leitner-box-icon hand-icon" aria-hidden="true">✋</span>
+                  </div>
+
+                  <!-- Box 3: Mastered (112) - Green Glow -->
+                  <div class="bento-leitner-box bento-box-3" id="bento-leitner-box-3" role="button" tabindex="0" title="Click to review Box 3 cards">
+                    <div class="leitner-box-left">
+                      <span class="leitner-box-label">Box 3:</span>
+                      <span class="leitner-box-state">Mastered (<strong id="bento-box3-count">112</strong>)</span>
+                    </div>
+                    <span class="leitner-box-icon check-icon" aria-hidden="true">✓</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. DOCKED 24/7 INTERACTIVE AI TUTOR WIDGET (Bottom-Right with Cyan Neon Glow Halo) -->
+            <div class="docked-ai-tutor-widget" id="docked-ai-tutor-widget" role="region" aria-label="24/7 Interactive AI Tutor">
+              <div class="docked-tutor-header">
+                <h4 class="docked-tutor-title">24/7 Interactive AI Tutor</h4>
+                <button type="button" class="docked-tutor-close" id="docked-tutor-close-btn" aria-label="Minimize Tutor">✕</button>
+              </div>
+
+              <div class="docked-tutor-body" id="docked-tutor-body">
+                <!-- AI Identity Tag -->
+                <div class="docked-tutor-profile">
+                  <div class="docked-tutor-avatar-icon" aria-hidden="true">✦</div>
+                  <strong class="docked-tutor-name">Gemini AI Tutor</strong>
+                </div>
+
+                <!-- Chat Bubble with initial greeting -->
+                <div class="docked-tutor-bubble" id="docked-tutor-chat-bubble">
+                  Hello Alex! Ready to ace that biology quiz? ask me anything!
+                </div>
+
+                <!-- Input Form -->
+                <form class="docked-tutor-form" id="docked-tutor-input-form" onsubmit="return false;">
+                  <input type="text" id="docked-tutor-msg-input" class="docked-tutor-input" placeholder="Type your question here..." autocomplete="off">
+                  <button type="submit" id="docked-tutor-submit-btn" class="docked-tutor-ask-btn">Ask</button>
+                </form>
+              </div>
+            </div>
+
+          </div><!-- /hub-bento-grid -->
+
+          <!-- Flashcard Review Modal Popup (Opens when clicking any Leitner box) -->
+          <div class="leitner-review-modal-backdrop hidden" id="leitner-review-modal" role="dialog" aria-modal="true" aria-labelledby="leitner-modal-title">
+            <div class="leitner-modal-card">
+              <div class="leitner-modal-header">
+                <div class="leitner-modal-title-group">
+                  <span class="leitner-modal-badge" id="leitner-modal-box-badge">Box 1 Review</span>
+                  <h3 id="leitner-modal-title">Spaced Repetition Review</h3>
+                </div>
+                <button type="button" class="btn-close-modal" id="leitner-modal-close-btn" aria-label="Close review modal">✕</button>
+              </div>
+
+              <div class="leitner-modal-body">
+                <!-- Progress & Count -->
+                <div class="leitner-modal-progress-row">
+                  <span id="leitner-modal-progress-text">Card 1 of 5</span>
+                  <div class="leitner-modal-progress-track">
+                    <div class="leitner-modal-progress-fill" id="leitner-modal-progress-bar" style="width: 20%;"></div>
+                  </div>
+                </div>
+
+                <!-- 3D Flip Card Container -->
+                <div class="leitner-card-3d-scene">
+                  <div class="leitner-card-inner" id="leitner-interactive-card" role="button" tabindex="0" title="Click or press Space to flip">
+                    <div class="leitner-card-face leitner-card-front">
+                      <span class="card-side-tag">Question (Front)</span>
+                      <div class="card-text-body" id="leitner-card-front-text">Front of card</div>
+                      <span class="card-flip-prompt">Click to reveal answer ⟲</span>
+                    </div>
+                    <div class="leitner-card-face leitner-card-back">
+                      <span class="card-side-tag">Answer (Back)</span>
+                      <div class="card-text-body" id="leitner-card-back-text">Back of card</div>
+                      <span class="card-flip-prompt">Click to flip back ⟲</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Leitner Response Action Buttons -->
+                <div class="leitner-modal-actions">
+                  <button type="button" class="btn-leitner-demote" id="leitner-btn-demote" title="Drop to Box 1">
+                    <span>✕ Need Review</span>
+                    <small>Keep in Box 1</small>
+                  </button>
+                  <button type="button" class="btn-leitner-speak" id="leitner-btn-speak" title="Listen with speech synthesis">
+                    🔊 Pronounce
+                  </button>
+                  <button type="button" class="btn-leitner-promote" id="leitner-btn-promote" title="Promote up one box">
+                    <span>✓ Got it Right</span>
+                    <small>Promote to Next Box</small>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toggle bar to inspect raw detailed tabs if needed -->
+          <div class="detailed-tabs-toggle-bar">
+            <button type="button" class="btn-toggle-detailed" id="btn-toggle-detailed" aria-expanded="false" aria-controls="output-tabs-section">
+              <span>View Detailed Modules & Export</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toggle-arrow">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Output Modules Tabs & Workspace (Collapsible) -->
+          <section class="output-tabs-section hidden" id="output-tabs-section" aria-labelledby="output-section-title">
             <div class="card output-card">
 
               <!-- Tabs Navigation Bar -->
@@ -918,6 +1306,7 @@
     </div><!-- /app-main-layout -->
 
   </div><!-- /app-shell -->
+</div><!-- /hub-window-wrapper -->
 
 
   <!-- =======================================================================

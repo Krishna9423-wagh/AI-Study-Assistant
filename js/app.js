@@ -16,7 +16,7 @@
  * Hard-coded fake AI response object for testing and initial UI demonstrations.
  * Synced with Quantum Mechanics study kit shown in the reference Study Hub UI.
  */
-const FAKE_AI_RESPONSE = {
+const DEFAULT_QUANTUM_RESPONSE = {
   title: "Quantum Mechanics",
   summary: `### Quantum Mechanics: Core Principles & Wave-Particle Duality
 Quantum mechanics provides the mathematical framework describing the behavior of matter and light at atomic and subatomic dimensions.
@@ -181,7 +181,7 @@ Quantum mechanics provides the mathematical framework describing the behavior of
 };
 
 // Global state tracking the current active study kit (for export and Q&A)
-let currentStudyKit = FAKE_AI_RESPONSE;
+let currentStudyKit = DEFAULT_QUANTUM_RESPONSE;
 
 // Global state tracking the current session title (for export filenames and active session badge)
 let currentSessionTitle = 'Quantum Mechanics';
@@ -216,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initInteractiveTutor();
   initKeyboardShortcuts();
   initServiceWorker();
+  initBentoHubHandlers();
   initInitialStudyKit();
 });
 
@@ -540,26 +541,34 @@ function initSettings() {
  * @param {string} viewId - One of 'study-hub', 'dashboard', 'sessions', 'pomodoro', 'settings'
  */
 function switchView(viewId) {
-  const navBtns = document.querySelectorAll('.sidebar-nav .nav-item-btn');
+  const navBtns = document.querySelectorAll('.app-sidebar .nav-item-btn');
   const views = document.querySelectorAll('.views-container .view-panel');
-  const pageTitle = document.querySelector('.header-page-title');
+  const pageTitle = document.getElementById('main-header-title');
+
+  // Map 'courses' to 'sessions' view panel and 'progress' to 'dashboard'
+  let targetPanelId = viewId;
+  if (viewId === 'courses') targetPanelId = 'sessions';
+  if (viewId === 'progress') targetPanelId = 'dashboard';
 
   navBtns.forEach((btn) => {
-    const isTarget = btn.getAttribute('data-view') === viewId;
+    const btnView = btn.getAttribute('data-view');
+    const isTarget = btnView === viewId;
     btn.classList.toggle('active', isTarget);
     btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
   });
 
   views.forEach((panel) => {
-    const isTarget = panel.id === `view-${viewId}`;
+    const isTarget = panel.id === `view-${targetPanelId}`;
     panel.classList.toggle('hidden', !isTarget);
     panel.classList.toggle('active-view', isTarget);
   });
 
   const titles = {
-    'study-hub': 'Study Hub',
+    'study-hub': 'My Study Hub',
     'dashboard': 'Performance Dashboard',
+    'courses': 'My Courses & Sessions',
     'sessions': 'Saved Study Sessions',
+    'progress': 'Learning Mastery & Progress',
     'pomodoro': 'Focus & Pomodoro Timer',
     'settings': 'Assistant Settings',
   };
@@ -568,12 +577,12 @@ function switchView(viewId) {
   }
 
   // View-specific initialization triggers
-  if (viewId === 'dashboard') {
+  if (viewId === 'dashboard' || viewId === 'progress') {
     const dbContainer = document.getElementById('dashboard-container');
     if (dbContainer && window.StudyRender?.renderDashboard) {
       window.StudyRender.renderDashboard(dbContainer);
     }
-  } else if (viewId === 'sessions') {
+  } else if (viewId === 'courses' || viewId === 'sessions') {
     refreshHistoryUI();
   } else if (viewId === 'pomodoro') {
     const pomoContainer = document.getElementById('pomodoro-container');
@@ -2351,7 +2360,361 @@ function initKeyboardShortcuts() {
 }
 
 /**
- * Loads the default Quantum Mechanics study kit on initial launch to match the Study Hub reference UI,
+ * Binds all interactive controls for the Study Hub Bento Grid matching the mockup:
+ * - Bento Quiz option selection & Next Question button
+ * - Bento Leitner Box clicks to open review modal
+ * - 3D Flashcard Flip, promote, demote, and pronunciation in review modal
+ * - Docked 24/7 AI Tutor Q&A and minimize toggle
+ * - Header icons: (+ New Notes, Info modal, Notifications dropdown, Detailed tabs toggle)
+ * - Card options "•••" dropdown menus
+ */
+function initBentoHubHandlers() {
+  // 1. Bento Quiz "Next Question" Button
+  const nextQuizBtn = document.getElementById('bento-quiz-next-btn');
+  if (nextQuizBtn) {
+    nextQuizBtn.addEventListener('click', () => {
+      if (window.StudyRender?.advanceBentoQuiz) {
+        window.StudyRender.advanceBentoQuiz();
+      }
+    });
+  }
+
+  // 2. Leitner Box Cards Review Modal
+  const box1Btn = document.getElementById('bento-leitner-box-1');
+  const box2Btn = document.getElementById('bento-leitner-box-2');
+  const box3Btn = document.getElementById('bento-leitner-box-3');
+  const modalBackdrop = document.getElementById('leitner-review-modal');
+  const modalCloseBtn = document.getElementById('leitner-modal-close-btn');
+
+  let activeModalCards = [];
+  let activeModalCardIndex = 0;
+  let activeModalBoxNum = 1;
+
+  function openLeitnerBoxModal(boxNum) {
+    activeModalBoxNum = boxNum;
+    activeModalCardIndex = 0;
+
+    const boxBadge = document.getElementById('leitner-modal-box-badge');
+    if (boxBadge) {
+      boxBadge.textContent = `Box ${boxNum}: ${boxNum === 1 ? 'To Review' : boxNum === 2 ? 'Learning' : 'Mastered'}`;
+      boxBadge.style.color = boxNum === 1 ? '#ef4444' : boxNum === 2 ? '#eab308' : '#22c55e';
+      boxBadge.style.borderColor = boxNum === 1 ? '#ef4444' : boxNum === 2 ? '#eab308' : '#22c55e';
+    }
+
+    // Pick cards for this box
+    const mockupCards = window.StudyRender?.MOCKUP_STUDY_HUB_DATA?.sampleFlashcards?.[boxNum] || [];
+    activeModalCards = mockupCards.length > 0 ? mockupCards : [
+      { front: "What is the primary function of mitochondria?", back: "Aerobic cellular respiration & ATP energy synthesis." },
+      { front: "General formula for alkanes?", back: "CnH2n+2 (e.g. Methane CH4, Ethane C2H6)." }
+    ];
+
+    displayActiveModalCard();
+    if (modalBackdrop) modalBackdrop.classList.remove('hidden');
+  }
+
+  function displayActiveModalCard() {
+    if (!activeModalCards || activeModalCards.length === 0) return;
+    const card = activeModalCards[activeModalCardIndex % activeModalCards.length];
+    const cardEl = document.getElementById('leitner-interactive-card');
+    const frontText = document.getElementById('leitner-card-front-text');
+    const backText = document.getElementById('leitner-card-back-text');
+    const progressText = document.getElementById('leitner-modal-progress-text');
+    const progressBar = document.getElementById('leitner-modal-progress-bar');
+
+    if (cardEl) cardEl.classList.remove('is-flipped');
+    if (frontText) frontText.textContent = card.front;
+    if (backText) backText.textContent = card.back;
+    if (progressText) progressText.textContent = `Card ${activeModalCardIndex + 1} of ${activeModalCards.length}`;
+    if (progressBar) progressBar.style.width = `${Math.round(((activeModalCardIndex + 1) / activeModalCards.length) * 100)}%`;
+  }
+
+  if (box1Btn) box1Btn.addEventListener('click', () => openLeitnerBoxModal(1));
+  if (box2Btn) box2Btn.addEventListener('click', () => openLeitnerBoxModal(2));
+  if (box3Btn) box3Btn.addEventListener('click', () => openLeitnerBoxModal(3));
+
+  if (modalCloseBtn && modalBackdrop) {
+    modalCloseBtn.addEventListener('click', () => modalBackdrop.classList.add('hidden'));
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) modalBackdrop.classList.add('hidden');
+    });
+  }
+
+  // 3D Flip Card Toggle
+  const interactiveCard = document.getElementById('leitner-interactive-card');
+  if (interactiveCard) {
+    interactiveCard.addEventListener('click', () => {
+      interactiveCard.classList.toggle('is-flipped');
+    });
+  }
+
+  // Modal Promote Button
+  const btnPromote = document.getElementById('leitner-btn-promote');
+  if (btnPromote) {
+    btnPromote.addEventListener('click', () => {
+      const currentCard = activeModalCards[activeModalCardIndex];
+      if (window.StudySRS?.promoteCard) {
+        window.StudySRS.promoteCard(currentCard);
+      }
+      activeModalCardIndex = (activeModalCardIndex + 1) % activeModalCards.length;
+      displayActiveModalCard();
+      updateBentoBoxCounts();
+    });
+  }
+
+  // Modal Demote Button
+  const btnDemote = document.getElementById('leitner-btn-demote');
+  if (btnDemote) {
+    btnDemote.addEventListener('click', () => {
+      const currentCard = activeModalCards[activeModalCardIndex];
+      if (window.StudySRS?.demoteCard) {
+        window.StudySRS.demoteCard(currentCard);
+      }
+      activeModalCardIndex = (activeModalCardIndex + 1) % activeModalCards.length;
+      displayActiveModalCard();
+      updateBentoBoxCounts();
+    });
+  }
+
+  // Modal Speak Pronounce Button
+  const btnSpeak = document.getElementById('leitner-btn-speak');
+  if (btnSpeak) {
+    btnSpeak.addEventListener('click', () => {
+      const currentCard = activeModalCards[activeModalCardIndex];
+      if (currentCard && 'speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(currentCard.front);
+        utter.rate = 0.95;
+        window.speechSynthesis.speak(utter);
+      }
+    });
+  }
+
+  function updateBentoBoxCounts() {
+    const srsCounts = window.StudySRS?.getBoxCounts ? window.StudySRS.getBoxCounts() : null;
+    const box1El = document.getElementById('bento-box1-count');
+    const box2El = document.getElementById('bento-box2-count');
+    const box3El = document.getElementById('bento-box3-count');
+    if (srsCounts && srsCounts.total > 0) {
+      if (box1El) box1El.textContent = srsCounts.box1;
+      if (box2El) box2El.textContent = srsCounts.box2;
+      if (box3El) box3El.textContent = srsCounts.box3;
+    }
+  }
+
+  // 3. Docked 24/7 AI Tutor Q&A
+  const dockedForm = document.getElementById('docked-tutor-input-form');
+  const dockedInput = document.getElementById('docked-tutor-msg-input');
+  const dockedBubble = document.getElementById('docked-tutor-chat-bubble');
+  const dockedClose = document.getElementById('docked-tutor-close-btn');
+  const dockedWidget = document.getElementById('docked-ai-tutor-widget');
+
+  if (dockedClose && dockedWidget) {
+    dockedClose.addEventListener('click', () => {
+      dockedWidget.classList.toggle('minimized');
+      dockedClose.textContent = dockedWidget.classList.contains('minimized') ? '▲' : '✕';
+    });
+  }
+
+  if (dockedForm && dockedInput && dockedBubble) {
+    dockedForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = dockedInput.value.trim();
+      if (!query) return;
+
+      dockedInput.value = '';
+      dockedBubble.innerHTML = `<em>Thinking...</em>`;
+
+      // Try AI Tutor response
+      try {
+        const apiKey = window.StudyStorage.getApiKey();
+        const provider = window.StudyStorage.getProvider();
+
+        if (apiKey && window.StudyAPI?.queryFollowUp) {
+          const notesContext = currentSummaryText || "Organic Chemistry: Alkanes and Cell Biology (Mitochondria).";
+          const answer = await window.StudyAPI.queryFollowUp(notesContext, query, apiKey, provider);
+          dockedBubble.innerHTML = `<strong>You:</strong> ${escapeHtml(query)}<br><br><strong>Tutor:</strong> ${escapeHtml(answer)}`;
+        } else {
+          // Contextual offline tutor responses
+          let reply = "Mitochondria produce ATP through cellular respiration, while alkanes are saturated hydrocarbons with single C-C bonds!";
+          const qLower = query.toLowerCase();
+          if (qLower.includes('mitochondria') || qLower.includes('biology')) {
+            reply = "Mitochondria are the powerhouses of eukaryotic cells. They generate ATP through the Krebs cycle and oxidative phosphorylation across the inner cristae.";
+          } else if (qLower.includes('alkane') || qLower.includes('chemistry')) {
+            reply = "Alkanes are saturated acyclic hydrocarbons with general formula CnH2n+2. They feature sp3 tetrahedral carbon atoms with 109.5° angles.";
+          } else if (qLower.includes('box') || qLower.includes('leitner') || qLower.includes('flashcard')) {
+            reply = "The Leitner system uses 3 boxes: Box 1 for difficult cards reviewed daily, Box 2 for learning cards, and Box 3 for mastered cards!";
+          }
+          dockedBubble.innerHTML = `<strong>You:</strong> ${escapeHtml(query)}<br><br><strong>Tutor:</strong> ${reply}`;
+        }
+      } catch (err) {
+        dockedBubble.innerHTML = `<strong>Tutor:</strong> Mitochondria produce ATP via respiration, and alkanes have general formula CnH2n+2. Ask me anything more!`;
+      }
+    });
+  }
+
+  // 4. Header Toggle Buttons: (+ New Notes, Info, Bell, Detailed tabs)
+  const toggleInputBtn = document.getElementById('toggle-input-drawer-btn');
+  const editNotesBtn = document.getElementById('bento-edit-notes-btn');
+  const inputCardBody = document.getElementById('input-card-body');
+
+  function toggleNotesInput() {
+    if (inputCardBody) {
+      const isCollapsed = inputCardBody.classList.toggle('collapsed');
+      const toggleLabel = document.getElementById('input-toggle-label');
+      if (toggleLabel) toggleLabel.textContent = isCollapsed ? 'Show Input' : 'Hide Input';
+      if (!isCollapsed) {
+        inputCardBody.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+
+  if (toggleInputBtn) toggleInputBtn.addEventListener('click', toggleNotesInput);
+  if (editNotesBtn) editNotesBtn.addEventListener('click', toggleNotesInput);
+
+  const infoBtn = document.getElementById('hub-info-btn');
+  const infoModal = document.getElementById('hub-info-modal');
+  const infoClose = document.getElementById('info-modal-close-btn');
+
+  if (infoBtn && infoModal) {
+    infoBtn.addEventListener('click', () => infoModal.classList.toggle('hidden'));
+    if (infoClose) infoClose.addEventListener('click', () => infoModal.classList.add('hidden'));
+  }
+
+  const bellBtn = document.getElementById('hub-bell-btn');
+  const notifDropdown = document.getElementById('hub-notifications-dropdown');
+  const clearNotifsBtn = document.getElementById('clear-notifs-btn');
+
+  if (bellBtn && notifDropdown) {
+    bellBtn.addEventListener('click', () => notifDropdown.classList.toggle('hidden'));
+    if (clearNotifsBtn) {
+      clearNotifsBtn.addEventListener('click', () => {
+        const dot = document.querySelector('.hub-notification-red-dot');
+        if (dot) dot.classList.add('hidden');
+        notifDropdown.classList.add('hidden');
+      });
+    }
+  }
+
+  const btnToggleDetailed = document.getElementById('btn-toggle-detailed');
+  const outputTabsSection = document.getElementById('output-tabs-section');
+
+  if (btnToggleDetailed && outputTabsSection) {
+    btnToggleDetailed.addEventListener('click', () => {
+      const isHidden = outputTabsSection.classList.toggle('hidden');
+      btnToggleDetailed.classList.toggle('is-expanded', !isHidden);
+    });
+  }
+
+  const deleteNotesBtn = document.getElementById('bento-delete-notes-btn');
+  if (deleteNotesBtn) {
+    deleteNotesBtn.addEventListener('click', () => {
+      if (confirm('Reset to default Organic Chemistry & Cell Biology Study Hub?')) {
+        initInitialStudyKit();
+      }
+    });
+  }
+
+  // Summary options dropdown "•••"
+  const summaryMoreBtn = document.getElementById('bento-summary-more-btn');
+  const summaryDropdown = document.getElementById('bento-summary-dropdown');
+  if (summaryMoreBtn && summaryDropdown) {
+    summaryMoreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      summaryDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => summaryDropdown.classList.add('hidden'));
+
+    const readSummaryBtn = document.getElementById('bento-read-summary-btn');
+    if (readSummaryBtn) {
+      readSummaryBtn.addEventListener('click', () => {
+        const bullets = Array.from(document.querySelectorAll('#bento-summary-bullets li')).map(li => li.textContent).join('. ');
+        if ('speechSynthesis' in window && bullets) {
+          const u = new SpeechSynthesisUtterance(bullets);
+          window.speechSynthesis.speak(u);
+        }
+      });
+    }
+
+    const copyNotesBtn = document.getElementById('bento-copy-notes-btn');
+    if (copyNotesBtn) {
+      copyNotesBtn.addEventListener('click', () => {
+        const bullets = Array.from(document.querySelectorAll('#bento-summary-bullets li')).map(li => li.textContent).join('\n');
+        navigator.clipboard.writeText(bullets).then(() => alert('Summary copied to clipboard!'));
+      });
+    }
+
+    const downloadNotesBtn = document.getElementById('bento-download-notes-btn');
+    if (downloadNotesBtn) {
+      downloadNotesBtn.addEventListener('click', () => {
+        const bullets = Array.from(document.querySelectorAll('#bento-summary-bullets li')).map(li => li.textContent).join('\n');
+        const blob = new Blob([bullets], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Organic_Chemistry_Summary.txt';
+        a.click();
+      });
+    }
+  }
+
+  // Flashcards options dropdown "•••"
+  const fcMoreBtn = document.getElementById('bento-flashcards-more-btn');
+  const fcDropdown = document.getElementById('bento-flashcards-dropdown');
+  if (fcMoreBtn && fcDropdown) {
+    fcMoreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fcDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => fcDropdown.classList.add('hidden'));
+
+    const srsSessionBtn = document.getElementById('bento-open-srs-session-btn');
+    if (srsSessionBtn) {
+      srsSessionBtn.addEventListener('click', () => openLeitnerBoxModal(1));
+    }
+
+    const exportCsvBtn = document.getElementById('bento-export-csv-btn');
+    if (exportCsvBtn) {
+      exportCsvBtn.addEventListener('click', () => {
+        const csvContent = "Front,Back,Box\n" +
+          "What is the general formula for alkanes?,CnH2n+2,1\n" +
+          "What is the primary function of mitochondria?,Cellular ATP synthesis,1\n";
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'flashcards.csv';
+        a.click();
+      });
+    }
+  }
+
+  // Quiz options dropdown "•••"
+  const quizMoreBtn = document.getElementById('bento-quiz-more-btn');
+  const quizDropdown = document.getElementById('bento-quiz-dropdown');
+  if (quizMoreBtn && quizDropdown) {
+    quizMoreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      quizDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => quizDropdown.classList.add('hidden'));
+
+    const restartQuizBtn = document.getElementById('bento-restart-quiz-btn');
+    if (restartQuizBtn) {
+      restartQuizBtn.addEventListener('click', () => {
+        if (window.StudyRender?.displayBentoQuizQuestion) {
+          window.StudyRender.displayBentoQuizQuestion(0);
+        }
+      });
+    }
+  }
+
+  // Help button in sidebar footer opens shortcuts
+  const helpNavBtn = document.getElementById('nav-btn-help');
+  const shortcutsModal = document.getElementById('shortcuts-modal');
+  if (helpNavBtn && shortcutsModal) {
+    helpNavBtn.addEventListener('click', () => shortcutsModal.classList.remove('hidden'));
+  }
+}
+
+/**
+ * Loads the default Organic Chemistry: Alkanes study kit on initial launch to match the reference UI,
  * updates the active session banner, and refreshes the streak indicator.
  */
 function initInitialStudyKit() {
@@ -2373,12 +2736,12 @@ function initInitialStudyKit() {
     providerLabel.textContent = provider === 'groq' ? 'Groq LLaMA 3.3 70B' : 'Gemini 1.5 Flash';
   }
 
-  // Pre-load Quantum Mechanics study kit
-  const initialKit = window.StudyRender.FAKE_AI_RESPONSE || FAKE_AI_RESPONSE;
+  // Pre-load Organic Chemistry: Alkanes study kit matching reference mockup
+  const initialKit = window.StudyRender.MOCKUP_STUDY_HUB_DATA || window.StudyRender.FAKE_AI_RESPONSE || DEFAULT_QUANTUM_RESPONSE;
   currentStudyKit = initialKit;
-  currentSessionTitle = initialKit.title || 'Quantum Mechanics';
+  currentSessionTitle = initialKit.title || 'Organic Chemistry: Alkanes';
   currentSummaryText = initialKit.summary || '';
-  currentSessionId = 'quantum_mechanics_default';
+  currentSessionId = 'organic_chemistry_alkanes_default';
 
   const activeSessionTitleEl = document.getElementById('active-session-title');
   if (activeSessionTitleEl) {
@@ -2409,7 +2772,7 @@ function initServiceWorker() {
 
 // Global namespace exposure
 window.StudyApp = {
-  FAKE_AI_RESPONSE,
+  DEFAULT_QUANTUM_RESPONSE,
   initTheme,
   initAccentColors,
   initSettings,

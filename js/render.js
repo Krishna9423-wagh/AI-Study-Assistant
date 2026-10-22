@@ -10,8 +10,80 @@
  * Hard-coded fake AI response object representing synthesized study material.
  * Used for testing and initial UI demonstrations.
  */
+const MOCKUP_STUDY_HUB_DATA = {
+  title: "Organic Chemistry: Alkanes",
+  subject: "Organic Chemistry: Alkanes",
+  unitQuizTitle: "Unit 4 Quiz: Cell Biology",
+  summaryBullets: [
+    "Organize the primary of suction of themietric alkane",
+    "Complete as the organic chemistry: alkanes",
+    "Complete all organic chemistry alkanes.",
+    "Complete another option and a organic mitochondriat"
+  ],
+  keyConcepts: [
+    "Unuars pronom carbon, and roohemiccon alkanes",
+    "Semining nolerchov-and chemistry alkanes",
+    "Dellogitzes athsenex chemical collitages"
+  ],
+  quiz: [
+    {
+      question: "What is the primary function of mitochondria?",
+      qNumText: "Question 6",
+      progressPct: 60,
+      options: [
+        { letter: "A", text: "Mitochondria?", correct: false },
+        { letter: "B", text: "Primars cenporium", correct: true, explanation: "Primary cellular respiration & ATP energy powerhouse of the eukaryotic cell." },
+        { letter: "C", text: "Mitochondriar sponsam", correct: false },
+        { letter: "D", text: "Altativin voroponie", correct: false }
+      ]
+    },
+    {
+      question: "Which organelle synthesizes ATP via cellular respiration?",
+      qNumText: "Question 7",
+      progressPct: 75,
+      options: [
+        { letter: "A", text: "Ribosome", correct: false },
+        { letter: "B", text: "Mitochondria", correct: true, explanation: "Mitochondria generate over 90% of cellular energy in the form of ATP." },
+        { letter: "C", text: "Golgi apparatus", correct: false },
+        { letter: "D", text: "Lysosome", correct: false }
+      ]
+    },
+    {
+      question: "What is the general formula for acyclic saturated hydrocarbons (alkanes)?",
+      qNumText: "Question 8",
+      progressPct: 90,
+      options: [
+        { letter: "A", text: "CnH2n", correct: false },
+        { letter: "B", text: "CnH2n+2", correct: true, explanation: "Alkanes are saturated hydrocarbons containing only single bonds, following CnH2n+2." },
+        { letter: "C", text: "CnH2n-2", correct: false },
+        { letter: "D", text: "CnHn", correct: false }
+      ]
+    }
+  ],
+  boxCounts: {
+    box1: 23,
+    box2: 45,
+    box3: 112
+  },
+  sampleFlashcards: {
+    1: [
+      { front: "What is the general formula for alkanes?", back: "CnH2n+2 (e.g., Methane CH4, Ethane C2H6, Propane C3H8)" },
+      { front: "What is the primary function of mitochondria?", back: "Cellular ATP energy generation through the citric acid cycle and oxidative phosphorylation." },
+      { front: "What reaction type do alkanes typically undergo?", back: "Free radical substitution (e.g. halogenation under UV light) and combustion." }
+    ],
+    2: [
+      { front: "What is the mitochondrial matrix?", back: "The gel-like space enclosed by the inner membrane containing enzymes for the Krebs cycle." },
+      { front: "What is constitutional isomerism in alkanes?", back: "Molecules with identical molecular formulas but different atom connectivity (e.g. butane vs isobutane)." }
+    ],
+    3: [
+      { front: "What is ATP Synthase?", back: "Enzyme embedded in the inner mitochondrial cristae that produces ATP driven by proton gradient." },
+      { front: "What is sp3 hybridization in alkanes?", back: "The mixing of one 2s and three 2p orbitals forming 4 equivalent tetrahedral bonds at 109.5°." }
+    ]
+  }
+};
+
 const FAKE_AI_RESPONSE = {
-  title: "Quantum Mechanics",
+  title: "Organic Chemistry: Alkanes",
   summary: `### Quantum Mechanics: Core Principles & Wave-Particle Duality
 Quantum mechanics provides the mathematical framework describing the behavior of matter and light at atomic and subatomic dimensions.
 
@@ -182,6 +254,169 @@ Quantum mechanics provides the mathematical framework describing the behavior of
   ]
 };
 
+let currentBentoQuizIndex = 0;
+let currentBentoQuizQuestions = MOCKUP_STUDY_HUB_DATA.quiz;
+
+/**
+ * Displays a single question in the Bento Grid Active Recall Quiz card.
+ * @param {number} index - Index into currentBentoQuizQuestions
+ */
+function displayBentoQuizQuestion(index) {
+  if (!currentBentoQuizQuestions || currentBentoQuizQuestions.length === 0) return;
+  const qData = currentBentoQuizQuestions[index % currentBentoQuizQuestions.length];
+
+  const qNumEl = document.getElementById('bento-quiz-qlabel');
+  const progressFillEl = document.getElementById('bento-quiz-progress-fill');
+  const questionTextEl = document.getElementById('bento-quiz-question-text');
+  const optionsContainerEl = document.getElementById('bento-quiz-options-container');
+  const feedbackEl = document.getElementById('bento-quiz-feedback');
+
+  if (qNumEl) qNumEl.textContent = qData.qNumText || `Question ${index + 1}`;
+  if (progressFillEl) progressFillEl.style.width = `${qData.progressPct || 60}%`;
+  if (questionTextEl) questionTextEl.textContent = qData.question;
+  if (feedbackEl) feedbackEl.classList.add('hidden');
+
+  if (optionsContainerEl && Array.isArray(qData.options)) {
+    optionsContainerEl.innerHTML = qData.options
+      .map((opt, oIdx) => `
+        <button type="button" class="bento-quiz-opt-btn" data-index="${oIdx}" data-correct="${opt.correct}">
+          <span class="quiz-opt-letter">${opt.letter || String.fromCharCode(65 + oIdx)}</span>
+          <span class="quiz-opt-text">${typeof opt === 'string' ? opt : opt.text}</span>
+        </button>
+      `)
+      .join('');
+
+    // Bind option click listeners for interactive feedback
+    const optButtons = optionsContainerEl.querySelectorAll('.bento-quiz-opt-btn');
+    optButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const isCorrect = btn.getAttribute('data-correct') === 'true';
+        optButtons.forEach((b) => {
+          b.disabled = true;
+          if (b.getAttribute('data-correct') === 'true') {
+            b.classList.add('correct');
+          }
+        });
+        if (!isCorrect) {
+          btn.classList.add('incorrect');
+        }
+        if (feedbackEl) {
+          const optIndex = parseInt(btn.getAttribute('data-index'), 10);
+          const chosenOpt = qData.options[optIndex];
+          const correctOpt = qData.options.find((o) => o.correct) || chosenOpt;
+          feedbackEl.innerHTML = isCorrect
+            ? `<strong>✓ Correct!</strong> ${chosenOpt.explanation || 'Great job!'}`
+            : `<strong>✕ Note:</strong> ${correctOpt.explanation || 'See study concepts'}`;
+          feedbackEl.classList.remove('hidden');
+        }
+      });
+    });
+  }
+}
+
+/**
+ * Advances the Bento Quiz to the next question.
+ */
+function advanceBentoQuiz() {
+  currentBentoQuizIndex = (currentBentoQuizIndex + 1) % currentBentoQuizQuestions.length;
+  displayBentoQuizQuestion(currentBentoQuizIndex);
+}
+
+/**
+ * Renders the Bento Grid layout matching the reference mockup.
+ * @param {Object} studyKit - Active study material object
+ * @param {Object} [meta={}] - Session metadata
+ */
+function renderBentoGrid(studyKit = {}, meta = {}) {
+  // 1. Subject Header Title
+  const subjectEl = document.getElementById('bento-subject-title');
+  if (subjectEl) {
+    subjectEl.textContent = studyKit.title || studyKit.subject || MOCKUP_STUDY_HUB_DATA.subject;
+  }
+
+  // 2. Summary Bullets
+  const summaryListEl = document.getElementById('bento-summary-bullets');
+  if (summaryListEl) {
+    if (studyKit.summaryBullets && Array.isArray(studyKit.summaryBullets)) {
+      summaryListEl.innerHTML = studyKit.summaryBullets
+        .map((b) => `<li>• ${b.replace(/^[•\-\*]\s*/, '')}</li>`)
+        .join('');
+    } else if (studyKit.summary && typeof studyKit.summary === 'string') {
+      const lines = studyKit.summary
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l.startsWith('-') || l.startsWith('*') || l.startsWith('•'))
+        .slice(0, 4);
+      if (lines.length > 0) {
+        summaryListEl.innerHTML = lines
+          .map((l) => `<li>• ${l.replace(/^[•\-\*]\s*/, '')}</li>`)
+          .join('');
+      } else {
+        summaryListEl.innerHTML = MOCKUP_STUDY_HUB_DATA.summaryBullets
+          .map((b) => `<li>• ${b}</li>`)
+          .join('');
+      }
+    } else {
+      summaryListEl.innerHTML = MOCKUP_STUDY_HUB_DATA.summaryBullets
+        .map((b) => `<li>• ${b}</li>`)
+        .join('');
+    }
+  }
+
+  // 3. Key Concepts Bullets
+  const conceptsListEl = document.getElementById('bento-concepts-bullets');
+  if (conceptsListEl) {
+    if (studyKit.keyConcepts && Array.isArray(studyKit.keyConcepts)) {
+      conceptsListEl.innerHTML = studyKit.keyConcepts
+        .map((c) => `<li>• ${c.replace(/^[•\-\*]\s*/, '')}</li>`)
+        .join('');
+    } else if (studyKit.glossary && Array.isArray(studyKit.glossary) && studyKit.glossary.length > 0) {
+      conceptsListEl.innerHTML = studyKit.glossary
+        .slice(0, 3)
+        .map((g) => `<li>• <strong>${g.term}:</strong> ${(g.definition || '').slice(0, 60)}...</li>`)
+        .join('');
+    } else {
+      conceptsListEl.innerHTML = MOCKUP_STUDY_HUB_DATA.keyConcepts
+        .map((c) => `<li>• ${c}</li>`)
+        .join('');
+    }
+  }
+
+  // 4. Quiz Unit and Questions
+  const unitLabelEl = document.getElementById('bento-quiz-unit-label');
+  if (unitLabelEl) {
+    unitLabelEl.textContent = studyKit.unitQuizTitle || (studyKit.title ? `Quiz: ${studyKit.title}` : MOCKUP_STUDY_HUB_DATA.unitQuizTitle);
+  }
+
+  if (Array.isArray(studyKit.quiz) && studyKit.quiz.length > 0) {
+    currentBentoQuizQuestions = studyKit.quiz.map((q, idx) => ({
+      question: q.question,
+      qNumText: `Question ${idx + 1}`,
+      progressPct: Math.round(((idx + 1) / studyKit.quiz.length) * 100),
+      options: q.options.map((opt, oIdx) => ({
+        letter: String.fromCharCode(65 + oIdx),
+        text: opt,
+        correct: oIdx === q.answer,
+        explanation: q.explanation || ''
+      }))
+    }));
+  } else {
+    currentBentoQuizQuestions = MOCKUP_STUDY_HUB_DATA.quiz;
+  }
+  currentBentoQuizIndex = 0;
+  displayBentoQuizQuestion(currentBentoQuizIndex);
+
+  // 5. Flashcards Leitner Box Counts
+  const box1El = document.getElementById('bento-box1-count');
+  const box2El = document.getElementById('bento-box2-count');
+  const box3El = document.getElementById('bento-box3-count');
+
+  const srsCounts = window.StudySRS?.getBoxCounts ? window.StudySRS.getBoxCounts() : null;
+  if (box1El) box1El.textContent = srsCounts && srsCounts.total > 0 ? srsCounts.box1 : MOCKUP_STUDY_HUB_DATA.boxCounts.box1;
+  if (box2El) box2El.textContent = srsCounts && srsCounts.total > 0 ? srsCounts.box2 : MOCKUP_STUDY_HUB_DATA.boxCounts.box2;
+  if (box3El) box3El.textContent = srsCounts && srsCounts.total > 0 ? srsCounts.box3 : MOCKUP_STUDY_HUB_DATA.boxCounts.box3;
+}
+
 /**
  * Primary coordinator: renders summary, quiz, flashcards, glossary, outline, and quiz progress into DOM containers.
  * @param {Object} studyKit - Study kit object { summary, quiz, flashcards, glossary, outline }
@@ -194,10 +429,13 @@ function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '', meta = {}) 
     return;
   }
 
+  // 1. Render primary Bento Grid matching reference mockup
+  renderBentoGrid(studyKit, meta);
+
   // Update active session subtitle in top navbar
   const sessionBannerEl = document.getElementById('active-session-title');
   if (sessionBannerEl) {
-    const topicTitle = meta.topicTitle || studyKit.title || 'Quantum Mechanics';
+    const topicTitle = meta.topicTitle || studyKit.title || 'Organic Chemistry: Alkanes';
     sessionBannerEl.textContent = topicTitle;
   }
 
@@ -2114,6 +2352,10 @@ function renderPomodoro(container) {
 // Global namespace exposure
 window.StudyRender = {
   FAKE_AI_RESPONSE,
+  MOCKUP_STUDY_HUB_DATA,
+  renderBentoGrid,
+  advanceBentoQuiz,
+  displayBentoQuizQuestion,
   cleanupQuizTimers,
   renderStudyKit,
   renderSummary,
