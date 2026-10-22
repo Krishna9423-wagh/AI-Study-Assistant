@@ -124,13 +124,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Initializes and manages light / dark theme toggle.
+ * Initializes and manages light / dark theme toggle with localStorage persistence.
  */
 function initTheme() {
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
   const savedTheme = window.StudyStorage.getTheme();
 
+  // Apply saved theme on page load
   document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeButtonUI(savedTheme, themeToggleBtn);
 
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
@@ -138,8 +140,20 @@ function initTheme() {
       const nextTheme = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', nextTheme);
       window.StudyStorage.saveTheme(nextTheme);
+      updateThemeButtonUI(nextTheme, themeToggleBtn);
     });
   }
+}
+
+/**
+ * Updates theme button label and accessible title.
+ * @param {string} theme - 'light' or 'dark'
+ * @param {HTMLElement} btn - The theme toggle button
+ */
+function updateThemeButtonUI(theme, btn) {
+  if (!btn) return;
+  btn.setAttribute('aria-label', `Current theme is ${theme}. Click to switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+  btn.setAttribute('title', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
 }
 
 /**

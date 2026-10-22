@@ -6,6 +6,20 @@
   <meta name="description" content="AI Study Assistant - Generate summaries, interactive quizzes, and flashcards from your study materials with ease.">
   <title>AI Study Assistant | Smart Learning Studio</title>
 
+  <!-- Early theme application from localStorage to prevent flash of unstyled content -->
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem('ai_study_assistant_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Google Fonts: Plus Jakarta Sans & Outfit for modern typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
