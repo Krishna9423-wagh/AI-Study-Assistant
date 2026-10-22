@@ -1377,13 +1377,99 @@ body {
   animation: fadeIn 0.3s ease;
 }
 
-.flashcards-instruction-bar {
+/* Flashcards Toolbar with Counter, Progress Bar & Reset Button */
+.flashcards-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  flex-wrap: wrap;
+}
+
+.fc-progress-section {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fc-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.fc-counter-text {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.fc-progress-pct {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-primary-500);
+}
+
+.fc-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-surface-solid);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.fc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: var(--radius-full);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fc-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.btn-reset-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: var(--text-secondary);
+  background: var(--bg-surface-solid);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-reset-progress svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-reset-progress:hover {
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+}
+
+.fc-hint-text {
   font-size: 0.8125rem;
   color: var(--text-muted);
-  padding: 0.25rem 0.25rem;
 }
 
 .flashcards-grid {
@@ -1510,50 +1596,52 @@ body {
   stroke-width: 2.5;
 }
 
-/* Flashcards Mastery Counters */
-.flashcards-counter-group {
+/* Flashcard Card Container (wraps 3D flip card and actions under it) */
+.flashcard-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+/* Green Badge for cards marked Known */
+.fc-green-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-full);
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.15);
+  animation: fadeIn 0.2s ease;
+}
+
+[data-theme="dark"] .fc-green-badge {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(52, 211, 153, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.fc-green-badge.hidden {
+  display: none !important;
+}
+
+.flashcard-meta-right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
-.fc-counter-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.65rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-color);
-  background: var(--bg-badge);
-  color: var(--text-secondary);
-  transition: all var(--transition-fast);
-}
-
-.fc-counter-badge.known {
-  background: var(--color-success-bg);
-  color: var(--color-success-text);
-  border-color: var(--color-success-border);
-}
-
-.fc-counter-badge.not-known {
-  background: var(--color-error-bg);
-  color: var(--color-error-text);
-  border-color: var(--color-error-border);
-}
-
-.fc-counter-badge.remaining {
-  background: var(--bg-badge);
-  color: var(--text-muted);
-}
-
-/* Flashcard Action Buttons (Known / Not Known) */
+/* Flashcard Action Buttons placed directly UNDER each card */
 .flashcard-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.6rem;
-  border-top: 1px dashed var(--border-color);
+  width: 100%;
 }
 
 .fc-btn {
@@ -1562,13 +1650,13 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.4rem 0.65rem;
-  font-size: 0.75rem;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   font-family: var(--font-sans);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  background: var(--bg-surface-solid);
+  background: var(--bg-surface-elevated);
   color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -1584,6 +1672,7 @@ body {
   color: var(--color-success-text) !important;
   border-color: var(--color-success-border) !important;
   font-weight: 700;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.15);
 }
 
 .fc-btn-not-known:hover, .fc-btn-not-known.active {
@@ -1591,6 +1680,7 @@ body {
   color: var(--color-error-text) !important;
   border-color: var(--color-error-border) !important;
   font-weight: 700;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.15);
 }
 
 /* Card mastery state styles */
@@ -1599,28 +1689,14 @@ body {
   border-color: var(--color-success-border);
 }
 
+.flashcard-item.card-known .flashcard-inner {
+  box-shadow: 0 0 0 2px var(--color-success-border), 0 4px 12px rgba(16, 185, 129, 0.12);
+}
+
+/* Cards marked not-known or unrated stay normal */
 .flashcard-item.card-not-known .flashcard-front,
 .flashcard-item.card-not-known .flashcard-back {
-  border-color: var(--color-error-border);
-}
-
-.fc-status-pill {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full);
-}
-
-.fc-status-pill.known {
-  background: var(--color-success-bg);
-  color: var(--color-success-text);
-  border: 1px solid var(--color-success-border);
-}
-
-.fc-status-pill.not-known {
-  background: var(--color-error-bg);
-  color: var(--color-error-text);
-  border: 1px solid var(--color-error-border);
+  border-color: var(--border-color);
 }
 
 
@@ -2283,10 +2359,21 @@ body {
     font-size: 0.75rem;
   }
 
-  /* Flashcards grid: 100% width on phone */
+  /* Flashcards toolbar and grid: 100% width on phone */
+  .flashcards-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .fc-toolbar-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
   .flashcards-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   /* History section on phone */

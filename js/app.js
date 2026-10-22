@@ -111,6 +111,9 @@ const FAKE_AI_RESPONSE = {
 // Global state tracking the current active summary text (for Copy / Download)
 let currentSummaryText = '';
 
+// Global state tracking the active session ID (for flashcard mastery persistence per history item)
+let currentSessionId = 'current_session';
+
 // Initialize application modules when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -382,15 +385,9 @@ function initGenerateHandler() {
       // 6. Update current active summary text for Copy/Download
       currentSummaryText = studyKit.summary || '';
 
-      // 7. Render the generated study kit into the tabs
-      window.StudyRender.renderStudyKit(studyKit);
-
-      // 8. Update panel status indicators
-      updatePanelIndicators(studyKit);
-
-      // 9. Save successful result to history in localStorage
+      // 7. Save successful result to history in localStorage
       const sessionTitle = extractSessionTitle(content, studyKit);
-      window.StudyStorage.saveHistoryItem({
+      const savedItem = window.StudyStorage.saveHistoryItem({
         title: sessionTitle,
         notes: content,
         difficulty: difficulty,
@@ -398,6 +395,13 @@ function initGenerateHandler() {
         result: studyKit,
         date: new Date().toISOString(),
       });
+      currentSessionId = savedItem ? savedItem.id : ('session_' + Date.now());
+
+      // 8. Render the generated study kit into the tabs with session ID
+      window.StudyRender.renderStudyKit(studyKit, currentSessionId);
+
+      // 9. Update panel status indicators
+      updatePanelIndicators(studyKit);
 
       // 10. Refresh history list UI
       refreshHistoryUI();
@@ -903,8 +907,9 @@ function handleSelectHistoryItem(item) {
   // 3. Set current active summary text for Copy/Download
   currentSummaryText = item.result.summary || '';
 
-  // 4. Render the study kit into DOM (Summary, Quiz, Flashcards) without calling API
-  window.StudyRender.renderStudyKit(item.result);
+  // 4. Set active session ID and render study kit into DOM without calling API
+  currentSessionId = item.id;
+  window.StudyRender.renderStudyKit(item.result, currentSessionId);
 
   // 5. Update panel indicators
   updatePanelIndicators(item.result);
@@ -920,11 +925,12 @@ function handleSelectHistoryItem(item) {
 }
 
 /**
- * Handles deleting a single history item.
+ * Handles deleting a single history item and clearing its saved mastery state.
  * @param {string} id - The ID of the session to delete
  */
 function handleDeleteHistoryItem(id) {
   window.StudyStorage.deleteHistoryItem(id);
+  window.StudyStorage.clearFlashcardMastery(id);
   refreshHistoryUI();
 }
 

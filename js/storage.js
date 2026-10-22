@@ -14,6 +14,7 @@ const STORAGE_KEYS = {
   SETTINGS: 'ai_study_assistant_settings',
   HISTORY: 'ai_study_assistant_history',
   THEME: 'ai_study_assistant_theme',
+  FLASHCARD_MASTERY_PREFIX: 'ai_study_assistant_mastery_',
 };
 
 /**
@@ -175,6 +176,68 @@ function clearHistory() {
   }
 }
 
+/**
+ * Retrieves saved flashcard mastery state for a specific history item / session ID.
+ * @param {string} sessionId
+ * @returns {Object} Mapping of { [cardIndex]: 'known' | 'not-known' }
+ */
+function getFlashcardMastery(sessionId) {
+  const sid = sessionId || 'current_session';
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.FLASHCARD_MASTERY_PREFIX + sid);
+    if (raw) return JSON.parse(raw);
+
+    // Fallback: check if stored inside the history item itself
+    const history = getHistory();
+    const item = history.find((h) => h.id === sid);
+    return item && item.mastery ? item.mastery : {};
+  } catch (err) {
+    console.error('storage.js: Failed to read flashcard mastery', err);
+    return {};
+  }
+}
+
+/**
+ * Saves flashcard mastery state for a specific history item / session ID to localStorage.
+ * @param {string} sessionId
+ * @param {Object} masteryMap - Object with card indices mapped to 'known' | 'not-known'
+ */
+function saveFlashcardMastery(sessionId, masteryMap) {
+  const sid = sessionId || 'current_session';
+  try {
+    localStorage.setItem(STORAGE_KEYS.FLASHCARD_MASTERY_PREFIX + sid, JSON.stringify(masteryMap));
+
+    // Also update history item in STORAGE_KEYS.HISTORY if it exists
+    const history = getHistory();
+    const item = history.find((h) => h.id === sid);
+    if (item) {
+      item.mastery = masteryMap;
+      localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+    }
+  } catch (err) {
+    console.error('storage.js: Failed to save flashcard mastery', err);
+  }
+}
+
+/**
+ * Clears saved flashcard mastery state for a session ID.
+ * @param {string} sessionId
+ */
+function clearFlashcardMastery(sessionId) {
+  const sid = sessionId || 'current_session';
+  try {
+    localStorage.removeItem(STORAGE_KEYS.FLASHCARD_MASTERY_PREFIX + sid);
+    const history = getHistory();
+    const item = history.find((h) => h.id === sid);
+    if (item && item.mastery) {
+      delete item.mastery;
+      localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
+    }
+  } catch (err) {
+    console.error('storage.js: Failed to clear flashcard mastery', err);
+  }
+}
+
 // Global namespace exposure
 window.StudyStorage = {
   STORAGE_KEYS,
@@ -188,4 +251,8 @@ window.StudyStorage = {
   saveHistoryItem,
   deleteHistoryItem,
   clearHistory,
+  getFlashcardMastery,
+  saveFlashcardMastery,
+  clearFlashcardMastery,
 };
+

@@ -109,8 +109,9 @@ const FAKE_AI_RESPONSE = {
 /**
  * Primary coordinator: renders summary, quiz, and flashcards into DOM containers.
  * @param {Object} studyKit - Study kit object { summary, quiz, flashcards }
+ * @param {string} [sessionId=''] - Unique history session ID for tracking card mastery
  */
-function renderStudyKit(studyKit = FAKE_AI_RESPONSE) {
+function renderStudyKit(studyKit = FAKE_AI_RESPONSE, sessionId = '') {
   const summaryEl = document.getElementById('summary-content');
   const quizEl = document.getElementById('quiz-content');
   const flashcardsEl = document.getElementById('flashcards-content');
@@ -124,7 +125,7 @@ function renderStudyKit(studyKit = FAKE_AI_RESPONSE) {
   }
 
   if (flashcardsEl && Array.isArray(studyKit.flashcards)) {
-    renderFlashcards(studyKit.flashcards, flashcardsEl);
+    renderFlashcards(studyKit.flashcards, flashcardsEl, sessionId);
   }
 }
 
@@ -361,67 +362,116 @@ function updateQuizScoreUI(score, answeredCount, total, bannerEl, finalBoxEl) {
 }
 
 /**
- * Renders flashcards with CSS 3D flip card animation.
- * Users can click (or press Enter/Space) on any card to flip between front and back.
+ * Renders flashcards with CSS 3D flip card animation, mastery tracking,
+ * Known and Not known buttons under each card, counter ("You know X of Y cards"),
+ * progress bar, and "Reset progress" button with localStorage persistence.
+ *
  * @param {Array<Object>} flashcards - Array of { front, back }
  * @param {HTMLElement} container - DOM container element
+ * @param {string} [sessionId=''] - Unique history item / session identifier
  */
-function renderFlashcards(flashcards, container) {
+function renderFlashcards(flashcards, container, sessionId = '') {
   container.innerHTML = '';
 
   const wrapper = document.createElement('div');
   wrapper.className = 'flashcards-rendered-wrapper';
 
   const totalCards = flashcards.length;
-  // State map tracking each card's mastery: 'known' | 'not-known' | undefined
-  const cardMastery = new Map();
 
-  // Instructions header with live counter badges
-  const headerBar = document.createElement('div');
-  headerBar.className = 'flashcards-instruction-bar';
-  headerBar.innerHTML = `
-    <div class="flashcards-counter-group" id="fc-counter-group">
-      <span class="fc-counter-badge known" id="fc-counter-known">Known: 0</span>
-      <span class="fc-counter-badge not-known" id="fc-counter-not-known">Not Known: 0</span>
-      <span class="fc-counter-badge remaining" id="fc-counter-remaining">Remaining: ${totalCards}</span>
+  // Retrieve saved mastery state from localStorage for this specific session
+  const savedMastery = window.StudyStorage.getFlashcardMastery(sessionId) || {};
+  const cardMastery = new Map();
+  Object.keys(savedMastery).forEach((key) => {
+    const idx = parseInt(key, 10);
+    if (!isNaN(idx) && idx >= 0 && idx < totalCards) {
+      cardMastery.set(idx, savedMastery[key]);
+    }
+  });
+
+  // 1. Toolbar with Counter ("You know X of Y cards"), Progress Bar, and "Reset progress" button
+  const toolbar = document.createElement('div');
+  toolbar.className = 'flashcards-toolbar';
+  toolbar.innerHTML = `
+    <div class="fc-progress-section">
+      <div class="fc-progress-meta">
+        <span class="fc-counter-text" id="fc-counter-text">You know 0 of ${totalCards} cards</span>
+        <span class="fc-progress-pct" id="fc-progress-pct">0%</span>
+      </div>
+      <div class="fc-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="${totalCards}" aria-valuenow="0" aria-label="Flashcard mastery progress">
+        <div class="fc-progress-fill" id="fc-progress-fill" style="width: 0%"></div>
+      </div>
     </div>
-    <span class="fc-hint-text">Click card to flip ↺</span>
+    <div class="fc-toolbar-actions">
+      <button type="button" class="btn btn-sm btn-reset-progress" id="fc-reset-progress-btn" title="Reset all cards to unrated">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+        </svg>
+        <span>Reset progress</span>
+      </button>
+      <span class="fc-hint-text">Click card to flip ↺</span>
+    </div>
   `;
-  wrapper.appendChild(headerBar);
+  wrapper.appendChild(toolbar);
+
+  const counterTextEl = toolbar.querySelector('#fc-counter-text');
+  const progressPctEl = toolbar.querySelector('#fc-progress-pct');
+  const progressFillEl = toolbar.querySelector('#fc-progress-fill');
+  const progressTrackEl = toolbar.querySelector('.fc-progress-track');
+  const resetBtn = toolbar.querySelector('#fc-reset-progress-btn');
 
   /**
-   * Updates counter badges based on current cardMastery map
+   * Recalculates mastery counts, updates progress bar & counter, and persists to localStorage.
    */
-  function updateCounterUI() {
+  function updateProgressUI(shouldSave = true) {
     let knownCount = 0;
-    let notKnownCount = 0;
+    const masteryObj = {};
 
-    cardMastery.forEach((status) => {
+    cardMastery.forEach((status, idx) => {
+      masteryObj[idx] = status;
       if (status === 'known') knownCount += 1;
-      else if (status === 'not-known') notKnownCount += 1;
     });
 
-    const remainingCount = totalCards - (knownCount + notKnownCount);
+    const percentage = totalCards > 0 ? Math.round((knownCount / totalCards) * 100) : 0;
 
-    const knownBadge = wrapper.querySelector('#fc-counter-known');
-    const notKnownBadge = wrapper.querySelector('#fc-counter-not-known');
-    const remainingBadge = wrapper.querySelector('#fc-counter-remaining');
+    if (counterTextEl) {
+      counterTextEl.textContent = `You know ${knownCount} of ${totalCards} cards`;
+    }
 
-    if (knownBadge) knownBadge.textContent = `Known: ${knownCount}`;
-    if (notKnownBadge) notKnownBadge.textContent = `Not Known: ${notKnownCount}`;
-    if (remainingBadge) remainingBadge.textContent = `Remaining: ${remainingCount}`;
+    if (progressPctEl) {
+      progressPctEl.textContent = `${percentage}%`;
+    }
+
+    if (progressFillEl) {
+      progressFillEl.style.width = `${percentage}%`;
+    }
+
+    if (progressTrackEl) {
+      progressTrackEl.setAttribute('aria-valuenow', knownCount);
+    }
+
+    if (shouldSave) {
+      window.StudyStorage.saveFlashcardMastery(sessionId, masteryObj);
+    }
   }
 
-  // Cards Grid
+  // 2. Flashcards Grid
   const grid = document.createElement('div');
   grid.className = 'flashcards-grid';
 
   flashcards.forEach((card, index) => {
+    // Card container holding the 3D flipping card AND the action buttons under it
+    const cardContainer = document.createElement('div');
+    cardContainer.className = 'flashcard-card-container';
+    cardContainer.id = `fc-container-${index}`;
+
+    // 3D Flip Card
     const cardEl = document.createElement('div');
     cardEl.className = 'flashcard-item';
+    cardEl.id = `fc-item-${index}`;
     cardEl.setAttribute('tabindex', '0');
     cardEl.setAttribute('role', 'button');
-    cardEl.setAttribute('aria-label', `Flashcard ${index + 1}: ${card.front}. Click to flip.`);
+    cardEl.setAttribute('aria-label', `Flashcard ${index + 1}: ${card.front}. Click or press Enter to flip.`);
 
     cardEl.innerHTML = `
       <div class="flashcard-inner">
@@ -429,8 +479,8 @@ function renderFlashcards(flashcards, container) {
         <div class="flashcard-face flashcard-front">
           <div class="flashcard-meta">
             <span class="flashcard-tag">Term / Question</span>
-            <div style="display:flex; align-items:center; gap:0.4rem;">
-              <span class="fc-status-pill unrated" id="pill-front-${index}">Unrated</span>
+            <div class="flashcard-meta-right">
+              <span class="fc-green-badge hidden" id="fc-badge-front-${index}">✓ Known</span>
               <span class="flashcard-number">${index + 1} of ${totalCards}</span>
             </div>
           </div>
@@ -447,101 +497,144 @@ function renderFlashcards(flashcards, container) {
         <div class="flashcard-face flashcard-back">
           <div class="flashcard-meta">
             <span class="flashcard-tag">Explanation / Answer</span>
-            <span class="flashcard-number">${index + 1} of ${totalCards}</span>
+            <div class="flashcard-meta-right">
+              <span class="fc-green-badge hidden" id="fc-badge-back-${index}">✓ Known</span>
+              <span class="flashcard-number">${index + 1} of ${totalCards}</span>
+            </div>
           </div>
           <p class="flashcard-answer-text">${card.back}</p>
-          
-          <!-- Known / Not Known Buttons -->
-          <div class="flashcard-actions">
-            <button type="button" class="fc-btn fc-btn-not-known" id="btn-not-known-${index}" title="Need to study again">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="15" y1="9" x2="9" y2="15"></line>
-                <line x1="9" y1="9" x2="15" y2="15"></line>
-              </svg>
-              <span>Not Known</span>
-            </button>
-            <button type="button" class="fc-btn fc-btn-known" id="btn-known-${index}" title="Mastered / Known">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Known</span>
-            </button>
+          <div class="flashcard-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span>Click to flip</span>
           </div>
         </div>
       </div>
     `;
 
-    // Click on card body to 3D flip
-    cardEl.addEventListener('click', (e) => {
-      // Don't flip if user clicked action buttons
-      if (e.target.closest('.fc-btn')) return;
+    // 3D Flip Handlers (click or Enter/Space)
+    cardEl.addEventListener('click', () => {
       cardEl.classList.toggle('is-flipped');
     });
 
-    // Keyboard support (Enter or Space) to flip
     cardEl.addEventListener('keydown', (e) => {
-      if (e.target.closest('.fc-btn')) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         cardEl.classList.toggle('is-flipped');
       }
     });
 
-    // Known Button Handler
-    const btnKnown = cardEl.querySelector(`#btn-known-${index}`);
-    const btnNotKnown = cardEl.querySelector(`#btn-not-known-${index}`);
-    const frontPill = cardEl.querySelector(`#pill-front-${index}`);
+    // Action buttons placed UNDER each card
+    const actionsEl = document.createElement('div');
+    actionsEl.className = 'flashcard-actions';
+    actionsEl.setAttribute('role', 'group');
+    actionsEl.setAttribute('aria-label', `Mark mastery for card ${index + 1}`);
 
-    if (btnKnown) {
-      btnKnown.addEventListener('click', (e) => {
-        e.stopPropagation();
-        cardMastery.set(index, 'known');
+    actionsEl.innerHTML = `
+      <button type="button" class="fc-btn fc-btn-not-known" id="btn-not-known-${index}" title="Mark as not known / review needed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span>Not known</span>
+      </button>
+      <button type="button" class="fc-btn fc-btn-known" id="btn-known-${index}" title="Mark as known / mastered">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Known</span>
+      </button>
+    `;
 
-        // Update card styles
+    const btnKnown = actionsEl.querySelector(`#btn-known-${index}`);
+    const btnNotKnown = actionsEl.querySelector(`#btn-not-known-${index}`);
+    const badgeFront = cardEl.querySelector(`#fc-badge-front-${index}`);
+    const badgeBack = cardEl.querySelector(`#fc-badge-back-${index}`);
+
+    /**
+     * Applies visual state to the card according to status ('known' | 'not-known' | null).
+     * Cards marked Known get a green badge; others stay normal.
+     */
+    function applyCardVisualState(status) {
+      if (status === 'known') {
+        cardContainer.classList.add('card-known');
+        cardContainer.classList.remove('card-not-known');
         cardEl.classList.add('card-known');
         cardEl.classList.remove('card-not-known');
-
-        // Update button active states
         btnKnown.classList.add('active');
         btnNotKnown.classList.remove('active');
-
-        // Update front status pill
-        if (frontPill) {
-          frontPill.textContent = 'Known';
-          frontPill.className = 'fc-status-pill known';
-        }
-
-        updateCounterUI();
-      });
-    }
-
-    // Not Known Button Handler
-    if (btnNotKnown) {
-      btnNotKnown.addEventListener('click', (e) => {
-        e.stopPropagation();
-        cardMastery.set(index, 'not-known');
-
-        // Update card styles
+        if (badgeFront) badgeFront.classList.remove('hidden');
+        if (badgeBack) badgeBack.classList.remove('hidden');
+      } else if (status === 'not-known') {
+        cardContainer.classList.add('card-not-known');
+        cardContainer.classList.remove('card-known');
         cardEl.classList.add('card-not-known');
         cardEl.classList.remove('card-known');
-
-        // Update button active states
         btnNotKnown.classList.add('active');
         btnKnown.classList.remove('active');
-
-        // Update front status pill
-        if (frontPill) {
-          frontPill.textContent = 'Review';
-          frontPill.className = 'fc-status-pill not-known';
-        }
-
-        updateCounterUI();
-      });
+        if (badgeFront) badgeFront.classList.add('hidden');
+        if (badgeBack) badgeBack.classList.add('hidden');
+      } else {
+        cardContainer.classList.remove('card-known', 'card-not-known');
+        cardEl.classList.remove('card-known', 'card-not-known');
+        btnKnown.classList.remove('active');
+        btnNotKnown.classList.remove('active');
+        if (badgeFront) badgeFront.classList.add('hidden');
+        if (badgeBack) badgeBack.classList.add('hidden');
+      }
     }
 
-    grid.appendChild(cardEl);
+    // Attach button listeners (clicking buttons does not flip card)
+    btnKnown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cardMastery.set(index, 'known');
+      applyCardVisualState('known');
+      updateProgressUI(true);
+    });
+
+    btnNotKnown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cardMastery.set(index, 'not-known');
+      applyCardVisualState('not-known');
+      updateProgressUI(true);
+    });
+
+    // Apply saved status if already recorded in localStorage
+    const existingStatus = cardMastery.get(index);
+    if (existingStatus) {
+      applyCardVisualState(existingStatus);
+    }
+
+    // Assemble container: 3D card + buttons under it
+    cardContainer.appendChild(cardEl);
+    cardContainer.appendChild(actionsEl);
+    grid.appendChild(cardContainer);
   });
+
+  // Reset Progress Button Listener
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      cardMastery.clear();
+      // Clear all visual states
+      const allContainers = grid.querySelectorAll('.flashcard-card-container');
+      allContainers.forEach((c) => c.classList.remove('card-known', 'card-not-known'));
+      const allCards = grid.querySelectorAll('.flashcard-item');
+      allCards.forEach((c) => c.classList.remove('card-known', 'card-not-known'));
+      const allBadges = grid.querySelectorAll('.fc-green-badge');
+      allBadges.forEach((b) => b.classList.add('hidden'));
+      const allButtons = grid.querySelectorAll('.fc-btn');
+      allButtons.forEach((b) => b.classList.remove('active'));
+
+      // Clear in localStorage and update UI
+      window.StudyStorage.clearFlashcardMastery(sessionId);
+      updateProgressUI(false);
+    });
+  }
+
+  // Initial Progress UI calculation without re-saving
+  updateProgressUI(false);
 
   wrapper.appendChild(grid);
   container.appendChild(wrapper);
