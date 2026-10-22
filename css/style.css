@@ -1571,6 +1571,178 @@ body {
 }
 
 /* --------------------------------------------------------------------------
+   REVIEW MISTAKES & RETRY SECTION
+   -------------------------------------------------------------------------- */
+
+.quiz-mistakes-section {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.3s ease;
+}
+
+.mistakes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.mistakes-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mistakes-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.mistakes-header-icon {
+  width: 20px;
+  height: 20px;
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.mistakes-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.btn-retry-wrong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.15rem;
+  background: var(--grad-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-glow), var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.btn-retry-wrong:hover {
+  background: var(--grad-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px -3px rgba(99, 102, 241, 0.45);
+}
+
+.mistakes-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mistake-card {
+  padding: 1rem;
+  background: var(--bg-badge);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color var(--transition-fast);
+}
+
+.mistake-card-question {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mistake-comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media screen and (max-width: 640px) {
+  .mistake-comparison-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mistake-comparison-item {
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mistake-comparison-item.user-wrong {
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  color: var(--color-error-text);
+}
+
+.mistake-comparison-item.correct-answer {
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-success-text);
+}
+
+.comparison-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+.comparison-val {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mistake-card-explanation {
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  border-left: 3px solid var(--color-primary-500);
+}
+
+.quiz-perfect-score-banner {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-success-text);
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* --------------------------------------------------------------------------
    QUIZ PROGRESS SECTION & CSS BAR CHART
    -------------------------------------------------------------------------- */
 

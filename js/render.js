@@ -220,6 +220,7 @@ function renderQuiz(quizQuestions, container, meta = {}) {
   let answeredCount = 0;
   let hasRecordedScore = false;
   const total = quizQuestions.length;
+  const userAnswers = [];
 
   container.innerHTML = '';
 
@@ -296,6 +297,18 @@ function renderQuiz(quizQuestions, container, meta = {}) {
         cleanupQuizTimers();
         const cardObj = questionCards[qIndex];
         if (cardObj) cardObj.isAnswered = true;
+
+        // Record user answer for review mistakes and retry
+        userAnswers[qIndex] = {
+          question: item.question,
+          options: [...item.options],
+          answer: item.answer,
+          userSelected: optIndex,
+          userAnswerText: item.options[optIndex],
+          correctAnswerText: item.options[item.answer],
+          isCorrect: optIndex === item.answer,
+          explanation: item.explanation,
+        };
 
         handleOptionSelect({
           selectedIndex: optIndex,
@@ -476,6 +489,18 @@ function renderQuiz(quizQuestions, container, meta = {}) {
       barEl.classList.add('timer-critical');
     }
 
+    // Record timeout mistake for review mistakes and retry
+    userAnswers[qIdx] = {
+      question: cardObj.item.question,
+      options: [...cardObj.item.options],
+      answer: cardObj.item.answer,
+      userSelected: -1,
+      userAnswerText: 'Time expired (No option selected)',
+      correctAnswerText: cardObj.item.options[cardObj.item.answer],
+      isCorrect: false,
+      explanation: cardObj.item.explanation,
+    };
+
     answeredCount += 1;
     updateQuizScoreUI(score, answeredCount, total, scoreBanner, finalCelebrationBox);
 
@@ -493,6 +518,7 @@ function renderQuiz(quizQuestions, container, meta = {}) {
 
   /**
    * Finalizes completed quiz, records score in localStorage, and clears all timers.
+   * Shows the Review Mistakes section with Retry Wrong Ones button if any were wrong.
    */
   function finishQuiz() {
     cleanupQuizTimers();
@@ -512,6 +538,97 @@ function renderQuiz(quizQuestions, container, meta = {}) {
       if (progressEl) {
         renderQuizProgress(progressEl);
       }
+    }
+
+    renderMistakesReview();
+  }
+
+  /**
+   * Renders the "Review mistakes" section listing only wrong questions with
+   * user's answer, correct answer, explanation, and "Retry wrong ones" button.
+   */
+  function renderMistakesReview() {
+    const existingSection = wrapper.querySelector('#quiz-review-mistakes');
+    if (existingSection) existingSection.remove();
+
+    const mistakes = userAnswers.filter((ans) => !ans.isCorrect);
+
+    if (mistakes.length === 0) {
+      const perfectBanner = document.createElement('div');
+      perfectBanner.id = 'quiz-review-mistakes';
+      perfectBanner.className = 'quiz-perfect-score-banner';
+      perfectBanner.innerHTML = `<span>🌟 Perfect Score! All ${total} questions answered correctly. No mistakes to review!</span>`;
+      wrapper.appendChild(perfectBanner);
+      return;
+    }
+
+    const escapeFn = (window.StudyUtils && window.StudyUtils.escapeHtml) || ((s) => s);
+
+    const mistakesContainer = document.createElement('div');
+    mistakesContainer.id = 'quiz-review-mistakes';
+    mistakesContainer.className = 'quiz-mistakes-section';
+
+    mistakesContainer.innerHTML = `
+      <div class="mistakes-header">
+        <div class="mistakes-title-wrap">
+          <h4 class="mistakes-title">
+            <svg class="mistakes-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>Review Mistakes (${mistakes.length} Question${mistakes.length > 1 ? 's' : ''})</span>
+          </h4>
+          <p class="mistakes-subtitle">Review questions answered incorrectly and explanations before retrying.</p>
+        </div>
+        <button type="button" class="btn btn-sm btn-retry-wrong" id="retry-wrong-btn" title="Retry only the questions you missed">
+          <svg class="icon btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          <span>Retry wrong ones (${mistakes.length})</span>
+        </button>
+      </div>
+      <div class="mistakes-cards-list">
+        ${mistakes.map((m, mIdx) => `
+          <div class="mistake-card">
+            <h5 class="mistake-card-question">${mIdx + 1}. ${escapeFn(m.question)}</h5>
+            <div class="mistake-comparison-grid">
+              <div class="mistake-comparison-item user-wrong">
+                <span class="comparison-label">Your answer:</span>
+                <span class="comparison-val">${escapeFn(m.userAnswerText)}</span>
+              </div>
+              <div class="mistake-comparison-item correct-answer">
+                <span class="comparison-label">Correct answer:</span>
+                <span class="comparison-val">${escapeFn(m.correctAnswerText)}</span>
+              </div>
+            </div>
+            <div class="mistake-card-explanation">
+              <strong>Explanation:</strong> ${escapeFn(m.explanation || 'No explanation provided.')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    wrapper.appendChild(mistakesContainer);
+
+    // Bind "Retry wrong ones" button
+    const retryBtn = mistakesContainer.querySelector('#retry-wrong-btn');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', () => {
+        const wrongQuestionsOnly = mistakes.map((m) => ({
+          question: m.question,
+          options: [...m.options],
+          answer: m.answer,
+          explanation: m.explanation,
+        }));
+        renderQuiz(wrongQuestionsOnly, container, {
+          ...meta,
+          topicTitle: `${meta.topicTitle || 'Quiz'} (Retry Mistakes)`,
+        });
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     }
   }
 
