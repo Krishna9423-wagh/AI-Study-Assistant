@@ -140,28 +140,9 @@
                   </path>
                 </svg>
                 <input type="password" id="api-key-input" class="form-control"
-                  placeholder="Enter your Gemini / OpenAI API key..." autocomplete="off">
+                  placeholder="Enter your Gemini API key..." autocomplete="off">
               </div>
             </div>
-
-            <div class="form-group style-group">
-              <label for="answer-style-select" class="form-label">
-                Answer Style
-                <span class="label-hint">(Pedagogical tone)</span>
-              </label>
-              <div class="select-wrapper">
-                <select id="answer-style-select" class="form-control form-select">
-                  <option value="explain-10" selected>Explain like I am 10</option>
-                  <option value="exam-focused">Exam-focused</option>
-                  <option value="detailed">Detailed</option>
-                </select>
-                <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </div>
-            </div>
-
 
             <div class="form-group save-group">
               <label class="form-label hidden-label" aria-hidden="true">&nbsp;</label>
@@ -204,15 +185,14 @@
           <div class="textarea-wrapper">
             <label for="study-textarea" class="visually-hidden">Study Material Textarea</label>
             <textarea id="study-textarea" class="study-textarea" rows="9"
-              placeholder="Paste your study notes, textbook excerpt, lecture transcription, or complex topic here... (e.g., Photosynthesis light reactions, Operating System Deadlocks, French Revolution causes)"
-              maxlength="10000"></textarea>
+              placeholder="Paste your study notes, textbook excerpt, lecture transcription, or complex topic here... (e.g., Photosynthesis light reactions, Operating System Deadlocks, French Revolution causes)"></textarea>
 
             <div class="textarea-footer">
-              <span class="textarea-hint">Supports up to 10,000 characters</span>
+              <span class="textarea-hint">Maximum 8,000 characters</span>
 
               <div class="char-counter-badge" id="char-counter-container">
                 <span id="char-counter">0</span>
-                <span class="char-counter-max">/ 10,000</span>
+                <span class="char-counter-max">/ 8,000</span>
               </div>
             </div>
 
@@ -223,20 +203,22 @@
                 <line x1="12" y1="9" x2="12" y2="13"></line>
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
               </svg>
-              <span id="char-warning-text">Approaching character limit (10,000 max). Very long notes may be truncated.</span>
+              <span id="char-warning-text">Approaching character limit (8,000 max).</span>
             </div>
           </div>
 
 
+          <!-- Notes Form Controls: Answer Style, Difficulty, and Generate Button -->
           <div class="controls-row">
 
-            <div class="difficulty-control-group">
-              <label for="difficulty-select" class="control-label">Difficulty Level</label>
+            <!-- 1. Answer Style Dropdown -->
+            <div class="control-group style-control-group">
+              <label for="answer-style-select" class="control-label">Answer Style</label>
               <div class="select-wrapper">
-                <select id="difficulty-select" class="form-control form-select difficulty-select">
-                  <option value="easy">Easy (Foundational)</option>
-                  <option value="medium" selected>Medium (Standard)</option>
-                  <option value="hard">Hard (Advanced / In-depth)</option>
+                <select id="answer-style-select" class="form-control form-select">
+                  <option value="explain-10" selected>Explain like I am 10</option>
+                  <option value="exam-focused">Exam-focused</option>
+                  <option value="detailed">Detailed</option>
                 </select>
                 <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -245,7 +227,23 @@
               </div>
             </div>
 
+            <!-- 2. Quiz Difficulty Dropdown -->
+            <div class="control-group difficulty-control-group">
+              <label for="difficulty-select" class="control-label">Quiz Difficulty</label>
+              <div class="select-wrapper">
+                <select id="difficulty-select" class="form-control form-select difficulty-select">
+                  <option value="easy">Easy</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
 
+            <!-- Generate Button Group -->
             <div class="generate-btn-group">
               <button type="button" id="generate-btn" class="btn btn-primary generate-btn">
                 <svg class="icon btn-icon spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"

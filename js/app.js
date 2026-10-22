@@ -181,7 +181,28 @@ function initSettings() {
     difficultySelect.value = savedSettings.difficulty;
   }
 
-  // 2. Save Settings Handler
+  // 2. Remember both dropdowns' last values in localStorage whenever changed
+  if (answerStyleSelect) {
+    answerStyleSelect.addEventListener('change', () => {
+      const current = window.StudyStorage.getSettings();
+      window.StudyStorage.saveSettings({
+        ...current,
+        answerStyle: answerStyleSelect.value,
+      });
+    });
+  }
+
+  if (difficultySelect) {
+    difficultySelect.addEventListener('change', () => {
+      const current = window.StudyStorage.getSettings();
+      window.StudyStorage.saveSettings({
+        ...current,
+        difficulty: difficultySelect.value,
+      });
+    });
+  }
+
+  // 3. Save Settings Handler (API key and settings)
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
       const key = apiKeyInput ? apiKeyInput.value.trim() : '';
@@ -217,7 +238,7 @@ function initSettings() {
     });
   }
 
-  // 3. Settings Panel Toggle Button
+  // 4. Settings Panel Toggle Button
   if (settingsToggleBtn && settingsPanel) {
     settingsToggleBtn.addEventListener('click', () => {
       settingsPanel.classList.toggle('hidden');
@@ -325,6 +346,16 @@ function initGenerateHandler() {
       showError(
         'Study notes are empty. Please enter notes, lecture excerpts, or a study topic to generate materials.',
         'Study Material Required'
+      );
+      if (textarea) textarea.focus();
+      return;
+    }
+
+    // 2b. Block Generate if notes exceed 8,000 characters
+    if (content.length > 8000) {
+      showError(
+        `Your study notes exceed the maximum limit of 8,000 characters (${content.length.toLocaleString()} / 8,000). Please shorten your notes before generating.`,
+        'Character Limit Exceeded'
       );
       if (textarea) textarea.focus();
       return;
@@ -498,7 +529,9 @@ function updatePanelIndicators(studyKit) {
 }
 
 /**
- * Live character counter with warning thresholds for very long notes.
+ * Live character counter with warning thresholds for study notes.
+ * Turns orange at 80% (6,400 chars) and red at 100% (8,000 chars),
+ * and blocks Generate over the limit with a clear message.
  */
 function initCharacterCounter() {
   const textarea = document.getElementById('study-textarea');
@@ -509,36 +542,34 @@ function initCharacterCounter() {
 
   if (!textarea || !counter) return;
 
+  const MAX_LIMIT = 8000;
+  const WARNING_LIMIT = Math.floor(MAX_LIMIT * 0.8); // 6,400 chars (80%)
+
   function updateCount() {
     const len = textarea.value.length;
     counter.textContent = len.toLocaleString();
 
-    // Check thresholds: 7,500 (warning) and 9,500 (critical limit)
-    if (len >= 10000) {
+    // Check thresholds: 80% (6,400) = orange, 100% (8,000) = red
+    if (len >= MAX_LIMIT) {
       if (counterBadge) {
         counterBadge.className = 'char-counter-badge critical';
       }
       if (warningBox && warningText) {
         warningBox.className = 'char-limit-warning critical';
-        warningText.textContent = '⛔ Maximum character limit reached (10,000 / 10,000). You cannot type additional notes.';
+        if (len > MAX_LIMIT) {
+          warningText.textContent = `⛔ Character limit exceeded (${len.toLocaleString()} / ${MAX_LIMIT.toLocaleString()}). Generate is blocked until notes are shortened.`;
+        } else {
+          warningText.textContent = `⚠️ Maximum character limit reached (8,000 / 8,000 max).`;
+        }
         warningBox.classList.remove('hidden');
       }
-    } else if (len >= 9500) {
-      if (counterBadge) {
-        counterBadge.className = 'char-counter-badge critical';
-      }
-      if (warningBox && warningText) {
-        warningBox.className = 'char-limit-warning critical';
-        warningText.textContent = `⚠️ Approaching limit (${len.toLocaleString()} / 10,000 characters). Notes exceeding 10,000 will be truncated.`;
-        warningBox.classList.remove('hidden');
-      }
-    } else if (len >= 7500) {
+    } else if (len >= WARNING_LIMIT) {
       if (counterBadge) {
         counterBadge.className = 'char-counter-badge warning';
       }
       if (warningBox && warningText) {
         warningBox.className = 'char-limit-warning';
-        warningText.textContent = `⚠️ Very long notes (${len.toLocaleString()} characters). Consider keeping key concepts for optimal AI synthesis.`;
+        warningText.textContent = `⚠️ Approaching limit (${len.toLocaleString()} / 8,000 characters). Notes are at 80%+ capacity.`;
         warningBox.classList.remove('hidden');
       }
     } else {
