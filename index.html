@@ -444,20 +444,31 @@
                 <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top:5px; font-size:0.75rem; color:var(--hub-cyan, #00f0ff); text-decoration:none;">🔑 Get free Groq key (starts with gsk_) ↗</a>
               </div>
 
-              <!-- Save Settings Button -->
-              <div class="form-group save-group">
-                <label class="form-label hidden-label" aria-hidden="true">&nbsp;</label>
-                <button type="button" id="save-settings-btn" class="btn btn-secondary save-settings-btn">
-                  <svg class="icon btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                  <span>Save Settings</span>
-                </button>
+              <!-- Save & Test Settings Buttons -->
+              <div class="form-group save-group" style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;">
+                <div>
+                  <label class="form-label hidden-label" aria-hidden="true">&nbsp;</label>
+                  <button type="button" id="test-api-key-btn" class="btn btn-outline" style="border-color: rgba(56, 189, 248, 0.5); color: #38bdf8; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>⚡ Test Key</span>
+                  </button>
+                </div>
+                <div>
+                  <label class="form-label hidden-label" aria-hidden="true">&nbsp;</label>
+                  <button type="button" id="save-settings-btn" class="btn btn-secondary save-settings-btn">
+                    <svg class="icon btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                      <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span>Save Settings</span>
+                  </button>
+                </div>
               </div>
 
             </div>
+
+            <!-- API Test Result Status Box -->
+            <div id="api-test-status-box" class="api-test-status-box hidden" style="margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; line-height: 1.4;"></div>
           </form>
         </div>
       </section>
@@ -573,6 +584,15 @@
                     </svg>
                     <span id="char-warning-text">Approaching character limit (8,000 max).</span>
                   </div>
+                </div>
+
+                <!-- Quick Sample Topic Chips -->
+                <div class="quick-sample-prompts" id="quick-sample-prompts" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; margin-bottom: 14px; align-items: center;">
+                  <span style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.65);">💡 Try a Topic:</span>
+                  <button type="button" class="btn-sample-chip" data-sample="history" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; cursor: pointer; transition: all 180ms ease;">📜 Industrial Revolution</button>
+                  <button type="button" class="btn-sample-chip" data-sample="bio" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; cursor: pointer; transition: all 180ms ease;">🧬 Cell Biology</button>
+                  <button type="button" class="btn-sample-chip" data-sample="chem" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; cursor: pointer; transition: all 180ms ease;">⚗️ Organic Chemistry</button>
+                  <button type="button" class="btn-sample-chip" data-sample="quantum" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; cursor: pointer; transition: all 180ms ease;">⚛️ Quantum Physics</button>
                 </div>
 
                 <!-- Controls: Answer Style, Difficulty, Question Count, Language & Generate -->

@@ -529,6 +529,43 @@ function initSettings() {
     });
   }
 
+  // Real-Time API Key Connection Tester
+  const testKeyBtn = document.getElementById('test-api-key-btn');
+  const testStatusBox = document.getElementById('api-test-status-box');
+
+  if (testKeyBtn) {
+    testKeyBtn.addEventListener('click', async () => {
+      const provider = providerSelect ? providerSelect.value : 'gemini';
+      const rawKey = provider === 'groq'
+        ? (groqApiKeyInput ? groqApiKeyInput.value.trim() : '')
+        : (apiKeyInput ? apiKeyInput.value.trim() : '');
+
+      if (!testStatusBox) return;
+
+      testStatusBox.classList.remove('hidden');
+      testStatusBox.style.background = 'rgba(56, 189, 248, 0.12)';
+      testStatusBox.style.border = '1px solid rgba(56, 189, 248, 0.4)';
+      testStatusBox.style.color = '#38bdf8';
+      testStatusBox.innerHTML = `<span>⏳ Testing live connection to ${provider === 'groq' ? 'Groq (LLaMA 3.3 70B)' : 'Google Gemini (1.5 Flash)'}...</span>`;
+
+      if (window.StudyApi && typeof window.StudyApi.testApiKey === 'function') {
+        const result = await window.StudyApi.testApiKey(provider, rawKey);
+
+        if (result.ok) {
+          testStatusBox.style.background = 'rgba(34, 197, 94, 0.15)';
+          testStatusBox.style.border = '1px solid #22c55e';
+          testStatusBox.style.color = '#4ade80';
+          testStatusBox.innerHTML = `<strong>✅ API Key Verified:</strong> ${result.message}`;
+        } else {
+          testStatusBox.style.background = 'rgba(239, 68, 68, 0.15)';
+          testStatusBox.style.border = '1px solid #ef4444';
+          testStatusBox.style.color = '#fca5a5';
+          testStatusBox.innerHTML = `<strong>❌ API Connection Error:</strong> ${result.error}<br><span style="display:inline-block; margin-top:6px; color:rgba(255,255,255,0.75);">💡 Don't worry! You can use the app right now without an API key—our built-in Smart Educational Engine automatically generates notes, quizzes, and flashcards offline.</span>`;
+        }
+      }
+    });
+  }
+
   // Settings Panel Toggle and Close Buttons
   if (settingsToggleBtn && settingsPanel) {
     settingsToggleBtn.addEventListener('click', () => {
@@ -778,21 +815,21 @@ function initGenerateHandler() {
     }
 
     // 2. Read and validate Study Notes Input
-    const content = textarea ? textarea.value.trim() : '';
+    let content = textarea ? textarea.value.trim() : '';
     const isTopicMode = document.getElementById('mode-topic-btn')?.classList.contains('active');
     const mode = isTopicMode ? 'topic' : 'notes';
     const languageSelect = document.getElementById('language-select');
     const language = languageSelect ? languageSelect.value : 'English';
 
+    // If input is empty, auto-populate with high-yield sample notes so user is never blocked
     if (!content) {
-      showError(
-        isTopicMode
-          ? 'Topic is empty. Please enter a topic or concept to generate materials.'
-          : 'Study notes are empty. Please enter notes, lecture excerpts, or a study topic to generate materials.',
-        isTopicMode ? 'Topic Required' : 'Study Material Required'
-      );
-      if (textarea) textarea.focus();
-      return;
+      content = "The Industrial Revolution, which began in Britain in the late 18th century, transformed human life more dramatically than almost any other event in history. Inventions like James Watt's improved steam engine, the spinning jenny, and the power loom shifted production into factories, while railways and steamships shrank distances and connected markets.";
+      if (textarea) {
+        textarea.value = content;
+        if (typeof window.updateNotesCount === 'function') {
+          window.updateNotesCount();
+        }
+      }
     }
 
     // 2b. Block Generate if notes exceed 8,000 characters
@@ -1077,6 +1114,27 @@ function initCharacterCounter() {
 
   textarea.addEventListener('input', updateCount);
   window.updateNotesCount = updateCount;
+
+  // Quick Sample Chips click handlers
+  const sampleData = {
+    history: "The Industrial Revolution, which began in Britain in the late 18th century, transformed human life more dramatically than almost any other event in history. Before it, most people lived in rural communities and made goods by hand, relying on human and animal muscle, wind, and water for power. Inventions like James Watt's improved steam engine, the spinning jenny, and the power loom shifted production into factories, while railways and steamships shrank distances and connected markets.",
+    bio: "Cell Biology: The cell is the fundamental structural and functional unit of all living organisms. Within eukaryotic cells, mitochondria generate ATP through aerobic cellular respiration and oxidative phosphorylation across the inner cristae folds. The nucleus stores DNA, which directs protein synthesis through transcription into messenger RNA and translation at ribosomes.",
+    chem: "Organic Chemistry: Alkanes are saturated hydrocarbons containing only single covalent carbon-carbon and carbon-hydrogen bonds, described by the general molecular formula CnH2n+2. They exhibit tetrahedral sp3 carbon geometry with 109.5-degree bond angles. Alkanes undergo exothermic combustion to produce carbon dioxide and water, as well as free-radical halogenation under ultraviolet light.",
+    quantum: "Quantum Mechanics: In quantum physics, energy and physical properties are quantized into discrete packets. Wave-particle duality establishes that matter such as electrons and light photons exhibit both continuous wave interference and discrete particle collision properties. The de Broglie relation lambda = h / p connects momentum to wavelength, while the Heisenberg uncertainty principle bounds simultaneous position and momentum measurement precision."
+  };
+
+  const sampleChips = document.querySelectorAll('.btn-sample-chip');
+  sampleChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const type = chip.getAttribute('data-sample');
+      if (type && sampleData[type]) {
+        textarea.value = sampleData[type];
+        updateCount();
+        textarea.focus();
+        textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
 }
 
 /**
@@ -2556,28 +2614,29 @@ function initBentoHubHandlers() {
 
       // Try AI Tutor response
       try {
-        const apiKey = window.StudyStorage.getApiKey();
         const provider = window.StudyStorage.getProvider();
+        const apiKey = window.StudyStorage.getApiKey(provider);
+        const notesContext = currentSummaryText || (document.getElementById('study-textarea')?.value) || 'Organic Chemistry: Alkanes and Cell Biology (Mitochondria).';
 
-        if (apiKey && window.StudyAPI?.queryFollowUp) {
-          const notesContext = currentSummaryText || "Organic Chemistry: Alkanes and Cell Biology (Mitochondria).";
-          const answer = await window.StudyAPI.queryFollowUp(notesContext, query, apiKey, provider);
-          dockedBubble.innerHTML = `<strong>You:</strong> ${escapeHtml(query)}<br><br><strong>Tutor:</strong> ${escapeHtml(answer)}`;
-        } else {
-          // Contextual offline tutor responses
-          let reply = "Mitochondria produce ATP through cellular respiration, while alkanes are saturated hydrocarbons with single C-C bonds!";
-          const qLower = query.toLowerCase();
-          if (qLower.includes('mitochondria') || qLower.includes('biology')) {
-            reply = "Mitochondria are the powerhouses of eukaryotic cells. They generate ATP through the Krebs cycle and oxidative phosphorylation across the inner cristae.";
-          } else if (qLower.includes('alkane') || qLower.includes('chemistry')) {
-            reply = "Alkanes are saturated acyclic hydrocarbons with general formula CnH2n+2. They feature sp3 tetrahedral carbon atoms with 109.5° angles.";
-          } else if (qLower.includes('box') || qLower.includes('leitner') || qLower.includes('flashcard')) {
-            reply = "The Leitner system uses 3 boxes: Box 1 for difficult cards reviewed daily, Box 2 for learning cards, and Box 3 for mastered cards!";
-          }
-          dockedBubble.innerHTML = `<strong>You:</strong> ${escapeHtml(query)}<br><br><strong>Tutor:</strong> ${reply}`;
+        let answer = '';
+        if (window.StudyApi && typeof window.StudyApi.fetchFollowUpAnswer === 'function') {
+          answer = await window.StudyApi.fetchFollowUpAnswer({
+            apiKey,
+            provider,
+            notes: notesContext,
+            question: query,
+          });
         }
+
+        const formatted = (answer || 'Ready to help with your study notes! Ask me anything.')
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n\n/g, '<br><br>')
+          .replace(/\n•\s/g, '<br>&bull; ')
+          .replace(/\n/g, '<br>');
+
+        dockedBubble.innerHTML = `<strong>You:</strong> ${escapeHtml(query)}<br><br>${formatted}`;
       } catch (err) {
-        dockedBubble.innerHTML = `<strong>Tutor:</strong> Mitochondria produce ATP via respiration, and alkanes have general formula CnH2n+2. Ask me anything more!`;
+        dockedBubble.innerHTML = `<strong>Tutor:</strong> ${escapeHtml(err.message || 'Mitochondria produce ATP via respiration, and alkanes have general formula CnH2n+2. Ask me anything more!')}`;
       }
     });
   }

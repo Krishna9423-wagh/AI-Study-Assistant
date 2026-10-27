@@ -294,13 +294,96 @@ async function fetchStudyKit(options) {
 }
 
 /**
+ * Tests an API key against the active provider (Gemini or Groq).
+ * Returns a Promise<{ ok: boolean, message?: string, error?: string, status?: number }>
+ *
+ * @param {string} provider - 'gemini' | 'groq'
+ * @param {string} apiKey - Raw or cleaned key
+ * @returns {Promise<Object>}
+ */
+async function testApiKey(provider = 'gemini', apiKey = '') {
+  const currentProvider = PROVIDERS[provider] || PROVIDERS.gemini;
+  const cleanKey = (window.StudyStorage && typeof window.StudyStorage.cleanApiKey === 'function')
+    ? window.StudyStorage.cleanApiKey(apiKey, provider)
+    : (typeof apiKey === 'string' ? apiKey.trim() : '');
+
+  if (!cleanKey) {
+    return {
+      ok: false,
+      error: `Please enter an API key for ${currentProvider.name} before testing.`,
+    };
+  }
+
+  if (cleanKey.startsWith('curl') || cleanKey.startsWith('http')) {
+    return {
+      ok: false,
+      error: `You entered a curl command or URL. Please copy only your API key (e.g., gsk_... for Groq, or AIzaSy... for Gemini).`,
+    };
+  }
+
+  const endpoint = currentProvider.getUrl(cleanKey);
+  const headers = currentProvider.getHeaders(cleanKey);
+  const testBody = currentProvider.buildFollowUpBody('Test Context', 'Say hello in one word.', []);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(testBody),
+    });
+
+    if (response.ok) {
+      return {
+        ok: true,
+        status: response.status,
+        message: `Successfully connected to ${currentProvider.name} (${currentProvider.model})!`,
+      };
+    }
+
+    let errorDetail = '';
+    try {
+      const errJson = await response.json();
+      errorDetail = errJson?.error?.message || errJson?.message || '';
+    } catch {}
+
+    if (response.status === 401 || response.status === 403) {
+      return {
+        ok: false,
+        status: response.status,
+        error: `Authentication Failed (HTTP ${response.status}): Invalid API key for ${currentProvider.name}.${errorDetail ? ` Detail: "${errorDetail}".` : ''}`,
+      };
+    }
+
+    if (response.status === 429) {
+      return {
+        ok: false,
+        status: response.status,
+        error: `Rate limit reached (HTTP 429) for ${currentProvider.name}.${errorDetail ? ` Detail: "${errorDetail}".` : ''}`,
+      };
+    }
+
+    return {
+      ok: false,
+      status: response.status,
+      error: `${currentProvider.name} responded with HTTP ${response.status}.${errorDetail ? ` Detail: "${errorDetail}".` : ''}`,
+    };
+  } catch (netErr) {
+    return {
+      ok: false,
+      error: `Network Error: Unable to reach ${currentProvider.name} API servers. Check your internet connection.`,
+    };
+  }
+}
+
+/**
  * Handles conversational follow-up questions with the 24/7 Interactive Tutor.
  * Returns a plain text reply.
  *
  * @param {Object} options
  * @param {string} [options.provider='gemini']
  * @param {string} options.apiKey
- * @param {string} options.notes - Context notes
+ * @param {string} [options.notes=''] - Context notes
+ * @param {string} [options.originalNotes=''] - Alias for context notes
  * @param {string} options.question - User's follow-up query
  * @param {Array<Object>} [options.history=[]] - Chat history
  * @returns {Promise<string>} Tutor's plain-text explanation
@@ -310,9 +393,12 @@ async function fetchFollowUpAnswer(options) {
     provider = 'gemini',
     apiKey,
     notes = '',
+    originalNotes = '',
     question = '',
     history = [],
   } = options;
+
+  const contextNotes = notes || originalNotes || '';
 
   if (!question || !question.trim()) {
     throw new Error('Please type a question before asking the tutor.');
@@ -324,14 +410,14 @@ async function fetchFollowUpAnswer(options) {
     : (typeof apiKey === 'string' ? apiKey.trim() : '');
 
   // If no valid API key is provided, return an intelligent contextual demo answer
-  if (!cleanKey) {
-    return generateLocalTutorAnswer(notes, question);
+  if (!cleanKey || cleanKey.startsWith('curl') || cleanKey.startsWith('http')) {
+    return generateLocalTutorAnswer(contextNotes, question);
   }
 
   const currentProvider = PROVIDERS[provider] || PROVIDERS.gemini;
   const endpoint = currentProvider.getUrl(cleanKey);
   const headers = currentProvider.getHeaders(cleanKey);
-  const requestBody = currentProvider.buildFollowUpBody(notes, question.trim(), history);
+  const requestBody = currentProvider.buildFollowUpBody(contextNotes, question.trim(), history);
 
   try {
     const response = await fetch(endpoint, {
@@ -341,16 +427,27 @@ async function fetchFollowUpAnswer(options) {
     });
 
     if (!response.ok) {
-      console.warn('api.js: Follow-up tutor request non-200, falling back to local contextual tutor', response.status);
-      return generateLocalTutorAnswer(notes, question);
+      let errDetail = '';
+      try {
+        const errJson = await response.json();
+        errDetail = errJson?.error?.message || errJson?.message || '';
+      } catch {}
+
+      console.warn(`api.js: Follow-up tutor request non-200 (${response.status})`, errDetail);
+
+      if (response.status === 401 || response.status === 403) {
+        return `⚠️ **API Key Unauthorized (HTTP ${response.status})**\nYour ${currentProvider.name} API key was rejected: _${errDetail || 'Invalid API Key'}_.\n\n💡 **Smart Engine Answer:**\n\n${generateLocalTutorAnswer(contextNotes, question)}`;
+      }
+
+      return generateLocalTutorAnswer(contextNotes, question);
     }
 
     const data = await response.json();
     const reply = currentProvider.extractText(data);
-    return reply && reply.trim() ? reply.trim() : generateLocalTutorAnswer(notes, question);
+    return reply && reply.trim() ? reply.trim() : generateLocalTutorAnswer(contextNotes, question);
   } catch (err) {
     console.warn('api.js: Tutor request network failed, fallback to local contextual tutor', err);
-    return generateLocalTutorAnswer(notes, question);
+    return generateLocalTutorAnswer(contextNotes, question);
   }
 }
 
@@ -555,26 +652,82 @@ function generateLocalStudyKit(content, difficulty = 'medium', style = 'explain-
 
 /**
  * Generates an intelligent, educational fallback response for demo sessions or offline mode.
- * @param {string} notes
- * @param {string} question
+ * Dynamically answers questions about biology, chemistry, physics, history, or active notes.
+ *
+ * @param {string} notes - Current study material or session context
+ * @param {string} question - Student's question
  * @returns {string} Educational answer
  */
 function generateLocalTutorAnswer(notes, question) {
-  const qLower = question.toLowerCase();
+  const q = (question || '').trim();
+  const qLower = q.toLowerCase();
+  const notesText = (typeof notes === 'string') ? notes : '';
 
-  if (qLower.includes('wave') || qLower.includes('particle') || qLower.includes('duality')) {
-    return `**Wave-Particle Duality** is a core principle of quantum mechanics:\n\n• **Concept:** Matter (like electrons) and light (photons) exhibit both wave-like characteristics (interference, diffraction) and particle-like properties (localized collisions, photoelectric effect).\n• **De Broglie Relation:** Every moving particle has an associated wavelength: $\\lambda = \\frac{h}{p}$ where $h$ is Planck's constant and $p$ is momentum.\n• **Analogy:** Think of a coin—it has two distinct faces (heads and tails), but it is a single coin. Light and matter display wave or particle behaviors depending on the type of experiment you conduct!`;
+  // 1. Check for specific subject keywords
+
+  // --- Mitochondria / Cell Biology / ATP ---
+  if (qLower.includes('mitochondria') || qLower.includes('powerhouse') || qLower.includes('atp') || qLower.includes('cellular respiration')) {
+    if (qLower.includes('short') || qLower.includes('brief') || qLower.includes('10')) {
+      return `**Short Answer:** Mitochondria are the "powerhouses" of eukaryotic cells that generate **ATP** (adenosine triphosphate)—the chemical energy currency cells use to perform all vital biological functions.`;
+    }
+    return `**Mitochondria & Cellular Respiration:**\n\n• **Primary Function:** Known as the "powerhouse of the cell", mitochondria generate the majority of cellular energy in the form of **ATP** via aerobic respiration.\n• **Key Stages:** Includes the Krebs (Citric Acid) Cycle occurring in the mitochondrial matrix and Oxidative Phosphorylation across the inner cristae folds.\n• **Unique Feature:** Mitochondria possess their own circular double-stranded DNA (mtDNA) and double-membrane structure, supporting the endosymbiotic theory.`;
   }
 
-  if (qLower.includes('example') || qLower.includes('real world') || qLower.includes('application')) {
-    return `**Real-World Application:**\n\n1. **Semiconductors & Microchips:** The quantum tunneling effect is harnessed in flash memory and tunnel diodes.\n2. **Electron Microscopy:** Exploits the extremely short de Broglie wavelengths of electrons to image structures at atomic resolution.\n3. **Solar Panels:** Rely on the photoelectric effect discovered by Einstein, converting incoming photon packets into electrical current.`;
+  // --- Organic Chemistry / Alkanes / Hydrocarbons ---
+  if (qLower.includes('alkane') || qLower.includes('hydrocarbon') || qLower.includes('organic chemistry')) {
+    if (qLower.includes('short') || qLower.includes('brief')) {
+      return `**Short Answer:** Alkanes are saturated hydrocarbons containing only single carbon-carbon ($C-C$) and carbon-hydrogen ($C-H$) covalent bonds, with the general formula **$C_n H_{2n+2}$** (e.g., Methane $CH_4$, Ethane $C_2H_6$).`;
+    }
+    return `**Organic Chemistry: Alkanes**\n\n• **Classification:** Saturated acyclic hydrocarbons with single bonds only, adhering to general molecular formula **$C_n H_{2n+2}$**.\n• **Molecular Geometry:** Tetrahedral geometry around each carbon atom with $sp^3$ hybridization and bond angles of approximately $109.5^\\circ$.\n• **Reactivity:** Chemically relatively unreactive (paraffins) due to strong non-polar bonds, but readily undergo combustion (fuel energy) and free-radical halogenation substitution under UV light.`;
   }
 
-  if (qLower.includes('simple') || qLower.includes('summary') || qLower.includes('10')) {
-    return `In simple terms: At the microscopic atomic scale, things don't behave like ordinary billiard balls. Instead, energy and matter travel in discrete packets (quanta) and can spread out like ripples on a pond until observed!`;
+  // --- Industrial Revolution / History / James Watt ---
+  if (qLower.includes('industrial revolution') || qLower.includes('steam engine') || qLower.includes('watt') || qLower.includes('spinning jenny')) {
+    if (qLower.includes('short') || qLower.includes('brief')) {
+      return `**Short Answer:** The Industrial Revolution was the transition in the 18th–19th centuries from manual handicraft labor to factory mechanization powered by steam engines and iron/textile innovations.`;
+    }
+    return `**The Industrial Revolution (Late 18th–19th Century):**\n\n• **Core Catalysts:** James Watt's improved steam engine, the spinning jenny, and the power loom shifted production from dispersed manual cottage artisans into centralized factory facilities.\n• **Infrastructure & Logistics:** Steam locomotives and steamships drastically shrank transport distances and interconnected regional trade markets.\n• **Social Transformation:** Sparked massive rural-to-urban demographic migration, initially prompting harsh labor conditions that led directly to foundational workplace safety laws, public sanitation, and universal schooling.`;
   }
 
-  return `Great question! Based on your study material:\n\n• **Core Idea:** The concept you're asking about connects directly to the fundamental principles outlined in this session.\n• **Key Takeaway:** Pay close attention to how energy states, experimental measurements, and mathematical formulations interact.\n• **Study Tip:** Try writing this definition in your own words or testing yourself using the flashcards tab!`;
+  // --- Photosynthesis ---
+  if (qLower.includes('photosynthesis') || qLower.includes('chloroplast') || qLower.includes('calvin')) {
+    return `**Photosynthesis:**\n\n• **Equation:** $6CO_2 + 6H_2O + \\text{light} \\rightarrow C_6H_{12}O_6 + 6O_2$.\n• **Mechanism:** Chloroplasts capture solar photons to synthesize glucose from carbon dioxide and water, releasing vital oxygen gas.\n• **Two Phases:** Light-dependent reactions (occurring in thylakoid membranes generating ATP and NADPH) and the Calvin cycle (occurring in the stroma fixing $CO_2$).`;
+  }
+
+  // --- DNA & Genetics ---
+  if (qLower.includes('dna') || qLower.includes('rna') || qLower.includes('gene') || qLower.includes('chromosome')) {
+    return `**DNA & Genetic Inheritance:**\n\n• **Structure:** Double-helix polymer composed of repeating nucleotides: a deoxyribose sugar, phosphate group, and nitrogenous bases ($A-T$ and $G-C$).\n• **Central Dogma:** Genetic information flows from $\\text{DNA} \\rightarrow \\text{RNA}$ (Transcription) $\\rightarrow \\text{Protein}$ (Translation).\n• **Function:** Stores the hereditary instructions directing all cellular growth, enzyme synthesis, and biological inheritance.`;
+  }
+
+  // --- Quantum Mechanics & Physics ---
+  if (qLower.includes('wave') || qLower.includes('particle') || qLower.includes('duality') || qLower.includes('quantum') || qLower.includes('planck')) {
+    return `**Wave-Particle Duality & Quantum Mechanics:**\n\n• **Principle:** Microscopic entities like electrons and photons exhibit both wave characteristics (diffraction, interference) and localized particle properties (photoelectric collisions).\n• **De Broglie Wavelength:** $\\lambda = \\frac{h}{p}$ where $h$ is Planck's constant ($6.626 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$) and $p$ is momentum.\n• **Applications:** Underpins electron microscopes, semiconductor silicon chips, quantum computing, and solar panels.`;
+  }
+
+  // 2. Dynamic Search in Active Notes Context
+  if (notesText && notesText.length > 20) {
+    // Look for matching sentences in active notes
+    const words = qLower.split(/\s+/).filter(w => w.length > 3 && !['what', 'when', 'where', 'which', 'explain', 'give', 'short', 'answer', 'about', 'tell'].includes(w));
+    if (words.length > 0) {
+      const sentences = notesText.split(/(?<=[.?!])\s+/);
+      const matched = sentences.filter(s => {
+        const sLower = s.toLowerCase();
+        return words.some(w => sLower.includes(w));
+      });
+      if (matched.length > 0) {
+        const excerpt = matched.slice(0, 3).join(' ');
+        return `**Here is what your study notes state:**\n\n> "${excerpt}"\n\n• **Summary Insight:** This directly answers your query based on the active lecture material.\n• **Next Step:** You can test this concept in the **Active Recall Quiz** or review the flashcards for spaced retention!`;
+      }
+    }
+  }
+
+  // 3. Fallback for "short answer"
+  if (qLower.includes('short') || qLower.includes('brief') || qLower.includes('summary')) {
+    return `**Short Answer on "${q}":**\n\nThis core concept focuses on the fundamental mechanism connecting initial causal conditions with their observable outcomes. In exams, define the primary mechanism, cite one clear formula or example, and highlight its real-world significance.`;
+  }
+
+  // 4. General Educational Synthesis
+  return `**Study Tutor Response:**\n\n• **Concept Focus:** In response to **"${q}"**, review the relationship between core definitions, supporting evidence, and theoretical formulas.\n• **High-Yield Exam Strategy:** Always state the primary definition first, distinguish it from similar concepts, and give an applied example.\n• **Study Recommendation:** Try asking for a "short answer", "example", or ask about a specific concept like "mitochondria", "alkanes", or "industrial revolution"!`;
 }
 
 // Global namespace exposure
@@ -582,6 +735,7 @@ window.StudyApi = {
   PROVIDERS,
   GEMINI_MODEL,
   GEMINI_BASE_URL,
+  testApiKey,
   fetchStudyKit,
   generateLocalStudyKit,
   buildGeminiPrompt,
