@@ -193,7 +193,7 @@ let currentSummaryText = '';
 let currentSessionId = 'quantum_mechanics_default';
 
 // Initialize application modules when DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
+function startStudyApp() {
   initTheme();
   initAccentColors();
   initSettings();
@@ -218,6 +218,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initServiceWorker();
   initBentoHubHandlers();
   initInitialStudyKit();
+}
+
+// Do not initialise the study interface until an authenticated session exists.
+document.addEventListener('DOMContentLoaded', () => {
+  window.StudyAuth.whenAuthenticated(startStudyApp);
 });
 
 /**

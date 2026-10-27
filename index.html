@@ -41,6 +41,9 @@
   <!-- Application Scripts -->
   <script src="js/utils.js" defer></script>
   <script src="js/storage.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/auth-config.js" defer></script>
+  <script src="js/auth.js" defer></script>
   <script src="js/srs.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/parser.js" defer></script>
@@ -48,7 +51,40 @@
   <script src="js/app.js" defer></script>
 </head>
 
-<body>
+<body class="auth-pending">
+
+  <!-- Authentication is shown before any study content. -->
+  <main class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+    <section class="auth-card">
+      <div class="auth-brand" aria-hidden="true">✦</div>
+      <p class="auth-kicker">GEMINI STUDY HUB</p>
+      <h1 id="auth-title">Continue learning</h1>
+      <p class="auth-description">Sign in with a one-time code to access your study space.</p>
+
+      <div class="auth-methods" role="tablist" aria-label="Sign-in method">
+        <button class="auth-method active" type="button" data-auth-method="phone" role="tab" aria-selected="true">Phone number</button>
+        <button class="auth-method" type="button" data-auth-method="email" role="tab" aria-selected="false">Email</button>
+      </div>
+
+      <form id="auth-request-form" novalidate>
+        <label id="auth-identity-label" for="auth-identity">Phone number</label>
+        <input id="auth-identity" name="identity" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" required>
+        <p class="auth-help" id="auth-help">Include your country code, for example +91.</p>
+        <button class="auth-primary" id="auth-send-button" type="submit">Send code</button>
+      </form>
+
+      <form id="auth-verify-form" class="hidden" novalidate>
+        <button class="auth-back" id="auth-back-button" type="button">← Use a different number or email</button>
+        <label for="auth-code">Enter the 6-digit code</label>
+        <input id="auth-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" required>
+        <p class="auth-help" id="auth-code-help"></p>
+        <button class="auth-primary" id="auth-verify-button" type="submit">Verify and continue</button>
+        <button class="auth-secondary" id="auth-resend-button" type="button">Resend code</button>
+      </form>
+
+      <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
 
   <!-- Radiant Background Glow Orbs & Cosmic Atmosphere -->
   <div class="bg-glow-orb bg-glow-orb-1" aria-hidden="true"></div>

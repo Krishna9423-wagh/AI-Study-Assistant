@@ -4,7 +4,7 @@
  * Bypasses network requests to AI API providers (Gemini & Groq) so responses are always fresh.
  */
 
-const CACHE_NAME = 'study-assistant-v2';
+const CACHE_NAME = 'study-assistant-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,8 @@ const STATIC_ASSETS = [
   './css/style.css',
   './js/utils.js',
   './js/storage.js',
+  './js/auth-config.js',
+  './js/auth.js',
   './js/srs.js',
   './js/api.js',
   './js/parser.js',

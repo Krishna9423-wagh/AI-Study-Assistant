@@ -5294,6 +5294,55 @@ body {
   }
 }
 
+/* 15. Authentication gate */
+body.auth-pending > :not(#auth-screen) {
+  display: none !important;
+}
+
+.auth-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: radial-gradient(circle at top, #1e3a8a 0%, #111827 47%, #090d16 100%);
+}
+
+body:not(.auth-pending) .auth-screen { display: none; }
+
+.auth-card {
+  width: min(100%, 430px);
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  color: #f8fafc;
+}
+
+.auth-brand { font-size: 2rem; color: #38bdf8; }
+.auth-kicker { margin: 1rem 0 0.35rem; color: #7dd3fc; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; }
+.auth-card h1 { margin: 0; font-size: 1.8rem; }
+.auth-description, .auth-help { color: #cbd5e1; line-height: 1.5; }
+.auth-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 1.5rem 0; padding: 0.35rem; border-radius: 12px; background: rgba(148, 163, 184, 0.14); }
+.auth-method { border: 0; border-radius: 8px; padding: 0.7rem 0.5rem; background: transparent; color: #cbd5e1; font: inherit; cursor: pointer; }
+.auth-method.active { background: #2563eb; color: white; font-weight: 700; }
+.auth-card label { display: block; margin-bottom: 0.55rem; font-weight: 600; }
+.auth-card input { box-sizing: border-box; width: 100%; min-height: 48px; border: 1px solid #64748b; border-radius: 10px; padding: 0.75rem 0.9rem; background: #0f172a; color: white; font: inherit; }
+.auth-card input:focus { outline: 3px solid rgba(56, 189, 248, 0.35); border-color: #38bdf8; }
+#auth-code { text-align: center; font-size: 1.35rem; letter-spacing: 0.45em; }
+.auth-primary, .auth-secondary, .auth-back { width: 100%; min-height: 46px; margin-top: 1rem; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; }
+.auth-primary { border: 0; background: #2563eb; color: white; }
+.auth-primary:disabled { cursor: wait; opacity: 0.65; }
+.auth-secondary, .auth-back { border: 0; background: transparent; color: #7dd3fc; }
+.auth-back { margin-top: 0; text-align: left; font-weight: 500; }
+.auth-status { min-height: 1.4rem; margin: 1rem 0 0; color: #fbbf24; line-height: 1.4; }
+.auth-status.error { color: #fca5a5; }
+.hidden { display: none !important; }
+
+@media (max-width: 480px) {
+  .auth-card { padding: 1.5rem; border-radius: 18px; }
+}
+
 /* 4. Compact Mobile Viewport (480px and 360px down) */
 @media (max-width: 480px) {
   .app-main-layout {
