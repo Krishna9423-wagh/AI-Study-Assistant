@@ -6,6 +6,20 @@
   let authenticatedCallback = null;
   let isUnlocked = false;
 
+  function cleanSupabaseUrl(rawUrl) {
+    if (!rawUrl || typeof rawUrl !== 'string') return '';
+    let cleaned = rawUrl.trim();
+    cleaned = cleaned.replace(/[.\s]+$/, '');
+    cleaned = cleaned.replace(/\/rest\/v1\/?$/, '');
+    cleaned = cleaned.replace(/\/+$/, '');
+    return cleaned;
+  }
+
+  function cleanSupabaseKey(rawKey) {
+    if (!rawKey || typeof rawKey !== 'string') return '';
+    return rawKey.trim().replace(/[.\s]+$/, '');
+  }
+
   function getEffectiveConfig() {
     const fileConfig = window.AUTH_CONFIG || {};
     let localUrl = '';
@@ -15,8 +29,8 @@
       localKey = localStorage.getItem('ai_study_assistant_supabase_anon_key') || '';
     } catch (e) {}
 
-    const url = (fileConfig.supabaseUrl || localUrl || '').trim();
-    const key = (fileConfig.supabaseAnonKey || localKey || '').trim();
+    const url = cleanSupabaseUrl(fileConfig.supabaseUrl || localUrl || '');
+    const key = cleanSupabaseKey(fileConfig.supabaseAnonKey || localKey || '');
     return { supabaseUrl: url, supabaseAnonKey: key };
   }
 
