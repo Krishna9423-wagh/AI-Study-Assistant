@@ -1,7 +1,8 @@
 /* Global authentication gate using Supabase passwordless OTP with instant guest and demo fallback. */
 (function () {
   let client = null;
-  let method = 'phone';
+  let method = 'email';
+  let isDemoPhone = false;
   let identity = '';
   let authenticatedCallback = null;
   let isUnlocked = false;
@@ -190,6 +191,21 @@
 
       setBusy(button, false);
       if (result.error) {
+        // If phone/SMS provider is not enabled in Supabase project (requires Twilio)
+        const errMsg = result.error.message || '';
+        if (method === 'phone' && (errMsg.includes('phone') || errMsg.includes('provider') || errMsg.includes('Twilio') || errMsg.includes('Unsupported'))) {
+          isDemoPhone = true;
+          showVerification();
+          const helpEl = document.getElementById('auth-code-help');
+          if (helpEl) {
+            helpEl.textContent = `Supabase Phone/SMS requires Twilio. Demo mode active: use code 123456 (or switch to Email tab for live codes).`;
+          }
+          const codeInput = document.getElementById('auth-code');
+          if (codeInput) codeInput.placeholder = '123456';
+          showStatus('⚠️ SMS requires Twilio in Supabase. Enter demo code 123456 or switch to Email.', false);
+          return;
+        }
+
         showStatus(result.error.message, true);
         return;
       }
@@ -213,8 +229,8 @@
 
     setBusy(button, true, 'Verifying…');
 
-    // Demo Mode verification
-    if (!isConfigured() || !client) {
+    // Demo Mode or Fallback Phone Demo
+    if (!isConfigured() || !client || isDemoPhone) {
       await new Promise((resolve) => setTimeout(resolve, 300));
       setBusy(button, false);
       if (code === '123456' || code.length === 6) {
@@ -255,6 +271,9 @@
 
   function chooseMethod(nextMethod) {
     method = nextMethod;
+    if (method !== 'phone') {
+      isDemoPhone = false;
+    }
     const input = document.getElementById('auth-identity');
     document.querySelectorAll('[data-auth-method]').forEach((btn) => {
       const active = btn.dataset.authMethod === method;
@@ -273,8 +292,8 @@
     const help = document.getElementById('auth-help');
     if (help) {
       help.textContent = method === 'phone'
-        ? 'Include your country code, for example +91.'
-        : 'We will send you a one-time sign-in code.';
+        ? 'Include country code (+91). Note: Live SMS requires Twilio in Supabase; demo code 123456 is supported.'
+        : 'We will email you a live 6-digit sign-in code.';
     }
     showStatus('');
   }

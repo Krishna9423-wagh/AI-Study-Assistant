@@ -62,14 +62,14 @@
       <p class="auth-description">Sign in with a one-time code to access your study space.</p>
 
       <div class="auth-methods" role="tablist" aria-label="Sign-in method">
-        <button class="auth-method active" type="button" data-auth-method="phone" role="tab" aria-selected="true">Phone number</button>
-        <button class="auth-method" type="button" data-auth-method="email" role="tab" aria-selected="false">Email</button>
+        <button class="auth-method active" type="button" data-auth-method="email" role="tab" aria-selected="true">✉️ Email (Live Code)</button>
+        <button class="auth-method" type="button" data-auth-method="phone" role="tab" aria-selected="false">📱 Phone OTP</button>
       </div>
 
       <form id="auth-request-form" novalidate>
-        <label id="auth-identity-label" for="auth-identity">Phone number</label>
-        <input id="auth-identity" name="identity" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" required>
-        <p class="auth-help" id="auth-help">Include your country code, for example +91.</p>
+        <label id="auth-identity-label" for="auth-identity">Email address</label>
+        <input id="auth-identity" name="identity" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
+        <p class="auth-help" id="auth-help">We will email you a live 6-digit sign-in code.</p>
         <button class="auth-primary" id="auth-send-button" type="submit">Send code</button>
       </form>
 
