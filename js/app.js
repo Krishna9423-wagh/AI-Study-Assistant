@@ -218,12 +218,31 @@ function startStudyApp() {
   initServiceWorker();
   initBentoHubHandlers();
   initInitialStudyKit();
+
+  const signOutBtn = document.getElementById('auth-signout-btn');
+  if (signOutBtn && window.StudyAuth) {
+    signOutBtn.addEventListener('click', () => {
+      if (confirm('Sign out and return to the login screen?')) {
+        window.StudyAuth.signOut();
+      }
+    });
+  }
 }
 
-// Do not initialise the study interface until an authenticated session exists.
-document.addEventListener('DOMContentLoaded', () => {
-  window.StudyAuth.whenAuthenticated(startStudyApp);
-});
+// Initialise the study interface when authenticated, or fallback if StudyAuth is unavailable.
+function attachStudyAuth() {
+  if (window.StudyAuth && typeof window.StudyAuth.whenAuthenticated === 'function') {
+    window.StudyAuth.whenAuthenticated(startStudyApp);
+  } else {
+    startStudyApp();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', attachStudyAuth);
+} else {
+  attachStudyAuth();
+}
 
 /**
  * Initializes and manages light / dark theme toggle with localStorage persistence.
