@@ -4,7 +4,7 @@
  * Bypasses network requests to AI API providers (Gemini & Groq) so responses are always fresh.
  */
 
-const CACHE_NAME = 'study-assistant-v3';
+const CACHE_NAME = 'study-assistant-v5';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -12,8 +12,6 @@ const STATIC_ASSETS = [
   './css/style.css',
   './js/utils.js',
   './js/storage.js',
-  './js/auth-config.js',
-  './js/auth.js',
   './js/srs.js',
   './js/api.js',
   './js/parser.js',
@@ -51,6 +49,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Network-first for HTML navigation so app updates appear immediately
+  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Cache-first with network fallback for static assets
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );

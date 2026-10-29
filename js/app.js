@@ -218,30 +218,13 @@ function startStudyApp() {
   initServiceWorker();
   initBentoHubHandlers();
   initInitialStudyKit();
-
-  const signOutBtn = document.getElementById('auth-signout-btn');
-  if (signOutBtn && window.StudyAuth) {
-    signOutBtn.addEventListener('click', () => {
-      if (confirm('Sign out and return to the login screen?')) {
-        window.StudyAuth.signOut();
-      }
-    });
-  }
 }
 
-// Initialise the study interface when authenticated, or fallback if StudyAuth is unavailable.
-function attachStudyAuth() {
-  if (window.StudyAuth && typeof window.StudyAuth.whenAuthenticated === 'function') {
-    window.StudyAuth.whenAuthenticated(startStudyApp);
-  } else {
-    startStudyApp();
-  }
-}
-
+// Initialize the study interface once the DOM is ready.
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', attachStudyAuth);
+  document.addEventListener('DOMContentLoaded', startStudyApp);
 } else {
-  attachStudyAuth();
+  startStudyApp();
 }
 
 /**
@@ -2870,9 +2853,15 @@ function initInitialStudyKit() {
  * Registers the Service Worker for Progressive Web App (PWA) offline capability.
  */
 function initServiceWorker() {
+  try {
+    localStorage.removeItem('ai_study_assistant_auth_user');
+  } catch (e) {}
+
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch((err) => {
+      navigator.serviceWorker.register('sw.js').then((registration) => {
+        registration.update().catch(() => {});
+      }).catch((err) => {
         console.warn('sw.js registration:', err);
       });
     });

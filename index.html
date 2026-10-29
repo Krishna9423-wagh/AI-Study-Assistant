@@ -41,9 +41,6 @@
   <!-- Application Scripts -->
   <script src="js/utils.js" defer></script>
   <script src="js/storage.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="js/auth-config.js" defer></script>
-  <script src="js/auth.js" defer></script>
   <script src="js/srs.js" defer></script>
   <script src="js/api.js" defer></script>
   <script src="js/parser.js" defer></script>
@@ -51,75 +48,7 @@
   <script src="js/app.js" defer></script>
 </head>
 
-<body class="auth-pending">
-
-  <!-- Authentication is shown before any study content. -->
-  <main class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
-    <section class="auth-card">
-      <div class="auth-brand" aria-hidden="true">✦</div>
-      <p class="auth-kicker">GEMINI STUDY HUB</p>
-      <h1 id="auth-title">Continue learning</h1>
-      <p class="auth-description">Sign in with a one-time code to access your study space.</p>
-
-      <div class="auth-methods" role="tablist" aria-label="Sign-in method">
-        <button class="auth-method active" type="button" data-auth-method="email" role="tab" aria-selected="true">✉️ Email (Live Code)</button>
-        <button class="auth-method" type="button" data-auth-method="phone" role="tab" aria-selected="false">📱 Phone OTP</button>
-      </div>
-
-      <form id="auth-request-form" novalidate>
-        <label id="auth-identity-label" for="auth-identity">Email address</label>
-        <input id="auth-identity" name="identity" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
-        <p class="auth-help" id="auth-help">We will email you a live 6-digit sign-in code.</p>
-        <button class="auth-primary" id="auth-send-button" type="submit">Send code</button>
-      </form>
-
-      <form id="auth-verify-form" class="hidden" novalidate>
-        <button class="auth-back" id="auth-back-button" type="button">← Use a different number or email</button>
-        <label for="auth-code">Enter the 6-digit code</label>
-        <input id="auth-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" required>
-        <p class="auth-help" id="auth-code-help"></p>
-        <button class="auth-primary" id="auth-verify-button" type="submit">Verify and continue</button>
-        <button class="auth-secondary" id="auth-resend-button" type="button">Resend code</button>
-      </form>
-
-      <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
-
-      <!-- Instant Guest / Demo Access Divider -->
-      <div class="auth-guest-divider" aria-hidden="true">
-        <span>or</span>
-      </div>
-
-      <!-- Instant Guest Access Button -->
-      <button class="auth-guest-btn" id="auth-guest-btn" type="button" title="Jump straight into Study Hub without credentials">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-        <span>Continue as Guest (Instant Access)</span>
-      </button>
-
-      <!-- How to connect Supabase / Setup Helper -->
-      <div class="auth-config-callout" id="auth-config-callout">
-        <button type="button" class="auth-config-toggle" id="auth-config-toggle" aria-expanded="false" aria-controls="auth-config-details">
-          <span>⚙️ Connect Supabase for Live SMS/Email OTP</span>
-          <span class="auth-config-arrow" id="auth-config-arrow">▾</span>
-        </button>
-        <div class="auth-config-details hidden" id="auth-config-details">
-          <p class="auth-config-desc">
-            To send live SMS and email OTP verification codes:
-          </p>
-          <ol class="auth-config-steps">
-            <li>Create a free project at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer">supabase.com ↗</a></li>
-            <li>Go to <strong>Project Settings → API</strong></li>
-            <li>Copy your <strong>Project URL</strong> and <strong>anon key</strong></li>
-            <li>Add them to <code class="auth-code-chip">js/auth-config.js</code> or paste below:</li>
-          </ol>
-          <div class="auth-quick-config">
-            <input id="auth-cfg-url" type="url" placeholder="https://your-project.supabase.co" autocomplete="off" aria-label="Supabase URL">
-            <input id="auth-cfg-key" type="password" placeholder="eyJh... anon public key" autocomplete="off" aria-label="Supabase anon public key">
-            <button type="button" id="auth-cfg-save-btn" class="auth-cfg-save-btn">Save & Connect Supabase</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+<body>
 
   <!-- Radiant Background Glow Orbs & Cosmic Atmosphere -->
   <div class="bg-glow-orb bg-glow-orb-1" aria-hidden="true"></div>
@@ -496,12 +425,6 @@
                       <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
                     <span>Save Settings</span>
-                  </button>
-                </div>
-                <div>
-                  <label class="form-label hidden-label" aria-hidden="true">&nbsp;</label>
-                  <button type="button" id="auth-signout-btn" class="btn btn-outline" style="border-color: rgba(239, 68, 68, 0.5); color: #f87171; display: inline-flex; align-items: center; gap: 6px;" title="Sign out and return to the login screen">
-                    <span>🚪 Sign Out</span>
                   </button>
                 </div>
               </div>

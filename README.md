@@ -183,19 +183,6 @@ Because Gemini Study Hub is built with vanilla web standards, no `npm install` o
    - Choose your provider (**Google Gemini** or **Groq**).
    - Paste your API key and click **Save Settings** *(keys are saved strictly to your personal browser localStorage)*.
 
-### Authentication setup (required before deployment)
-
-The app now blocks all study screens until a user signs in with either a phone SMS code or an email one-time code. It uses [Supabase Auth](https://supabase.com/docs/guides/auth) so verification happens on a secure server rather than in the browser.
-
-1. Create a Supabase project and open **Project Settings → API**.
-2. Copy the project URL and the **anon/public** key into `js/auth-config.js`. Do not use or publish a `service_role` key.
-3. In **Authentication → Providers**, enable Email and Phone.
-4. Configure an SMS provider in Supabase (such as Twilio, MessageBird, or Vonage) and set its credentials in Supabase—not in this repository.
-5. In **Authentication → Email Templates**, change the email confirmation template to include `{{ .Token }}` so users receive a code, rather than only `{{ .ConfirmationURL }}` magic link.
-6. In **Authentication → URL Configuration**, add your production Netlify URL and local URL, for example `http://localhost:8123`.
-
-Test phone and email sign-in on Safari and Chrome on both an iPhone and macOS. The code input supports iOS SMS autofill through `autocomplete="one-time-code"` and supports pasting the full code.
-
 ---
 
 ## ⌨️ Keyboard Shortcuts
