@@ -1,10 +1,9 @@
 /**
  * AI Study Assistant - Service Worker
- * Caches static shell assets for offline availability.
- * Bypasses network requests to AI API providers (Gemini & Groq) so responses are always fresh.
+ * Manages caching, instant client synchronization, and offline fallbacks.
  */
 
-const CACHE_NAME = 'study-assistant-v5';
+const CACHE_NAME = 'study-assistant-v7';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -19,6 +18,7 @@ const STATIC_ASSETS = [
   './js/app.js',
 ];
 
+// Installs the worker and immediately activates without waiting for tabs to close
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -26,21 +26,33 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+// Clears all outdated caches and tells all open tabs/windows to reload to the clean HTML
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    caches.keys().then((keys) => {
+      return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
-      )
-    )
+      );
+    }).then(() => {
+      return self.clients.claim();
+    }).then(() => {
+      // Force any client stuck on an old cached view to navigate to the latest version
+      return self.clients.matchAll({ type: 'window' }).then((clients) => {
+        clients.forEach((client) => {
+          if (client.url && 'navigate' in client) {
+            client.navigate(client.url);
+          }
+        });
+      });
+    })
   );
-  self.clients.claim();
 });
 
+// Intercepts requests: always network-first for HTML pages so changes appear immediately
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
 
@@ -49,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for HTML navigation so app updates appear immediately
+  // HTML navigation requests: ALWAYS fetch from network so login screen never lingers in cache
   if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
       fetch(event.request)
@@ -65,7 +77,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first with network fallback for static assets
+  // Static assets: cache-first with network fallback
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );

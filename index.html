@@ -34,6 +34,9 @@
         if (savedAccent) {
           document.documentElement.setAttribute('data-accent', savedAccent);
         }
+        if (document.body) {
+          document.body.classList.remove('auth-pending');
+        }
       } catch (e) { }
     })();
   </script>
